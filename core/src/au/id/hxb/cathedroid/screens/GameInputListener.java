@@ -11,6 +11,7 @@ import au.id.hxb.cathedroid.CathedroidGame;
 public class GameInputListener extends InputAdapter{
     private CathedroidGame game;
 
+
     public GameInputListener( CathedroidGame game) {
         this.game = game;
     }

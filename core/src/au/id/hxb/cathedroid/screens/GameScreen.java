@@ -3,8 +3,11 @@ package au.id.hxb.cathedroid.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 import au.id.hxb.cathedroid.CathedroidGame;
 
@@ -16,6 +19,8 @@ public class GameScreen implements Screen {
     SpriteBatch batch;
     Texture placeholder;
     GameInputListener gameInputListener;
+    private int midPointX, midPointY;
+    private Viewport viewport;
 
 
     public GameScreen(CathedroidGame game) {
@@ -24,7 +29,11 @@ public class GameScreen implements Screen {
         placeholder = new Texture(Gdx.files.internal("gamescreen_placeholder.png"));
         gameInputListener = new GameInputListener(game);
         this.game = game;
-
+        int nativeWidth = 1280;
+        int nativeHeight = 720;
+        midPointX = nativeWidth / 2;
+        midPointY = nativeHeight / 2;
+        viewport = new FitViewport(nativeWidth, nativeHeight, new OrthographicCamera());
 
     }
 
@@ -36,12 +45,12 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(1f, 1f, 1f, 1f); // Sets a Color to Fill the Screen with (RGB = 0, 0, 0), Opacity of 1 (100%)
+        Gdx.gl.glClearColor(0f, 0f, 0f, 1f); // Sets a Color to Fill the Screen with (RGB = 0, 0, 0), Opacity of 1 (100%)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT); // Fills the screen with the selected color
         batch.begin();
         batch.disableBlending();
 
-        batch.draw(placeholder,0,0);
+        batch.draw(placeholder,midPointX-placeholder.getWidth()/2,midPointY-placeholder.getHeight()/2);
 
         batch.enableBlending();
         batch.end();
@@ -50,7 +59,11 @@ public class GameScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
+        Gdx.app.log("GameScreen", "resizing");
+        Gdx.app.log("Width", Integer.toString(width));
+        Gdx.app.log("Height", Integer.toString(height));
 
+        viewport.update(width, height);
     }
 
     @Override

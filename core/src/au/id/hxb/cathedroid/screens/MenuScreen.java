@@ -96,7 +96,6 @@ public class MenuScreen implements Screen{
 
     @Override
     public void resize(int width, int height) {
-        OrthographicCamera cam;
 
         Gdx.app.log("MenuScreen", "resizing");
         Gdx.app.log("Width", Integer.toString(width));
