@@ -15,17 +15,22 @@ public class GameScreen implements Screen {
     CathedroidGame game;
     SpriteBatch batch;
     Texture placeholder;
+    GameInputListener gameInputListener;
+
 
     public GameScreen(CathedroidGame game) {
         Gdx.app.log("GameScreen", "Attached");
         batch = new SpriteBatch();
         placeholder = new Texture(Gdx.files.internal("gamescreen_placeholder.png"));
+        gameInputListener = new GameInputListener(game);
         this.game = game;
+
 
     }
 
     @Override
     public void show() {
+        Gdx.input.setInputProcessor(gameInputListener);
 
     }
 
@@ -60,7 +65,7 @@ public class GameScreen implements Screen {
 
     @Override
     public void hide() {
-
+        Gdx.input.setInputProcessor(null);
     }
 
     @Override

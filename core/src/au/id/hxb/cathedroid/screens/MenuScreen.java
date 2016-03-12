@@ -17,6 +17,7 @@ public class MenuScreen implements Screen{
     private SpriteBatch batch;
     private Texture logoTex, new2pTex, load2pTex, new1pTex, load1pTex ;
     private int width, height;
+    private MenuInputListener menuInputListener;
     //private CathedroidGame game;
 
 
@@ -27,7 +28,7 @@ public class MenuScreen implements Screen{
         height = Gdx.graphics.getHeight();
         //this.game = game;
 
-        Gdx.input.setInputProcessor(new MenuInputListener(game));
+        menuInputListener = new MenuInputListener(game);
 
 
         //TODO put these in a single texture Atlas
@@ -96,11 +97,13 @@ public class MenuScreen implements Screen{
     @Override
     public void show() {
         Gdx.app.log("MenuScreen", "show called");
+        Gdx.input.setInputProcessor(menuInputListener);
     }
 
     @Override
     public void hide() {
         Gdx.app.log("MenuScreen", "hide called");
+        Gdx.input.setInputProcessor(null);
     }
 
     @Override
@@ -132,8 +135,7 @@ public class MenuScreen implements Screen{
                 Gdx.app.log("MenuScreen", "new 2p game selected");
                 return true;
             }
-            else
-            {
+            else {
                 return false;
             }
         }
