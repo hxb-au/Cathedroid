@@ -22,8 +22,6 @@ public class MenuScreen implements Screen{
     private int width, height;
     private int midPointX, midPointY;
     private MenuInputListener menuInputListener;
-    private int nativeWidth, nativeHeight;
-    private OrthographicCamera cam;
     private Viewport viewport;
     //private CathedroidGame game;
 
@@ -31,12 +29,11 @@ public class MenuScreen implements Screen{
     public MenuScreen(CathedroidGame game) {
         Gdx.app.log("MenuScreen", "Attached");
         batch = new SpriteBatch();
-        cam = new OrthographicCamera();
-        nativeWidth = 1280;
-        nativeHeight = 720;
+        int nativeWidth = 1280;
+        int nativeHeight = 720;
         midPointX = nativeWidth / 2;
         midPointY = nativeHeight / 2;
-        viewport = new FitViewport(nativeWidth, nativeHeight,cam);
+        viewport = new FitViewport(nativeWidth, nativeHeight, new OrthographicCamera());
 
         menuInputListener = new MenuInputListener(game);
 
@@ -61,6 +58,7 @@ public class MenuScreen implements Screen{
 
 
         //calculate logo location
+        //TODO make this all one image and get a hitbox list going
         logo_x = (midPointX  - logoTex.getWidth()/2 );
         logo_y = (midPointY + 100);
 
@@ -78,7 +76,8 @@ public class MenuScreen implements Screen{
         load1p_y = load2p_y - load1pTex.getHeight() - 20;
 
 
-        //draw logo
+        //draw logo and bttons
+        //TODO make this all one image and get a hitbox list going
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f); // Sets a Color to Fill the Screen with (RGB = 0, 0, 0), Opacity of 1 (100%)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT); // Fills the screen with the selected color
         batch.begin();
@@ -104,8 +103,6 @@ public class MenuScreen implements Screen{
         Gdx.app.log("Height", Integer.toString(height));
 
         viewport.update(width, height);
-
-        //TODO fix the camera and update locations for stuff
 
     }
 
