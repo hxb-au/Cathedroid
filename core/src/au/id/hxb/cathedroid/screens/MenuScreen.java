@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 import au.id.hxb.cathedroid.CathedroidGame;
@@ -22,18 +23,21 @@ public class MenuScreen implements Screen{
     private int width, height;
     private int midPointX, midPointY;
     private MenuInputListener menuInputListener;
-    private Viewport viewport;
+    private FitViewport viewport;
     //private CathedroidGame game;
 
 
     public MenuScreen(CathedroidGame game) {
+        OrthographicCamera cam;
         Gdx.app.log("MenuScreen", "Attached");
         batch = new SpriteBatch();
-        int nativeWidth = 1280;
-        int nativeHeight = 720;
+        final int nativeWidth = 1280;
+        final int nativeHeight = 720;
         midPointX = nativeWidth / 2;
         midPointY = nativeHeight / 2;
-        viewport = new FitViewport(nativeWidth, nativeHeight, new OrthographicCamera());
+        cam = new OrthographicCamera(nativeWidth,nativeHeight);
+        cam.setToOrtho(false, nativeWidth,nativeHeight);
+        viewport = new FitViewport(nativeWidth, nativeHeight, cam);
 
         menuInputListener = new MenuInputListener(game);
 
@@ -80,6 +84,7 @@ public class MenuScreen implements Screen{
         //TODO make this all one image and get a hitbox list going
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f); // Sets a Color to Fill the Screen with (RGB = 0, 0, 0), Opacity of 1 (100%)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT); // Fills the screen with the selected color
+        batch.setProjectionMatrix(viewport.getCamera().combined);
         batch.begin();
         batch.disableBlending();
 
@@ -101,7 +106,10 @@ public class MenuScreen implements Screen{
         Gdx.app.log("Width", Integer.toString(width));
         Gdx.app.log("Height", Integer.toString(height));
 
-        viewport.update(width, height);
+        float aspect = (float)height / (float)width;
+
+        viewport.update(width,height);
+
 
     }
 
@@ -109,6 +117,7 @@ public class MenuScreen implements Screen{
     public void show() {
         Gdx.app.log("MenuScreen", "show called");
         Gdx.input.setInputProcessor(menuInputListener);
+        viewport.apply();
     }
 
     @Override

@@ -33,19 +33,20 @@ public class GameScreen implements Screen {
         int nativeHeight = 720;
         midPointX = nativeWidth / 2;
         midPointY = nativeHeight / 2;
-        viewport = new FitViewport(nativeWidth, nativeHeight, new OrthographicCamera());
+        viewport = new FitViewport(nativeWidth, nativeHeight);
 
     }
 
     @Override
     public void show() {
         Gdx.input.setInputProcessor(gameInputListener);
+        viewport.apply();
 
     }
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0f, 0f, 0f, 1f); // Sets a Color to Fill the Screen with (RGB = 0, 0, 0), Opacity of 1 (100%)
+        Gdx.gl.glClearColor(0f, 1f, 0f, 1f); // Sets a Color to Fill the Screen with (RGB = 0, 0, 0), Opacity of 1 (100%)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT); // Fills the screen with the selected color
         batch.begin();
         batch.disableBlending();
@@ -62,7 +63,6 @@ public class GameScreen implements Screen {
         Gdx.app.log("GameScreen", "resizing");
         Gdx.app.log("Width", Integer.toString(width));
         Gdx.app.log("Height", Integer.toString(height));
-
         viewport.update(width, height);
     }
 
