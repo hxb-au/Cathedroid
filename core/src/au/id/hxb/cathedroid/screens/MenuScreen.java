@@ -8,9 +8,13 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+
+import java.util.Vector;
 
 import au.id.hxb.cathedroid.CathedroidGame;
 
@@ -19,7 +23,7 @@ import au.id.hxb.cathedroid.CathedroidGame;
  */
 public class MenuScreen implements Screen{
     private SpriteBatch batch;
-    private Texture logoTex, new2pTex, load2pTex, new1pTex, load1pTex ;
+    private Texture menuTexture;
     private int width, height;
     private int midPointX, midPointY;
     private MenuInputListener menuInputListener;
@@ -39,61 +43,21 @@ public class MenuScreen implements Screen{
         cam.setToOrtho(false, nativeWidth,nativeHeight);
         viewport = new FitViewport(nativeWidth, nativeHeight, cam);
 
-        menuInputListener = new MenuInputListener(game);
+        menuInputListener = new MenuInputListener(game, cam);
 
-        //TODO put these in a single texture Atlas
-        logoTex = new Texture(Gdx.files.internal("main_logo.png"));
-        new2pTex = new Texture(Gdx.files.internal("2p_new.png"));
-        load2pTex = new Texture(Gdx.files.internal("2p_load.png"));
-        new1pTex = new Texture(Gdx.files.internal("1p_new.png"));
-        load1pTex = new Texture(Gdx.files.internal("1p_load.png"));
+        menuTexture = new Texture(Gdx.files.internal("menu.png"));
     }
 
     @Override
     public void render(float delta) {
 
-        int logo_x, logo_y;
-        int new2p_x, new2p_y;
-        int load2p_x, load2p_y;
-        int new1p_x, new1p_y;
-        int load1p_x, load1p_y;
-        //Gdx.app.log("MenuScreen", "render called");
-
-
-
-        //calculate logo location
-        //TODO make this all one image and get a hitbox list going
-        logo_x = (midPointX  - logoTex.getWidth()/2 );
-        logo_y = (midPointY + 100);
-
-        //calculate button locations
-        new2p_x = midPointX - new2pTex.getWidth() - 10;
-        new2p_y = midPointY - new2pTex.getHeight() - 20;
-
-        load2p_x = midPointX + 10;
-        load2p_y = midPointY - load2pTex.getHeight() - 20;
-
-        new1p_x = midPointX - new1pTex.getWidth() - 10;
-        new1p_y = new2p_y - new1pTex.getHeight() - 20;
-
-        load1p_x = midPointX + 10;
-        load1p_y = load2p_y - load1pTex.getHeight() - 20;
-
-
-        //draw logo and bttons
-        //TODO make this all one image and get a hitbox list going
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f); // Sets a Color to Fill the Screen with (RGB = 0, 0, 0), Opacity of 1 (100%)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT); // Fills the screen with the selected color
         batch.setProjectionMatrix(viewport.getCamera().combined);
         batch.begin();
         batch.disableBlending();
 
-        batch.draw(logoTex, logo_x, logo_y);
-
-        batch.draw(new2pTex, new2p_x, new2p_y);
-        batch.draw(load2pTex,load2p_x,load2p_y);
-        batch.draw(new1pTex,new1p_x,new1p_y);
-        batch.draw(load1pTex,load1p_x,load1p_y);
+        batch.draw(menuTexture, 0, 0);
 
         batch.enableBlending();
         batch.end();
@@ -109,7 +73,6 @@ public class MenuScreen implements Screen{
         float aspect = (float)height / (float)width;
 
         viewport.update(width,height);
-
 
     }
 
@@ -144,16 +107,73 @@ public class MenuScreen implements Screen{
     class MenuInputListener extends InputAdapter {
 
         private CathedroidGame game;
+        private OrthographicCamera cam;
 
-        public MenuInputListener( CathedroidGame game) {
+        //button locations
+        private Rectangle new2pRect, load2pRect, new1pRect, load1pRect;
+        private Rectangle settingsRect, infoRect;
+        private final int gameButtonWidth = 186, gameButtonHeight = 84;
+        private final int otherButtonWidth = 65, otherButtonHeight = 65;
+        private final int new2px = 436, new2py = 220;
+        private final int load2px = 655, load2py = 220;
+        private final int new1px = 436, new1py = 104;
+        private final int load1px = 655, load1py = 104;
+        private final int settingsx = 1203, settingsy = 644;
+        private final int infox = 8, infoy = 652;
+
+        public MenuInputListener( CathedroidGame game, OrthographicCamera cam) {
             this.game = game;
+            this.cam = cam;
+
+            new2pRect = new Rectangle(new2px,  new2py, gameButtonWidth, gameButtonHeight);
+            load2pRect = new Rectangle(load2px,  load2py, gameButtonWidth, gameButtonHeight);
+            new1pRect = new Rectangle(new1px,  new1py, gameButtonWidth, gameButtonHeight);
+            load1pRect = new Rectangle(load1px,  load1py, gameButtonWidth, gameButtonHeight);
+
+            settingsRect = new Rectangle(settingsx,  settingsy, otherButtonWidth, otherButtonHeight);
+            infoRect = new Rectangle(infox,  infoy, otherButtonWidth, otherButtonHeight);
+
         }
         @Override
-        public boolean touchUp (int screenX, int screenY, int pointer, int button) {
+        public boolean touchDown (int screenX, int screenY, int pointer, int button) {
             if (button == 0){
-                game.setPlayScreen(true, false);
-                Gdx.app.log("MenuScreen", "new 2p game selected");
-                return true;
+                Vector3 nativeClick = cam.unproject(new Vector3(screenX, screenY, 0));
+                int nativeX = (int)nativeClick.x;
+                int nativeY = (int)nativeClick.y;
+                if (new2pRect.contains(nativeX, nativeY)){
+                    game.setPlayScreen(true, false);
+                    Gdx.app.log("MenuScreen", "new 2p game selected");
+                    return true;
+                }
+                if (load2pRect.contains(nativeX, nativeY)){
+                    game.setPlayScreen(false, false);
+                    Gdx.app.log("MenuScreen", "load 2p game selected");
+                    return true;
+                }
+                if (new1pRect.contains(nativeX, nativeY)){
+                    game.setPlayScreen(true, true);
+                    Gdx.app.log("MenuScreen", "new 1p game selected");
+                    return true;
+                }
+                if (load1pRect.contains(nativeX, nativeY)){
+                    game.setPlayScreen(false, true);
+                    Gdx.app.log("MenuScreen", "load 1p game selected");
+                    return true;
+                }
+                if (settingsRect.contains(nativeX, nativeY)){
+                    game.setPlayScreen(false, true);
+                    Gdx.app.log("MenuScreen", "settings selected");
+                    return true;
+                }
+                if (infoRect.contains(nativeX, nativeY)){
+                    game.setPlayScreen(false, true);
+                    Gdx.app.log("MenuScreen", "info selected");
+                    return true;
+                }
+
+                return false;
+
+
             }
             else {
                 return false;
@@ -161,4 +181,5 @@ public class MenuScreen implements Screen{
         }
     }
 }
+
 
