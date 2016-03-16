@@ -19,6 +19,16 @@ android {
         minSdkVersion 8
         targetSdkVersion 23
     }
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            jniDebuggable = true
+            debuggable = true
+        }
+    }
 }
 
 
