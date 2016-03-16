@@ -28,7 +28,6 @@ public class GameScreen implements Screen {
         Gdx.app.log("GameScreen", "Attached");
         batch = new SpriteBatch();
         placeholder = new Texture(Gdx.files.internal("gamescreen_placeholder.png"));
-        gameInputListener = new GameInputListener(game);
         this.game = game;
         int nativeWidth = 1280;
         int nativeHeight = 720;
@@ -37,7 +36,7 @@ public class GameScreen implements Screen {
         cam = new OrthographicCamera(nativeWidth,nativeHeight);
         cam.setToOrtho(false, nativeWidth,nativeHeight);
         viewport = new FitViewport(nativeWidth, nativeHeight, cam);
-
+        gameInputListener = new GameInputListener(game, cam, this);
 
     }
 
