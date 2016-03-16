@@ -7,6 +7,7 @@ import com.badlogic.gdx.Screen;
 import au.id.hxb.cathedroid.screens.GameScreen;
 import au.id.hxb.cathedroid.screens.InfoScreen;
 import au.id.hxb.cathedroid.screens.MenuScreen;
+import au.id.hxb.cathedroid.screens.SettingsScreen;
 
 
 public class CathedroidGame extends Game {
@@ -14,6 +15,7 @@ public class CathedroidGame extends Game {
 	MenuScreen menuScreen;
 	GameScreen gameScreen;
 	InfoScreen infoScreen;
+	SettingsScreen settingsScreen;
 	Screen previousScreen;
 
 	@Override
@@ -23,6 +25,7 @@ public class CathedroidGame extends Game {
 		menuScreen = new MenuScreen(this);
 		gameScreen = new GameScreen(this);
 		infoScreen = new InfoScreen(this);
+		settingsScreen =  new SettingsScreen(this);
 
 		previousScreen = null;
 		setScreen(menuScreen);
@@ -34,6 +37,10 @@ public class CathedroidGame extends Game {
 
 	public void setMenuScreen() {
 		setScreen(menuScreen);
+	}
+
+	public void setSettingsScreen() {
+		setScreen(settingsScreen);
 	}
 
 	public void setInfoScreen(Screen previousScreen) {

@@ -161,7 +161,7 @@ public class MenuScreen implements Screen{
                     return true;
                 }
                 if (settingsRect.contains(nativeX, nativeY)){
-                    game.startGameScreen(false, true);
+                    game.setSettingsScreen();
                     Gdx.app.log("MenuScreen", "settings selected");
                     return true;
                 }
