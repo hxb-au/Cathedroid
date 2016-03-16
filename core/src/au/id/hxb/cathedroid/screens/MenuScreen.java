@@ -141,32 +141,32 @@ public class MenuScreen implements Screen{
                 int nativeX = (int)nativeClick.x;
                 int nativeY = (int)nativeClick.y;
                 if (new2pRect.contains(nativeX, nativeY)){
-                    game.setPlayScreen(true, false);
+                    game.startGameScreen(true, false);
                     Gdx.app.log("MenuScreen", "new 2p game selected");
                     return true;
                 }
                 if (load2pRect.contains(nativeX, nativeY)){
-                    game.setPlayScreen(false, false);
+                    game.startGameScreen(false, false);
                     Gdx.app.log("MenuScreen", "load 2p game selected");
                     return true;
                 }
                 if (new1pRect.contains(nativeX, nativeY)){
-                    game.setPlayScreen(true, true);
+                    game.startGameScreen(true, true);
                     Gdx.app.log("MenuScreen", "new 1p game selected");
                     return true;
                 }
                 if (load1pRect.contains(nativeX, nativeY)){
-                    game.setPlayScreen(false, true);
+                    game.startGameScreen(false, true);
                     Gdx.app.log("MenuScreen", "load 1p game selected");
                     return true;
                 }
                 if (settingsRect.contains(nativeX, nativeY)){
-                    game.setPlayScreen(false, true);
+                    game.startGameScreen(false, true);
                     Gdx.app.log("MenuScreen", "settings selected");
                     return true;
                 }
                 if (infoRect.contains(nativeX, nativeY)){
-                    game.setPlayScreen(false, true);
+                    game.setInfoScreen(MenuScreen.this);
                     Gdx.app.log("MenuScreen", "info selected");
                     return true;
                 }

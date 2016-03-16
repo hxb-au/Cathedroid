@@ -1,11 +1,14 @@
 package au.id.hxb.cathedroid.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -14,21 +17,20 @@ import au.id.hxb.cathedroid.CathedroidGame;
 /**
  * Created by hxb on 6/03/2016.
  */
-public class GameScreen implements Screen {
+public class InfoScreen implements Screen {
     CathedroidGame game;
     SpriteBatch batch;
     Texture placeholder;
     OrthographicCamera cam;
-    GameInputListener gameInputListener;
+    InfoInputListener infoInputListener;
     private int midPointX, midPointY;
     private Viewport viewport;
 
 
-    public GameScreen(CathedroidGame game) {
-        Gdx.app.log("GameScreen", "Attached");
+    public InfoScreen(CathedroidGame game) {
+        Gdx.app.log("InfoScreen", "Attached");
         batch = new SpriteBatch();
-        placeholder = new Texture(Gdx.files.internal("gamescreen_placeholder.png"));
-        gameInputListener = new GameInputListener(game);
+        placeholder = new Texture(Gdx.files.internal("info_placeholder.png"));
         this.game = game;
         int nativeWidth = 1280;
         int nativeHeight = 720;
@@ -37,13 +39,13 @@ public class GameScreen implements Screen {
         cam = new OrthographicCamera(nativeWidth,nativeHeight);
         cam.setToOrtho(false, nativeWidth,nativeHeight);
         viewport = new FitViewport(nativeWidth, nativeHeight, cam);
-
+        infoInputListener = new InfoInputListener(game, cam);
 
     }
 
     @Override
     public void show() {
-        Gdx.input.setInputProcessor(gameInputListener);
+        Gdx.input.setInputProcessor(new InfoInputListener(game, cam));
         viewport.apply();
 
     }
@@ -91,4 +93,29 @@ public class GameScreen implements Screen {
     public void dispose() {
 
     }
+    class InfoInputListener extends InputAdapter {
+
+        private CathedroidGame game;
+        private OrthographicCamera cam;
+
+        //button locations?
+
+
+        public InfoInputListener( CathedroidGame game, OrthographicCamera cam) {
+            this.game = game;
+            this.cam = cam;
+
+        }
+        @Override
+        public boolean touchDown (int screenX, int screenY, int pointer, int button) {
+            if (button == 0){
+                game.returnFromInfoScreen();
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+    }
+
 }

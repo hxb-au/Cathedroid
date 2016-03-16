@@ -16,7 +16,7 @@ public class GameInputListener extends InputAdapter{
         this.game = game;
     }
     @Override
-    public boolean touchUp (int screenX, int screenY, int pointer, int button) {
+    public boolean touchDown (int screenX, int screenY, int pointer, int button) {
         if (button == 0)
         {
             game.setMenuScreen();
