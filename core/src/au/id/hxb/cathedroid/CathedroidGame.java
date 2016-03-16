@@ -1,27 +1,64 @@
 package au.id.hxb.cathedroid;
 
-import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.Screen;
 
-public class CathedroidGame extends ApplicationAdapter {
-	SpriteBatch batch;
-	Texture img;
-	
+import au.id.hxb.cathedroid.screens.GameScreen;
+import au.id.hxb.cathedroid.screens.InfoScreen;
+import au.id.hxb.cathedroid.screens.MenuScreen;
+import au.id.hxb.cathedroid.screens.SettingsScreen;
+
+
+public class CathedroidGame extends Game {
+
+	MenuScreen menuScreen;
+	GameScreen gameScreen;
+	InfoScreen infoScreen;
+	SettingsScreen settingsScreen;
+	Screen previousScreen;
+
 	@Override
 	public void create () {
-		batch = new SpriteBatch();
-		img = new Texture("badlogic.jpg");
+		Gdx.app.log("CathedroidGame", "Created");
+
+		menuScreen = new MenuScreen(this);
+		gameScreen = new GameScreen(this);
+		infoScreen = new InfoScreen(this);
+		settingsScreen =  new SettingsScreen(this);
+
+		previousScreen = null;
+		setScreen(menuScreen);
 	}
 
-	@Override
-	public void render () {
-		Gdx.gl.glClearColor(1, 0, 0, 1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		batch.begin();
-		batch.draw(img, 0, 0);
-		batch.end();
+	public void	startGameScreen (boolean newGame, boolean vsAI){
+		setScreen(gameScreen);
 	}
+
+	public void setMenuScreen() {
+		setScreen(menuScreen);
+	}
+
+	public void setSettingsScreen() {
+		setScreen(settingsScreen);
+	}
+
+	public void setInfoScreen(Screen previousScreen) {
+		this.previousScreen = previousScreen;
+		setScreen(infoScreen);
+	}
+
+	public void returnFromInfoScreen() {
+		if (previousScreen == null)
+		{
+			setMenuScreen();
+		}
+		else
+		{
+			setScreen(previousScreen);
+		}
+	}
+
 }
+
+
