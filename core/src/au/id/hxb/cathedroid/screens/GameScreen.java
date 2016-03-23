@@ -27,7 +27,7 @@ public class GameScreen implements Screen {
     public GameScreen(CathedroidGame game) {
         Gdx.app.log("GameScreen", "Attached");
         batch = new SpriteBatch();
-        placeholder = new Texture(Gdx.files.internal("gamescreen_placeholder.png"));
+        placeholder = new Texture(Gdx.files.internal("board_on_grey.png"));
         this.game = game;
         int nativeWidth = 1280;
         int nativeHeight = 720;
