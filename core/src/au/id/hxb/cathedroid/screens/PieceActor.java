@@ -71,49 +71,6 @@ public class PieceActor extends Image {
     }
 
 
-    /*class PieceClickListener extends ClickListener {
-
-        private float dragStartX = 0, dragStartY = 0;
-        private float deltaX, deltaY;
-        private Vector2 tmpInV2 = new Vector2(), tmpOutV2 = new Vector2();
-        private boolean dragged = false;
-
-        public PieceClickListener() {
-            this.setTapSquareSize(5 * this.getTapSquareSize());
-        }
-
-        @Override
-        public void clicked(InputEvent event, float x, float y) {
-            PieceActor.this.setRotation(PieceActor.this.getRotation() - 90);
-            Gdx.app.log("Input", "Clicked");
-        }
-
-        @Override
-        public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-            dragStartX = x;
-            dragStartY = y;
-            dragged = false;
-            return true;
-        }
-
-        @Override
-        public void touchDragged(InputEvent event, float x, float y, int pointer) {
-            tmpInV2.x = x - dragStartX;
-            tmpInV2.y = y - dragStartY;
-            tmpInV2.rotate(PieceActor.this.getRotation());
-            //PieceActor.this.addAction(Actions.moveBy(tmpOutV2.x, -tmpOutV2.y));
-            PieceActor.this.addAction(Actions.moveBy(tmpInV2.x, tmpInV2.y));
-            dragged = true;
-        }
-
-        @Override
-        public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-            if (!dragged)
-                PieceActor.this.setRotation(PieceActor.this.getRotation() - 90);
-            //PieceActor.this.addAction(Actions.moveTo(0, 0 ));
-        }
-    }*/
-
     class PieceGestureListener extends ActorGestureListener {
         private Vector2 tmpInV2 = new Vector2(), tmpOutV2 = new Vector2();
 
@@ -151,7 +108,7 @@ public class PieceActor extends Image {
 
         @Override
         public boolean longPress(Actor actor, float x, float y) {
-            //PieceActor.this.setRotation(PieceActor.this.getRotation() + 90);
+            // do other things!
             return true;
         }
     }
