@@ -45,8 +45,8 @@ public class PieceActor extends Image {
         this.setOrigin(originX, originY);
         this.setTouchable(Touchable.enabled);
 
-        this.addListener(new PieceClickListener());
-        //this.addListener(new PieceDragListener());
+        //this.addListener(new PieceClickListener());
+        this.addListener(new PieceGestureListener());
 
 
 
@@ -70,27 +70,8 @@ public class PieceActor extends Image {
         return null;
     }
 
-    /*class PieceDragListener extends DragListener {
-        @Override
-        public void drag(InputEvent event, float x, float y, int pointer) {
-            PieceActor.this.addAction(Actions.moveBy(x - dragStartX, y - dragStartY));
-        }
 
-        @Override
-        public void dragStart(InputEvent event, float x, float y, int pointer) {
-            dragStartX = x;
-            dragStartY = y;
-
-        }
-
-        @Override
-        public void dragStop(InputEvent event, float x, float y, int pointer) {
-            super.dragStop(event, x, y, pointer);
-        }
-
-    }*/
-
-    class PieceClickListener extends ClickListener {
+    /*class PieceClickListener extends ClickListener {
 
         private float dragStartX = 0, dragStartY = 0;
         private float deltaX, deltaY;
@@ -131,31 +112,10 @@ public class PieceActor extends Image {
                 PieceActor.this.setRotation(PieceActor.this.getRotation() - 90);
             //PieceActor.this.addAction(Actions.moveTo(0, 0 ));
         }
-    }
-/*
-    class PieceInputListener extends InputListener {
-        @Override
-        public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-            return true;
-        }
+    }*/
 
-        @Override
-        public void touchDragged(InputEvent event, float x, float y, int pointer) {
-            super.touchDragged(event, x, y, pointer);
-        }
-
-        @Override
-        public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-            super.touchUp(event, x, y, pointer, button);
-        }
-
-        @Override
-        public boolean scrolled(InputEvent event, float x, float y, int amount) {
-            return super.scrolled(event, x, y, amount);
-        }
-    }
-*/
-    /*class PieceInputListener extends ActorGestureListener {
+    class PieceGestureListener extends ActorGestureListener {
+        private Vector2 tmpInV2 = new Vector2(), tmpOutV2 = new Vector2();
 
         @Override
         public void pinch(InputEvent event,
@@ -178,17 +138,21 @@ public class PieceActor extends Image {
 
         @Override
         public void pan(InputEvent event, float x, float y, float deltaX, float deltaY) {
+            tmpInV2.x = x - PieceActor.this.getOriginX();
+            tmpInV2.y = y - PieceActor.this.getOriginY();
+            tmpInV2.rotate(PieceActor.this.getRotation());
+            PieceActor.this.addAction(Actions.moveBy(tmpInV2.x, tmpInV2.y));
+        }
 
-            if (PieceActor.this.hit(x,y,true) != null) {
-                PieceActor.this.addAction(Actions.moveTo(x, y));
-
-            }
+        @Override
+        public void tap(InputEvent event, float x, float y, int count, int button) {
+            PieceActor.this.setRotation(PieceActor.this.getRotation() + 90);
         }
 
         @Override
         public boolean longPress(Actor actor, float x, float y) {
-            PieceActor.this.setRotation(PieceActor.this.getRotation() + 90);
+            //PieceActor.this.setRotation(PieceActor.this.getRotation() + 90);
             return true;
         }
-    }*/
+    }
 }
