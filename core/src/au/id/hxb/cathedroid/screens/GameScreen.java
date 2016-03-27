@@ -223,7 +223,7 @@ public class GameScreen implements Screen {
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-AB.png")),
                 "Dark Abbey", "D-AB", //Name, abbreviation
-                new Rectangle(0,50,50,100),new Rectangle(50,0,50,100),new Rectangle(0,50,50,100), //hitboxes
+                new Rectangle(0,0,50,100),new Rectangle(50,50,50,100),new Rectangle(50,50,50,100), //hitboxes
                 50f, 75f, //rotational centre
                 25f, 125f  //reference point for game rules
         );
@@ -258,7 +258,7 @@ public class GameScreen implements Screen {
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-AC.png")),
                 "Dark Academy", "D-AC", //Name, abbreviation
-                new Rectangle(50,0,100,50),new Rectangle(0,50,100,50),new Rectangle(50,0,50,150), //hitboxes
+                new Rectangle(0,0,100,50),new Rectangle(50,50,100,50),new Rectangle(50,0,50,150), //hitboxes
                 75f, 75f, //rotational centre
                 75f, 125f  //reference point for game rules
         );
