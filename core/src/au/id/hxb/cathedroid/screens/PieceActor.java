@@ -1,39 +1,31 @@
 package au.id.hxb.cathedroid.screens;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.input.GestureDetector;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.Action;
-import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.actions.*;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.DragListener;
 
 /**
  * Created by Hayden on 23/03/2016.
  */
 public class PieceActor extends Image {
     private Rectangle hitBox1, hitBox2, hitBox3;
-    private Vector2 v2before, v2after;
+
     private float deltaTheta;
+    private float referenceX, referenceY;
 
 
 
-    public PieceActor(Texture texture, String name,
+    public PieceActor(Texture texture, String name, String code,
                       Rectangle hitBox1, Rectangle hitBox2, Rectangle hitBox3,
-                      float originX, float originY) {
+                      float originX, float originY,
+                      float referenceX, float referenceY) {
 
         super(texture);
 
@@ -73,6 +65,7 @@ public class PieceActor extends Image {
 
     class PieceGestureListener extends ActorGestureListener {
         private Vector2 tmpInV2 = new Vector2(), tmpOutV2 = new Vector2();
+        private Vector2 v2before, v2after;
 
         @Override
         public void pinch(InputEvent event,
