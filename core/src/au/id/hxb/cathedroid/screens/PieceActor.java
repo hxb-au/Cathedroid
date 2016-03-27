@@ -2,6 +2,7 @@ package au.id.hxb.cathedroid.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -39,6 +40,8 @@ public class PieceActor extends Image {
 
         //this.addListener(new PieceClickListener());
         this.addListener(new PieceGestureListener());
+
+        this.addAction(Actions.moveTo(MathUtils.random(1280f - 150f), MathUtils.random(720f - 150f)));
 
 
 
@@ -92,6 +95,7 @@ public class PieceActor extends Image {
             tmpInV2.y = y - PieceActor.this.getOriginY();
             tmpInV2.rotate(PieceActor.this.getRotation());
             PieceActor.this.addAction(Actions.moveBy(tmpInV2.x, tmpInV2.y));
+            PieceActor.this.toFront();
         }
 
         @Override
