@@ -1,0 +1,4 @@
+bg - 30% grey
+Cathedral - ?
+Light - #DEAA87
+Dark - #441B00
