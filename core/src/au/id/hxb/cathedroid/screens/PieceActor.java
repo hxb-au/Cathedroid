@@ -55,10 +55,17 @@ public class PieceActor extends Image {
             return null;
         }
 
-        // check actual collisions with hitboxes
-        if (hitBox1.contains(x,y) || hitBox2.contains(x,y) || hitBox3.contains(x,y) ){
+        // check actual collisions with up to 3 hitboxes
+        if (hitBox1 != null)
+            if (hitBox1.contains(x,y))
                 return this;
-        }
+        if (hitBox2 != null)
+            if (hitBox2.contains(x,y))
+                return this;
+        if (hitBox3 != null)
+            if (hitBox3.contains(x,y))
+                return this;
+
 
         // nope out
         return null;
