@@ -22,7 +22,6 @@ public class PieceActor extends Image {
     private float referenceX, referenceY;
 
 
-
     public PieceActor(Texture texture, String name, String code,
                       Rectangle hitBox1, Rectangle hitBox2, Rectangle hitBox3,
                       float originX, float originY,
