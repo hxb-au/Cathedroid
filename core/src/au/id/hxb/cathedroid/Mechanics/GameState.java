@@ -13,4 +13,20 @@ public class GameState {
         DARKCLAIM,
         LIGHTCLAIM
     }
+
+    class Move {
+        public Piece piece;
+        public Orientation orientation;
+        public int x,y;
+        public Move nextMove;
+        public Player player;
+
+        public int numMoves(){
+            if (nextMove == null)
+                return 1;
+            else
+                return nextMove.numMoves() + 1;
+        }
+
+    }
 }
