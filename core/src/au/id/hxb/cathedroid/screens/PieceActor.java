@@ -30,8 +30,9 @@ public class PieceActor extends Image {
     private static final int SQUARE_MID = 25;
     static GameState gameState;
     private final Piece piece;
+    private final Player player;
 
-    public PieceActor(Texture texture, String name, Piece piece,
+    public PieceActor(Texture texture, String name, Piece piece, Player player,
                       Rectangle hitBox1, Rectangle hitBox2, Rectangle hitBox3,
                       float originX, float originY,
                       float referenceX, float referenceY) {
@@ -44,14 +45,17 @@ public class PieceActor extends Image {
 
         this.setName(name);
         this.piece = piece;
+        this.player = player;
         this.setOrigin(originX, originY);
         this.setTouchable(Touchable.enabled);
         this.referenceX = referenceX;
         this.referenceY = referenceY;
 
         this.addListener(new PieceGestureListener());
-
-        this.addAction(Actions.moveTo(MathUtils.random(1280f - 150f), MathUtils.random(720f - 150f)));
+        if (player == Player.LIGHT)
+            this.addAction(Actions.moveTo(MathUtils.random(340f - 150f), MathUtils.random(720f - 150f)));
+        else
+            this.addAction(Actions.moveTo(MathUtils.random(340f - 150f)+940f, MathUtils.random(720f - 150f)));
 
     }
 
