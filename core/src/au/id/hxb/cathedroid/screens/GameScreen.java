@@ -14,6 +14,8 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 import au.id.hxb.cathedroid.CathedroidGame;
+import au.id.hxb.cathedroid.Mechanics.GameState;
+import au.id.hxb.cathedroid.Mechanics.Piece;
 
 /**
  * Created by hxb on 6/03/2016.
@@ -54,10 +56,11 @@ public class GameScreen implements Screen {
 
     }
     private void initPieceActors() {
+        PieceActor.setGameState(new GameState());
         PieceActor tmpPiece;
         //Cathedral Piece
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/CA.png")),
-                "Cathedral", "CA", //Name, abbreviation
+                "Cathedral", Piece.CA, //Name, abbreviation
                 new Rectangle(0,100,150,50),new Rectangle(50,0,50,200),null, //hitboxes
                 75f, 125f, //rotational centre
                 75f, 175f  //reference point for game rules
@@ -66,98 +69,98 @@ public class GameScreen implements Screen {
 
         //Light Pieces
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-TA.png")),
-                "Light Tavern 1", "L-TA", //Name, abbreviation
+                "Light Tavern 1", Piece.L_TA1, //Name, abbreviation
                 new Rectangle(0,0,50,50),null,null, //hitboxes
                 25f, 25f, //rotational centre
                 25f, 25f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-TA.png")),
-                "Light Tavern 2", "L-TA", //Name, abbreviation
+                "Light Tavern 2", Piece.L_TA2, //Name, abbreviation
                 new Rectangle(0,0,50,50),null,null, //hitboxes
                 25f, 25f, //rotational centre
                 25f, 25f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-ST.png")),
-                "Light Stable 1", "L-ST", //Name, abbreviation
+                "Light Stable 1", Piece.L_ST1, //Name, abbreviation
                 new Rectangle(0,0,50,100),null,null, //hitboxes
                 25f, 50f, //rotational centre
                 25f, 75f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-ST.png")),
-                "Light Stable 2", "L-ST", //Name, abbreviation
+                "Light Stable 2", Piece.L_ST2, //Name, abbreviation
                 new Rectangle(0,0,50,100),null,null, //hitboxes
                 25f, 50f, //rotational centre
                 25f, 75f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-IN.png")),
-                "Light Inn 1", "L-IN", //Name, abbreviation
+                "Light Inn 1", Piece.L_IN1, //Name, abbreviation
                 new Rectangle(0,0,100,50),new Rectangle(0,0,50,100),null, //hitboxes
                 25f, 25f, //rotational centre
                 25f, 75f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-IN.png")),
-                "Light Inn 2", "L-IN", //Name, abbreviation
+                "Light Inn 2", Piece.L_IN2, //Name, abbreviation
                 new Rectangle(0,0,100,50),new Rectangle(0,0,50,100),null, //hitboxes
                 25f, 25f, //rotational centre
                 25f, 75f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-BR.png")),
-                "Light Bridge", "L-BR", //Name, abbreviation
+                "Light Bridge", Piece.L_BR, //Name, abbreviation
                 new Rectangle(0,0,50,150),null,null, //hitboxes
                 25f, 75f, //rotational centre
                 25f, 125f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-SQ.png")),
-                "Light Square", "L-SQ", //Name, abbreviation
+                "Light Square", Piece.L_SQ, //Name, abbreviation
                 new Rectangle(0,0,100,100),null,null, //hitboxes
                 50f, 50f, //rotational centre
                 25f, 75f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-AB.png")),
-                "Light Abbey", "L-AB", //Name, abbreviation
+                "Light Abbey", Piece.L_AB, //Name, abbreviation
                 new Rectangle(0,50,50,100),new Rectangle(50,0,50,100),null, //hitboxes
                 50f, 75f, //rotational centre
                 25f, 125f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-MA.png")),
-                "Light Manor", "L-MA", //Name, abbreviation
+                "Light Manor", Piece.L_MA, //Name, abbreviation
                 new Rectangle(0,0,150,50),new Rectangle(50,0,50,100),null, //hitboxes
                 75f, 25f, //rotational centre
                 75f, 75f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-TO.png")),
-                "Light Tower", "L-TO", //Name, abbreviation
+                "Light Tower", Piece.L_TO, //Name, abbreviation
                 new Rectangle(0,0,100,50),new Rectangle(50,50,100,50),new Rectangle(100,100,50,50), //hitboxes
                 75f, 75f, //rotational centre
                 125f, 125f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-IF.png")),
-                "Light Infirmary", "L-IF", //Name, abbreviation
+                "Light Infirmary", Piece.L_IF, //Name, abbreviation
                 new Rectangle(0,50,150,50),new Rectangle(50,0,50,150),null, //hitboxes
                 75f, 75f, //rotational centre
                 75f, 75f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-CS.png")),
-                "Light Castle", "L-CS", //Name, abbreviation
+                "Light Castle", Piece.L_CS, //Name, abbreviation
                 new Rectangle(0,0,100,50),new Rectangle(0,0,50,150),new Rectangle(0,100,100,50), //hitboxes
                 25f, 75f, //rotational centre
                 75f, 125f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-AC.png")),
-                "Light Academy", "L-AC", //Name, abbreviation
+                "Light Academy", Piece.L_AC, //Name, abbreviation
                 new Rectangle(50,0,100,50),new Rectangle(0,50,100,50),new Rectangle(50,0,50,150), //hitboxes
                 75f, 75f, //rotational centre
                 75f, 125f  //reference point for game rules
@@ -166,98 +169,98 @@ public class GameScreen implements Screen {
 
         //Dark Pieces
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-TA.png")),
-                "Dark Tavern 1", "D-TA", //Name, abbreviation
+                "Dark Tavern 1", Piece.D_TA1, //Name, abbreviation
                 new Rectangle(0,0,50,50),null,null, //hitboxes
                 25f, 25f, //rotational centre
                 25f, 25f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-TA.png")),
-                "Dark Tavern 2", "D-TA", //Name, abbreviation
+                "Dark Tavern 2", Piece.D_TA2, //Name, abbreviation
                 new Rectangle(0,0,50,50),null,null, //hitboxes
                 25f, 25f, //rotational centre
                 25f, 25f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-ST.png")),
-                "Dark Stable 1", "D-ST", //Name, abbreviation
+                "Dark Stable 1", Piece.D_ST1, //Name, abbreviation
                 new Rectangle(0,0,50,100),null,null, //hitboxes
                 25f, 50f, //rotational centre
                 25f, 75f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-ST.png")),
-                "Dark Stable 2", "D-ST", //Name, abbreviation
+                "Dark Stable 2", Piece.D_ST2, //Name, abbreviation
                 new Rectangle(0,0,50,100),null,null, //hitboxes
                 25f, 50f, //rotational centre
                 25f, 75f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-IN.png")),
-                "Dark Inn 1", "D-IN", //Name, abbreviation
+                "Dark Inn 1", Piece.D_IN1, //Name, abbreviation
                 new Rectangle(0,0,100,50),new Rectangle(0,0,50,100),null, //hitboxes
                 25f, 25f, //rotational centre
                 25f, 75f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-IN.png")),
-                "Dark Inn 2", "D-IN", //Name, abbreviation
+                "Dark Inn 2", Piece.D_IN2, //Name, abbreviation
                 new Rectangle(0,0,100,50),new Rectangle(0,0,50,100),null, //hitboxes
                 25f, 25f, //rotational centre
                 25f, 75f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-BR.png")),
-                "Dark Bridge", "D-BR", //Name, abbreviation
+                "Dark Bridge", Piece.D_BR, //Name, abbreviation
                 new Rectangle(0,0,50,150),null,null, //hitboxes
                 25f, 75f, //rotational centre
                 25f, 125f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-SQ.png")),
-                "Dark Square", "D-SQ", //Name, abbreviation
+                "Dark Square", Piece.D_SQ, //Name, abbreviation
                 new Rectangle(0,0,100,100),null,null, //hitboxes
                 50f, 50f, //rotational centre
                 25f, 75f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-AB.png")),
-                "Dark Abbey", "D-AB", //Name, abbreviation
+                "Dark Abbey", Piece.D_AB, //Name, abbreviation
                 new Rectangle(0,0,50,100),new Rectangle(50,50,50,100),null, //hitboxes
                 50f, 75f, //rotational centre
-                25f, 125f  //reference point for game rules
+                75f, 125f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-MA.png")),
-                "Dark Manor", "D-MA", //Name, abbreviation
+                "Dark Manor", Piece.D_MA, //Name, abbreviation
                 new Rectangle(0,0,150,50),new Rectangle(50,0,50,100),null, //hitboxes
                 75f, 25f, //rotational centre
                 75f, 75f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-TO.png")),
-                "Dark Tower", "D-TO", //Name, abbreviation
+                "Dark Tower", Piece.D_TO, //Name, abbreviation
                 new Rectangle(0,0,100,50),new Rectangle(50,50,100,50),new Rectangle(100,100,50,50), //hitboxes
                 75f, 75f, //rotational centre
                 125f, 125f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-IF.png")),
-                "Dark Infirmary", "D-IF", //Name, abbreviation
+                "Dark Infirmary", Piece.D_IF, //Name, abbreviation
                 new Rectangle(0,50,150,50),new Rectangle(50,0,50,150),null, //hitboxes
                 75f, 75f, //rotational centre
                 75f, 75f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-CS.png")),
-                "Dark Castle", "D-CS", //Name, abbreviation
+                "Dark Castle", Piece.D_CS, //Name, abbreviation
                 new Rectangle(0,0,100,50),new Rectangle(0,0,50,150),new Rectangle(0,100,100,50), //hitboxes
                 25f, 75f, //rotational centre
                 75f, 125f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-AC.png")),
-                "Dark Academy", "D-AC", //Name, abbreviation
+                "Dark Academy", Piece.D_AC, //Name, abbreviation
                 new Rectangle(0,0,100,50),new Rectangle(50,50,100,50),new Rectangle(50,0,50,150), //hitboxes
                 75f, 75f, //rotational centre
                 75f, 125f  //reference point for game rules

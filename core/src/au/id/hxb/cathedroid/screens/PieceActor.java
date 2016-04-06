@@ -12,6 +12,11 @@ import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
 
+import au.id.hxb.cathedroid.Mechanics.GameState;
+import au.id.hxb.cathedroid.Mechanics.Orientation;
+import au.id.hxb.cathedroid.Mechanics.Piece;
+import au.id.hxb.cathedroid.Mechanics.Player;
+
 /**
  * Created by Hayden on 23/03/2016.
  */
@@ -19,10 +24,14 @@ public class PieceActor extends Image {
     private Rectangle hitBox1, hitBox2, hitBox3;
 
     private float deltaTheta;
-    private float referenceX, referenceY;
+    private final float referenceX, referenceY;
+    private static final int BOARD_ORIGIN_X = 390, BOARD_ORIGIN_Y = 110;
+    private static final int BOARD_WIDTH = 500, BOARD_HEIGHT = 500;
+    private static final int SQUARE_MID = 25;
+    static GameState gameState;
+    private final Piece piece;
 
-
-    public PieceActor(Texture texture, String name, String code,
+    public PieceActor(Texture texture, String name, Piece piece,
                       Rectangle hitBox1, Rectangle hitBox2, Rectangle hitBox3,
                       float originX, float originY,
                       float referenceX, float referenceY) {
@@ -34,18 +43,22 @@ public class PieceActor extends Image {
         this.hitBox3 = hitBox3;
 
         this.setName(name);
+        this.piece = piece;
         this.setOrigin(originX, originY);
         this.setTouchable(Touchable.enabled);
+        this.referenceX = referenceX;
+        this.referenceY = referenceY;
 
-        //this.addListener(new PieceClickListener());
         this.addListener(new PieceGestureListener());
 
         this.addAction(Actions.moveTo(MathUtils.random(1280f - 150f), MathUtils.random(720f - 150f)));
 
-
-
     }
 
+    static void setGameState(GameState gs)
+    {
+        gameState = gs;
+    }
 
     @Override
     public Actor hit(float x, float y, boolean touchable) {
@@ -106,12 +119,77 @@ public class PieceActor extends Image {
 
         @Override
         public void tap(InputEvent event, float x, float y, int count, int button) {
-            PieceActor.this.setRotation(PieceActor.this.getRotation() + 90);
+            PieceActor.this.setRotation(PieceActor.this.getRotation() - 90);
         }
 
         @Override
         public boolean longPress(Actor actor, float x, float y) {
-            // do other things!
+            float stageX, stageY;
+            float idealStageX, idealStageY;
+            float deltaX, deltaY;
+            int boardX, boardY;
+            boolean piecePlaced;
+
+            // convert piece reference point to screen coordinates
+            tmpInV2.x = referenceX;
+            tmpInV2.y = referenceY;
+            tmpOutV2 = PieceActor.this.localToStageCoordinates(tmpInV2);
+            stageX = tmpOutV2.x;
+            stageY = tmpOutV2.y;
+            //Gdx.app.log("LongPress Stage Coords:", tmpOutV2.toString());
+
+            //check it's on the board. Give up if not.
+            if (stageX < BOARD_ORIGIN_X || stageX > BOARD_ORIGIN_X + BOARD_WIDTH)
+                return true;
+            if (stageY < BOARD_ORIGIN_Y || stageY > BOARD_ORIGIN_Y + BOARD_HEIGHT)
+                return true;
+
+            // convert stage coordinate to board coordinates - note y inversion
+            boardX =     ((int)(stageX - BOARD_ORIGIN_X)) / 50;
+            boardY = 9 - ((int)(stageY - BOARD_ORIGIN_Y)) / 50;
+
+
+            //determine orientation
+            Orientation orientation = Orientation.NORTH;
+            float rotation = PieceActor.this.getRotation() % 360;
+
+            //java modulo is crap
+            if (rotation < 0)
+                rotation += 360;
+
+            if      (rotation == 90)
+                orientation = Orientation.WEST;
+            else if (rotation == 180)
+                orientation = Orientation.SOUTH;
+            else if (rotation == 270)
+                orientation = Orientation.EAST;
+            Gdx.app.log("Orientation:",Float.toString(rotation));
+
+
+            piecePlaced = gameState.attemptMove(piece, orientation, boardX, boardY, gameState.whoseTurn());
+            //log it
+            Gdx.app.log("Piece placed:",piece.toString() + " " + orientation.toString() + " "+ Integer.toString(boardX+1) + ", " + Character.toString((char)(boardY + (int)'A'))+ (piecePlaced ? " Success" : " Failure") );
+
+            if (piecePlaced)
+            {
+
+
+                // fix the piece in place
+                PieceActor.this.setTouchable(Touchable.disabled);
+
+                // snap location to board grid by converting board location back to idealised stage location
+                //note y inversion
+                idealStageX =    boardX  * 50f + BOARD_ORIGIN_X + SQUARE_MID;
+                idealStageY = (9-boardY) * 50f + BOARD_ORIGIN_Y + SQUARE_MID;
+
+                //compare idealised location to original (in stage coordinates)
+                deltaX = idealStageX - stageX;
+                deltaY = idealStageY - stageY;
+
+                PieceActor.this.setPosition(PieceActor.this.getX() + deltaX, PieceActor.this.getY()+deltaY);
+
+            }
+
             return true;
         }
     }
