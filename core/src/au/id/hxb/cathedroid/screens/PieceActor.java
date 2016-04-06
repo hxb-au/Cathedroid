@@ -124,6 +124,7 @@ public class PieceActor extends Image {
         @Override
         public void tap(InputEvent event, float x, float y, int count, int button) {
             PieceActor.this.setRotation(PieceActor.this.getRotation() - 90);
+            PieceActor.this.toFront();
         }
 
         @Override
@@ -170,7 +171,7 @@ public class PieceActor extends Image {
             Gdx.app.log("Orientation:",Float.toString(rotation));
 
 
-            piecePlaced = gameState.attemptMove(piece, orientation, boardX, boardY, gameState.whoseTurn());
+            piecePlaced = gameState.attemptMove(piece, orientation, boardX, boardY, player);
             //log it
             Gdx.app.log("Piece placed:",piece.toString() + " " + orientation.toString() + " "+ Integer.toString(boardX+1) + ", " + Character.toString((char)(boardY + (int)'A'))+ (piecePlaced ? " Success" : " Failure") );
 

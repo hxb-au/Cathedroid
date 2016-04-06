@@ -59,14 +59,6 @@ public class GameScreen implements Screen {
     private void initPieceActors() {
         PieceActor.setGameState(new GameState());
         PieceActor tmpPiece;
-        //Cathedral Piece
-        tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/CA.png")),
-                "Cathedral", Piece.CA, Player.LIGHT, //Name, enum, owner
-                new Rectangle(0,100,150,50),new Rectangle(50,0,50,200),null, //hitboxes
-                75f, 125f, //rotational centre
-                75f, 175f  //reference point for game rules
-        );
-        stage.addActor(tmpPiece);
 
         //Light Pieces
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-TA.png")),
@@ -265,6 +257,15 @@ public class GameScreen implements Screen {
                 new Rectangle(0,0,100,50),new Rectangle(50,50,100,50),new Rectangle(50,0,50,150), //hitboxes
                 75f, 75f, //rotational centre
                 75f, 125f  //reference point for game rules
+        );
+        stage.addActor(tmpPiece);
+
+        //Cathedral Piece
+        tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/CA.png")),
+                "Cathedral", Piece.CA, Player.LIGHT, //Name, enum, owner
+                new Rectangle(0,100,150,50),new Rectangle(50,0,50,200),null, //hitboxes
+                75f, 125f, //rotational centre
+                75f, 175f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
 
