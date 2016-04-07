@@ -11,6 +11,7 @@ import java.util.Arrays;
 public class GameState {
     private SquareState[][] board;
     private int [][] coordinates, tmp;
+    private Move moveList;
 
     public GameState(){
         int i,j;
@@ -27,8 +28,6 @@ public class GameState {
                 board[i][j] = SquareState.EMPTY;
             }
         }
-
-        Gdx.app.log("GameState Created:", Arrays.deepToString(tmp));
     }
 
     public Player whoseTurn(){ return Player.LIGHT; }
@@ -77,11 +76,36 @@ public class GameState {
             board[x][y] = state;
         }
 
-        // TODO record Move in list
+        addMove(new Move(piece, orientation, pieceX, pieceY, player));
 
         // TODO regenerate claims (and capture pieces)
 
         return true;
+    }
+
+    //append the move to the movelist
+    private void addMove(Move move){
+        //log
+        Gdx.app.log("Move recorded", move.toString());
+
+        //trivial empty list case
+        if (moveList == null){
+            moveList = move;
+            return;
+        }
+
+        //use a temp pointer to traverse the list
+        Move tmp;
+        tmp = this.moveList;
+
+        //find the end of the list
+        while(tmp.nextMove != null)
+            tmp = tmp.nextMove;
+
+        // plug it in and done.
+        tmp.nextMove = move;
+
+
     }
 
     //put the piece's coordinates in the array and return the number of squares occupied
@@ -92,12 +116,12 @@ public class GameState {
 
             case CA: //cathedral
                 numSquares = 6;
-                this.tmp[0][0] =  0; tmp [0][1] =  0;
-                tmp[1][0] = -1; tmp [1][1] =  0;
-                tmp[2][0] =  0; tmp [2][1] = -1;
-                tmp[3][0] =  1; tmp [3][1] =  0;
-                tmp[4][0] =  0; tmp [4][1] =  1;
-                tmp[5][0] =  0; tmp [5][1] =  2;
+                tmp[0][0] =  0; tmp [0][1] =  0;
+                tmp[1][0] = -1; tmp [1][1] =  1;
+                tmp[2][0] =  0; tmp [2][1] =  1;
+                tmp[3][0] =  1; tmp [3][1] =  1;
+                tmp[4][0] =  0; tmp [4][1] =  2;
+                tmp[5][0] =  0; tmp [5][1] =  3;
                 break;
             case L_TA1:
             case L_TA2:
@@ -260,6 +284,20 @@ public class GameState {
         public int x,y;
         public Move nextMove;
         public Player player;
+
+        public Move ( Piece piece, Orientation orientation, int x, int y, Player player){
+            this.piece = piece;
+            this.orientation = orientation;
+            this.x = x;
+            this.y = y;
+            this.player = player;
+            this.nextMove = null;
+        }
+
+        @Override
+        public String toString(){
+            return player.toString() + ": " + piece.getCode() + orientation.toLetter() + Character.toString((char)(x + (int)'A')) + Integer.toString(y+1);
+        }
 
         public int numMoves(){
             if (nextMove == null)

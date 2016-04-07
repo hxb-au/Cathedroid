@@ -4,33 +4,49 @@ package au.id.hxb.cathedroid.Mechanics;
  * Created by Hayden on 4/04/2016.
  */
 public enum Piece {
-    CA,
-    L_TA1,
-    L_TA2,
-    L_ST1,
-    L_ST2,
-    L_IN1,
-    L_IN2,
-    L_BR,
-    L_SQ,
-    L_AB,
-    L_MA,
-    L_TO,
-    L_IF,
-    L_CS,
-    L_AC,
-    D_TA1,
-    D_TA2,
-    D_ST1,
-    D_ST2,
-    D_IN1,
-    D_IN2,
-    D_BR,
-    D_SQ,
-    D_AB,
-    D_MA,
-    D_TO,
-    D_IF,
-    D_CS,
-    D_AC,
+    CA ("Cathedral", "CA"),
+    L_TA1 ("Light Tavern 1", "TA"),
+    L_TA2 ("Light Tavern 2", "TA"),
+    L_ST1 ("Light Stable 1", "ST"),
+    L_ST2 ("Light Stable 2", "ST"),
+    L_IN1 ("Light Inn 1", "IN"),
+    L_IN2 ("Light Inn 2", "IN"),
+    L_BR ("Light Bridge", "BR"),
+    L_SQ ("Light Square", "SQ"),
+    L_AB  ("Light Abbey", "AB"),
+    L_MA ("Light Manor", "MA"),
+    L_TO ("Light Tower", "TO"),
+    L_IF ("Light Infirmary", "IF"),
+    L_CS ("Light Castle", "CS"),
+    L_AC ("Light Academy", "AC"),
+    D_TA1 ("Dark Tavern 1", "TA"),
+    D_TA2 ("Dark Tavern 2", "TA"),
+    D_ST1 ("Dark Stable 1", "ST"),
+    D_ST2 ("Dark Stable 2", "ST"),
+    D_IN1 ("Dark Inn 1", "IN"),
+    D_IN2 ("Dark Inn 2", "IN"),
+    D_BR ("Dark Bridge", "BR"),
+    D_SQ ("Dark Square", "SQ"),
+    D_AB  ("Dark Abbey", "AB"),
+    D_MA ("Dark Manor", "MA"),
+    D_TO ("Dark Tower", "TO"),
+    D_IF ("Dark Infirmary", "IF"),
+    D_CS ("Dark Castle", "CS"),
+    D_AC ("Dark Academy", "AC");
+    
+    private final String name;
+    private final String code;
+    
+    private Piece(String name, String code){
+        this.name = name;
+        this.code = code;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public String getName() {
+        return name;
+    }
 }

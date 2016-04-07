@@ -168,12 +168,12 @@ public class PieceActor extends Image {
                 orientation = Orientation.SOUTH;
             else if (rotation == 270)
                 orientation = Orientation.EAST;
-            Gdx.app.log("Orientation:",Float.toString(rotation));
+            //Gdx.app.log("Orientation:",Float.toString(rotation));
 
 
             piecePlaced = gameState.attemptMove(piece, orientation, boardX, boardY, player);
-            //log it
-            Gdx.app.log("Piece placed:",piece.toString() + " " + orientation.toString() + " "+ Integer.toString(boardX+1) + ", " + Character.toString((char)(boardY + (int)'A'))+ (piecePlaced ? " Success" : " Failure") );
+            //log it?
+            //Gdx.app.log("Piece placed:",piece.toString() + " " + orientation.toString() + " "+ Integer.toString(boardX+1) + ", " + Character.toString((char)(boardY + (int)'A'))+ (piecePlaced ? " Success" : " Failure") );
 
             if (piecePlaced)
             {
