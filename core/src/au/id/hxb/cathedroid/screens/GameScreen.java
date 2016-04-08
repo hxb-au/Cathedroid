@@ -62,98 +62,98 @@ public class GameScreen implements Screen {
 
         //Light Pieces
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-TA.png")),
-                "Light Tavern 1", Piece.L_TA1, Player.LIGHT, //Name, enum, owner
+                Piece.L_TA1, Player.LIGHT, //Name, enum, owner
                 new Rectangle(0,0,50,50),null,null, //hitboxes
                 25f, 25f, //rotational centre
                 25f, 25f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-TA.png")),
-                "Light Tavern 2", Piece.L_TA2, Player.LIGHT, //Name, enum, owner
+                Piece.L_TA2, Player.LIGHT, //Name, enum, owner
                 new Rectangle(0,0,50,50),null,null, //hitboxes
                 25f, 25f, //rotational centre
                 25f, 25f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-ST.png")),
-                "Light Stable 1", Piece.L_ST1, Player.LIGHT, //Name, enum, owner
+                Piece.L_ST1, Player.LIGHT, //Name, enum, owner
                 new Rectangle(0,0,50,100),null,null, //hitboxes
                 25f, 50f, //rotational centre
                 25f, 75f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-ST.png")),
-                "Light Stable 2", Piece.L_ST2, Player.LIGHT, //Name, enum, owner
+                Piece.L_ST2, Player.LIGHT, //Name, enum, owner
                 new Rectangle(0,0,50,100),null,null, //hitboxes
                 25f, 50f, //rotational centre
                 25f, 75f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-IN.png")),
-                "Light Inn 1", Piece.L_IN1, Player.LIGHT, //Name, enum, owner
+                Piece.L_IN1, Player.LIGHT, //Name, enum, owner
                 new Rectangle(0,0,100,50),new Rectangle(0,0,50,100),null, //hitboxes
                 25f, 25f, //rotational centre
                 25f, 75f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-IN.png")),
-                "Light Inn 2", Piece.L_IN2, Player.LIGHT, //Name, enum, owner
+                Piece.L_IN2, Player.LIGHT, //Name, enum, owner
                 new Rectangle(0,0,100,50),new Rectangle(0,0,50,100),null, //hitboxes
                 25f, 25f, //rotational centre
                 25f, 75f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-BR.png")),
-                "Light Bridge", Piece.L_BR, Player.LIGHT, //Name, enum, owner
+                Piece.L_BR, Player.LIGHT, //Name, enum, owner
                 new Rectangle(0,0,50,150),null,null, //hitboxes
                 25f, 75f, //rotational centre
                 25f, 125f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-SQ.png")),
-                "Light Square", Piece.L_SQ, Player.LIGHT, //Name, enum, owner
+                Piece.L_SQ, Player.LIGHT, //Name, enum, owner
                 new Rectangle(0,0,100,100),null,null, //hitboxes
                 50f, 50f, //rotational centre
                 25f, 75f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-AB.png")),
-                "Light Abbey", Piece.L_AB, Player.LIGHT, //Name, enum, owner
+                Piece.L_AB, Player.LIGHT, //Name, enum, owner
                 new Rectangle(0,50,50,100),new Rectangle(50,0,50,100),null, //hitboxes
                 50f, 75f, //rotational centre
                 25f, 125f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-MA.png")),
-                "Light Manor", Piece.L_MA, Player.LIGHT, //Name, enum, owner
+                Piece.L_MA, Player.LIGHT, //Name, enum, owner
                 new Rectangle(0,0,150,50),new Rectangle(50,0,50,100),null, //hitboxes
                 75f, 25f, //rotational centre
                 75f, 75f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-TO.png")),
-                "Light Tower", Piece.L_TO, Player.LIGHT, //Name, enum, owner
+                Piece.L_TO, Player.LIGHT, //Name, enum, owner
                 new Rectangle(0,0,100,50),new Rectangle(50,50,100,50),new Rectangle(100,100,50,50), //hitboxes
                 75f, 75f, //rotational centre
                 125f, 125f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-IF.png")),
-                "Light Infirmary", Piece.L_IF, Player.LIGHT, //Name, enum, owner
+                Piece.L_IF, Player.LIGHT, //Name, enum, owner
                 new Rectangle(0,50,150,50),new Rectangle(50,0,50,150),null, //hitboxes
                 75f, 75f, //rotational centre
                 75f, 75f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-CS.png")),
-                "Light Castle", Piece.L_CS, Player.LIGHT, //Name, enum, owner
+                Piece.L_CS, Player.LIGHT, //Name, enum, owner
                 new Rectangle(0,0,100,50),new Rectangle(0,0,50,150),new Rectangle(0,100,100,50), //hitboxes
                 25f, 75f, //rotational centre
                 75f, 125f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-AC.png")),
-                "Light Academy", Piece.L_AC, Player.LIGHT, //Name, enum, owner
+                Piece.L_AC, Player.LIGHT, //Name, enum, owner
                 new Rectangle(50,0,100,50),new Rectangle(0,50,100,50),new Rectangle(50,0,50,150), //hitboxes
                 75f, 75f, //rotational centre
                 75f, 125f  //reference point for game rules
@@ -162,98 +162,98 @@ public class GameScreen implements Screen {
 
         //Dark Pieces
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-TA.png")),
-                "Dark Tavern 1", Piece.D_TA1, Player.DARK, //Name, enum, owner
+                Piece.D_TA1, Player.DARK, //Name, enum, owner
                 new Rectangle(0,0,50,50),null,null, //hitboxes
                 25f, 25f, //rotational centre
                 25f, 25f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-TA.png")),
-                "Dark Tavern 2", Piece.D_TA2, Player.DARK, //Name, enum, owner
+                Piece.D_TA2, Player.DARK, //Name, enum, owner
                 new Rectangle(0,0,50,50),null,null, //hitboxes
                 25f, 25f, //rotational centre
                 25f, 25f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-ST.png")),
-                "Dark Stable 1", Piece.D_ST1, Player.DARK, //Name, enum, owner
+                Piece.D_ST1, Player.DARK, //Name, enum, owner
                 new Rectangle(0,0,50,100),null,null, //hitboxes
                 25f, 50f, //rotational centre
                 25f, 75f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-ST.png")),
-                "Dark Stable 2", Piece.D_ST2, Player.DARK, //Name, enum, owner
+                Piece.D_ST2, Player.DARK, //Name, enum, owner
                 new Rectangle(0,0,50,100),null,null, //hitboxes
                 25f, 50f, //rotational centre
                 25f, 75f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-IN.png")),
-                "Dark Inn 1", Piece.D_IN1, Player.DARK, //Name, enum, owner
+                Piece.D_IN1, Player.DARK, //Name, enum, owner
                 new Rectangle(0,0,100,50),new Rectangle(0,0,50,100),null, //hitboxes
                 25f, 25f, //rotational centre
                 25f, 75f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-IN.png")),
-                "Dark Inn 2", Piece.D_IN2, Player.DARK, //Name, enum, owner
+                Piece.D_IN2, Player.DARK, //Name, enum, owner
                 new Rectangle(0,0,100,50),new Rectangle(0,0,50,100),null, //hitboxes
                 25f, 25f, //rotational centre
                 25f, 75f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-BR.png")),
-                "Dark Bridge", Piece.D_BR, Player.DARK, //Name, enum, owner
+                Piece.D_BR, Player.DARK, //Name, enum, owner
                 new Rectangle(0,0,50,150),null,null, //hitboxes
                 25f, 75f, //rotational centre
                 25f, 125f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-SQ.png")),
-                "Dark Square", Piece.D_SQ, Player.DARK, //Name, enum, owner
+                Piece.D_SQ, Player.DARK, //Name, enum, owner
                 new Rectangle(0,0,100,100),null,null, //hitboxes
                 50f, 50f, //rotational centre
                 25f, 75f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-AB.png")),
-                "Dark Abbey", Piece.D_AB, Player.DARK, //Name, enum, owner
+                Piece.D_AB, Player.DARK, //Name, enum, owner
                 new Rectangle(0,0,50,100),new Rectangle(50,50,50,100),null, //hitboxes
                 50f, 75f, //rotational centre
                 75f, 125f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-MA.png")),
-                "Dark Manor", Piece.D_MA, Player.DARK, //Name, enum, owner
+                Piece.D_MA, Player.DARK, //Name, enum, owner
                 new Rectangle(0,0,150,50),new Rectangle(50,0,50,100),null, //hitboxes
                 75f, 25f, //rotational centre
                 75f, 75f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-TO.png")),
-                "Dark Tower", Piece.D_TO, Player.DARK, //Name, enum, owner
+                Piece.D_TO, Player.DARK, //Name, enum, owner
                 new Rectangle(0,0,100,50),new Rectangle(50,50,100,50),new Rectangle(100,100,50,50), //hitboxes
                 75f, 75f, //rotational centre
                 125f, 125f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-IF.png")),
-                "Dark Infirmary", Piece.D_IF, Player.DARK, //Name, enum, owner
+                Piece.D_IF, Player.DARK, //Name, enum, owner
                 new Rectangle(0,50,150,50),new Rectangle(50,0,50,150),null, //hitboxes
                 75f, 75f, //rotational centre
                 75f, 75f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-CS.png")),
-                "Dark Castle", Piece.D_CS, Player.DARK, //Name, enum, owner
+                Piece.D_CS, Player.DARK, //Name, enum, owner
                 new Rectangle(0,0,100,50),new Rectangle(0,0,50,150),new Rectangle(0,100,100,50), //hitboxes
                 25f, 75f, //rotational centre
                 75f, 125f  //reference point for game rules
         );
         stage.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-AC.png")),
-                "Dark Academy", Piece.D_AC, Player.DARK, //Name, enum, owner
+                Piece.D_AC, Player.DARK, //Name, enum, owner
                 new Rectangle(0,0,100,50),new Rectangle(50,50,100,50),new Rectangle(50,0,50,150), //hitboxes
                 75f, 75f, //rotational centre
                 75f, 125f  //reference point for game rules
@@ -262,7 +262,7 @@ public class GameScreen implements Screen {
 
         //Cathedral Piece
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/CA.png")),
-                "Cathedral", Piece.CA, Player.LIGHT, //Name, enum, owner
+                Piece.CA, Player.LIGHT, //Name, enum, owner
                 new Rectangle(0,100,150,50),new Rectangle(50,0,50,200),null, //hitboxes
                 75f, 125f, //rotational centre
                 75f, 175f  //reference point for game rules

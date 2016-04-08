@@ -32,7 +32,7 @@ public class PieceActor extends Image {
     private final Piece piece;
     private final Player player;
 
-    public PieceActor(Texture texture, String name, Piece piece, Player player,
+    public PieceActor(Texture texture, Piece piece, Player player,
                       Rectangle hitBox1, Rectangle hitBox2, Rectangle hitBox3,
                       float originX, float originY,
                       float referenceX, float referenceY) {
@@ -43,7 +43,7 @@ public class PieceActor extends Image {
         this.hitBox2 = hitBox2;
         this.hitBox3 = hitBox3;
 
-        this.setName(name);
+        this.setName(piece.getName());
         this.piece = piece;
         this.player = player;
         this.setOrigin(originX, originY);
@@ -62,6 +62,22 @@ public class PieceActor extends Image {
     static void setGameState(GameState gs)
     {
         gameState = gs;
+    }
+
+    void capture()
+    {
+        if (this.piece == Piece.CA) {
+            this.setVisible(false);
+        }
+        else {
+            this.setTouchable(Touchable.enabled);
+
+            if (player == Player.LIGHT)
+                this.addAction(Actions.moveTo(MathUtils.random(340f - 150f), MathUtils.random(720f - 150f)));
+            else
+                this.addAction(Actions.moveTo(MathUtils.random(340f - 150f) + 940f, MathUtils.random(720f - 150f)));
+        }
+
     }
 
     @Override
@@ -134,6 +150,7 @@ public class PieceActor extends Image {
             float deltaX, deltaY;
             int boardX, boardY;
             boolean piecePlaced;
+            Piece capturedPiece;
 
             // convert piece reference point to screen coordinates
             tmpInV2.x = referenceX;
@@ -192,6 +209,19 @@ public class PieceActor extends Image {
                 deltaY = idealStageY - stageY;
 
                 PieceActor.this.setPosition(PieceActor.this.getX() + deltaX, PieceActor.this.getY()+deltaY);
+
+                //check for captured pieces and remove them
+                capturedPiece = gameState.getCaptureRef();
+                while (capturedPiece != null)
+                {
+                    //find the actor and tell it it's been captured.
+                    PieceActor capturedActor = PieceActor.this.getParent().findActor(capturedPiece.getName());
+                    if (capturedActor != null)
+                        capturedActor.capture();
+
+                    //get next capture if it exists, or null
+                    capturedPiece = gameState.getCaptureRef();
+                }
 
             }
 

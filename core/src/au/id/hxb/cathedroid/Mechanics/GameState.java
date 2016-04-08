@@ -11,11 +11,16 @@ import java.util.Arrays;
 public class GameState {
     private SquareState[][] board;
     private int [][] coordinates, tmp;
+    private boolean [][] checkedsquares;
     private Move moveList;
+    private boolean recentCapture;
+    private Square captureList;
+
 
     public GameState(){
         int i,j;
         board = new SquareState[10][10];
+        checkedsquares = new boolean[10][10];
         //Arrays.fill(board, SquareState.EMPTY);
         coordinates = new int[][] {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}};
         tmp = new int[][] {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}};
@@ -28,24 +33,63 @@ public class GameState {
                 board[i][j] = SquareState.EMPTY;
             }
         }
+
+        //fill array of which squares have been checked 
+        for (i = 0; i < checkedsquares.length; i++) {
+            for (j = 0; j < checkedsquares[i].length; j++) {
+                checkedsquares[i][j] = false;
+            }
+        }
+        recentCapture = false;
+    }
+
+    public boolean recentCapture() { return recentCapture; }
+
+    public Piece getCaptureRef()
+    {
+        Piece capturedPiece = null;
+        Move index = moveList;
+
+        // no captured pieces
+        if (captureList == null)
+            return null;
+
+        //find the most recent move that matches this coordinate
+        while(index != null)
+        {
+            if (captureList.x == index.x && captureList.y == index.y)
+                capturedPiece = index.piece;
+            index = index.nextMove;
+        }
+
+        captureList = captureList.nextSquare;
+        return capturedPiece;
     }
 
     public Player whoseTurn(){ return Player.LIGHT; }
 
+    // the board is a 10x10 array of these. piece origins are used for capture and claim checks
     enum SquareState {
         EMPTY,
         DARKPIECE,
+        DARKPIECE_ORIGIN,
         LIGHTPIECE,
+        LIGHTPIECE_ORIGIN,
         CATHEDRALPIECE,
+        CATHEDRALPIECE_ORIGIN,
         DARKCLAIM,
-        LIGHTCLAIM
+        LIGHTCLAIM;
     }
 
+    // this is the main interface to the gamestate. Attempt to make a move with the given details. 
+    // returns true if move was accepted and processes updates to gamestate.
     public boolean attemptMove(Piece piece, Orientation orientation, int pieceX, int pieceY, Player player){
         int i;
         SquareState state;
+        SquareState originState;
         int x, y;
         int numSquares;
+        Move move;
 
         //load translated and rotated piece coverage in to coordinates array
         numSquares = getSquares(piece, orientation, pieceX, pieceY, coordinates);
@@ -62,26 +106,176 @@ public class GameState {
         //record piece in board
 
         // which colour piece is it?
-        if (piece == Piece.CA)
+        if (piece == Piece.CA) {
             state = SquareState.CATHEDRALPIECE;
-        else if (player == Player.LIGHT)
+            originState = SquareState.CATHEDRALPIECE_ORIGIN;
+        }
+        else if (player == Player.LIGHT) {
             state = SquareState.LIGHTPIECE;
-        else //dark
-           state = SquareState.DARKPIECE;
-
+            originState = SquareState.LIGHTPIECE_ORIGIN;
+        }
+        else {//dark
+            state = SquareState.DARKPIECE;
+            originState = SquareState.DARKPIECE_ORIGIN;
+        }
         //copy it in using coordinates generated for checking fit
-        for (i = 0; i < numSquares; i++) {
+        // the first coordinate is marked as a piece origin for capture checks (should match reference point)
+        x = coordinates[0][0];
+        y = coordinates[0][1];
+        board[x][y] = originState;
+        // the remaining coordinates are just marked as pieces
+        for (i = 1; i < numSquares; i++) {
             x = coordinates[i][0];
             y = coordinates[i][1];
             board[x][y] = state;
         }
 
-        addMove(new Move(piece, orientation, pieceX, pieceY, player));
+        move = new Move(piece, orientation, pieceX, pieceY, player);
+        addMove(move);
 
-        // TODO regenerate claims (and capture pieces)
+        //only check cliams after cathedral and 1 piece each are placed
+        if (moveList.numMoves() > 3)
+            checkPieceClaims(player, numSquares, coordinates);
 
         return true;
     }
+
+    // check for claimed area around a new piece by checking each square around it
+    // (including diagonals)
+    private void checkPieceClaims(Player player, int numSquares, int[][] coords){
+        int i, j;
+        int pieceX, pieceY;
+
+
+        //reset array of which squares have been checked
+        for (i = 0; i < checkedsquares.length; i++) {
+            for (j = 0; j < checkedsquares[i].length; j++) {
+                checkedsquares[i][j] = false;
+            }
+        }
+
+        // generate start points around placed piece
+        for (i = 0; i < numSquares; i++) {
+            pieceX = coordinates[i][0];
+            pieceY = coordinates[i][1];
+
+
+            checkSquareClaim(pieceX + 1, pieceY + 1, player);
+            checkSquareClaim(pieceX + 1, pieceY    , player);
+            checkSquareClaim(pieceX + 1, pieceY - 1, player);
+            checkSquareClaim(pieceX    , pieceY + 1, player);
+            checkSquareClaim(pieceX    , pieceY - 1, player);
+            checkSquareClaim(pieceX - 1, pieceY + 1, player);
+            checkSquareClaim(pieceX - 1, pieceY    , player);
+            checkSquareClaim(pieceX - 1, pieceY - 1, player);
+
+        }
+
+    }
+
+    private void checkSquareClaim(int x, int y, Player player){
+        int i,j;
+        int currentX, currentY;
+        Square queueHead = null;
+        Square queueTail = null;
+        Square capturedPieceOrigin = null;
+        Square includedAreaStack = null;
+        int enemyPieces = 0;
+        SquareState allied, alliedOrigin, alliedClaim;
+        SquareState enemy, enemyOrigin;
+        //Gdx.app.log("Claims begin", Integer.toString(x) + "," + Integer.toString(y));
+
+        //bounds check
+        if (x < 0 || x > 9)
+            return;
+        if (y < 0 || y > 9)
+            return;
+
+        // avoid repeats
+        if (checkedsquares[x][y])
+            return;
+
+
+
+
+        queueHead = new Square(x,y);
+        queueTail = queueHead;
+        queueHead.markChecked();
+        
+        //pop top of queue by checking if it is empty/enemy 
+        // if so, add surrounding unchecked squares to the queue and move it to included area
+        // mark this square as checked and advance queue
+        while (queueHead != null)
+        {
+            //queueHead.markChecked();
+
+            // allied squares are the border, just pop and continue
+            if (queueHead.isAllied(player)) {
+                queueHead = queueHead.nextSquare;
+            }
+            else{
+                //if this is a piece marker, not just walls, handle that.
+                if (queueHead.isEnemyOrigin(player)){
+                    enemyPieces++;
+                    //Gdx.app.log("Hit Piece", Integer.toString(queueHead.x) + "," + Integer.toString(queueHead.y));
+                    if (enemyPieces == 2)
+                        return; //found 2 pieces in this region, give up with no change
+                    if (enemyPieces == 1)
+                        capturedPieceOrigin = queueHead; //hold on to this location for capture lookup
+                }
+
+                //haven't hit 2 pieces, so keep processing
+
+                currentX = queueHead.x;
+                currentY = queueHead.y;
+
+                // check surrounds and add each to queue if unchecked and on board
+                for (i=-1; i<2;i++){
+                    for (j=-1; j<2; j++){
+                        if(currentX+i >= 0 && currentX+i <= 9  &&
+                           currentY+j >= 0 && currentY+j <= 9  &&
+                           !checkedsquares[currentX+i][currentY+j]){
+                             queueTail.nextSquare = new Square(currentX+i, currentY+j);
+                             //Gdx.app.log("Claims queue", Integer.toString(currentX+i) + "," + Integer.toString(currentY+j));
+                             queueTail = queueTail.nextSquare;
+                             queueTail.markChecked();
+                        }
+                    }
+                }
+
+                //now move queue head to included area
+                Square tmp = queueHead;
+                queueHead = queueHead.nextSquare;
+
+                tmp.nextSquare = includedAreaStack;
+                includedAreaStack = tmp;
+                //Gdx.app.log("Included queue", Integer.toString(currentX) + "," + Integer.toString(currentY));
+            }
+        }
+
+        // included area calculated, so set it all to claimed
+
+        //assign allied enum
+        if (player == Player.LIGHT)
+            alliedClaim = SquareState.LIGHTCLAIM;
+        else
+            alliedClaim = SquareState.DARKCLAIM;
+
+        int area = 0;
+        while (includedAreaStack != null) {
+            board[includedAreaStack.x][includedAreaStack.y] = alliedClaim;
+            area++;
+            includedAreaStack = includedAreaStack.nextSquare;
+        }
+
+        // if a capture occurred, push it on to the stack of captures.
+        if(enemyPieces == 1){
+            capturedPieceOrigin.nextSquare = captureList;
+            captureList = capturedPieceOrigin;
+        }
+
+    }
+
 
     //append the move to the movelist
     private void addMove(Move move){
@@ -112,6 +306,8 @@ public class GameState {
     private int getSquares( Piece piece, Orientation orientation, int x, int y, int[][] coords){
         int numSquares, i;
 
+        // get piece coordinates as offsets from its origin when facing north
+        // first coordinate is always 0,0 so origin gets marked correctly for piece capture algorithm
         switch (piece){
 
             case CA: //cathedral
@@ -264,6 +460,7 @@ public class GameState {
         return numSquares;
     }
 
+    // check a single square for room for a player's piece - claimed area and empty are both good
     private boolean checkSquare(int x, int y, Player player){
 
         //check board limits
@@ -277,7 +474,7 @@ public class GameState {
             return board[x][y] == SquareState.EMPTY || board[x][y] == SquareState.DARKCLAIM;
     }
 
-
+    // move class holds the record of moves made in a linked list. Useful for save/load and piece capture
     class Move {
         public Piece piece;
         public Orientation orientation;
@@ -306,6 +503,58 @@ public class GameState {
                 return nextMove.numMoves() + 1;
         }
 
+    }
+    
+    // a linked list of 2-D coordinates with some team logic
+    class Square {
+        public int x, y;
+        public Square nextSquare;
+        
+        public Square(int x, int y){
+            this.x = x;
+            this.y = y;
+            this.nextSquare = null;
+        }
+
+
+        // get this coordinate's state from the board
+        public SquareState getState(){
+            return GameState.this.board[this.x][this.y];
+        }
+
+        // is this coordinate filled with a friendly piece?
+        public boolean isAllied(Player player){
+            SquareState state = this.getState();
+            if (player == Player.LIGHT)
+                return  state == SquareState.LIGHTPIECE ||
+                        state == SquareState.LIGHTCLAIM ||
+                        state == SquareState.LIGHTPIECE_ORIGIN;
+            else //dark
+                return  state == SquareState.DARKPIECE ||
+                        state == SquareState.DARKCLAIM ||
+                        state == SquareState.DARKPIECE_ORIGIN;
+        }
+
+        // is this coordinate the origin of an enamy piece or cathedral? used for captures
+        public boolean isEnemyOrigin(Player player){
+            SquareState state = this.getState();
+            if (player == Player.LIGHT)
+                return  state == SquareState.DARKPIECE_ORIGIN ||
+                        state == SquareState.CATHEDRALPIECE_ORIGIN;
+            else
+                return  state == SquareState.LIGHTPIECE_ORIGIN ||
+                        state == SquareState.CATHEDRALPIECE_ORIGIN;
+        }
+
+        public void markChecked(){
+            GameState.this.checkedsquares[this.x][this.y] = true;
+        }
+
+        public boolean isChecked(){
+            return GameState.this.checkedsquares[this.x][this.y];
+        }
+
+    
     }
 }
 
