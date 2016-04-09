@@ -46,7 +46,7 @@ public class SettingsScreen implements Screen {
         viewport = new FitViewport(nativeWidth, nativeHeight, cam);
         stage = new Stage(viewport, batch);
 
-        //initUI();
+        initUI();
 
     }
 
@@ -58,7 +58,7 @@ public class SettingsScreen implements Screen {
         TextButton button = new TextButton("Back", skin, "default");
         button.setWidth(200f);
         button.setHeight(20f);
-        button.setPosition(Gdx.graphics.getWidth() / 2 - 100f, Gdx.graphics.getHeight() / 2 - 10f);
+        button.setPosition(midPointX, midPointY);
         stage.addActor(button);
 
         //table
