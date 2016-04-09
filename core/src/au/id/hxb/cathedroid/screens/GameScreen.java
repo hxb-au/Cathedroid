@@ -46,12 +46,6 @@ public class GameScreen implements Screen {
         stage.addActor(bgImg);
         initPieceActors();
 
-
-
-
-
-
-
     }
     private void initPieceActors() {
         PieceActor tmpPiece;
@@ -324,3 +318,4 @@ public class GameScreen implements Screen {
 
     }
 }
+

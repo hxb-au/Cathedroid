@@ -7,6 +7,13 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -20,9 +27,9 @@ public class SettingsScreen implements Screen {
     SpriteBatch batch;
     Texture placeholder;
     OrthographicCamera cam;
-    SettingsInputListener settingsInputListener;
     private int midPointX, midPointY;
     private Viewport viewport;
+    private Stage stage;
 
 
     public SettingsScreen(CathedroidGame game) {
@@ -37,38 +44,50 @@ public class SettingsScreen implements Screen {
         cam = new OrthographicCamera(nativeWidth,nativeHeight);
         cam.setToOrtho(false, nativeWidth,nativeHeight);
         viewport = new FitViewport(nativeWidth, nativeHeight, cam);
-        settingsInputListener = new SettingsInputListener(game, cam);
+        stage = new Stage(viewport, batch);
+
+        //initUI();
+
+    }
+
+    private void initUI(){
+        //load textures
+        Skin skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+
+        //test button
+        TextButton button = new TextButton("Back", skin, "default");
+        button.setWidth(200f);
+        button.setHeight(20f);
+        button.setPosition(Gdx.graphics.getWidth() / 2 - 100f, Gdx.graphics.getHeight() / 2 - 10f);
+        stage.addActor(button);
+
+        //table
+        //Table table = new Table();
+        //table.setFillParent(true);
+        //stage.addActor(table);
+
+
+
 
     }
 
     @Override
     public void show() {
-        Gdx.input.setInputProcessor(settingsInputListener);
+        Gdx.input.setInputProcessor(stage);
         viewport.apply();
 
     }
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0f, 1f, 0f, 1f); // Sets a Color to Fill the Screen with (RGB = 0, 0, 0), Opacity of 1 (100%)
+        Gdx.gl.glClearColor(0f, 0f, 0f, 1f); // Sets a Color to Fill the Screen with (RGB = 0, 0, 0), Opacity of 1 (100%)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT); // Fills the screen with the selected color
-
-        batch.setProjectionMatrix(viewport.getCamera().combined);
-        batch.begin();
-        batch.disableBlending();
-
-        batch.draw(placeholder,midPointX-placeholder.getWidth()/2,midPointY-placeholder.getHeight()/2);
-
-        batch.enableBlending();
-        batch.end();
-
+        stage.act(delta);
+        stage.draw();
     }
 
     @Override
     public void resize(int width, int height) {
-        Gdx.app.log("SettingsScreen", "resizing");
-        Gdx.app.log("Width", Integer.toString(width));
-        Gdx.app.log("Height", Integer.toString(height));
         viewport.update(width, height);
     }
 
@@ -89,31 +108,7 @@ public class SettingsScreen implements Screen {
 
     @Override
     public void dispose() {
-
-    }
-    class SettingsInputListener extends InputAdapter {
-
-        private CathedroidGame game;
-        private OrthographicCamera cam;
-
-        //button locations?
-
-
-        public SettingsInputListener( CathedroidGame game, OrthographicCamera cam) {
-            this.game = game;
-            this.cam = cam;
-
-        }
-        @Override
-        public boolean touchDown (int screenX, int screenY, int pointer, int button) {
-            if (button == 0){
-                game.setMenuScreen();
-                return true;
-            }
-            else {
-                return false;
-            }
-        }
+        stage.dispose();
     }
 
 }
