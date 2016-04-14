@@ -9,11 +9,16 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -30,6 +35,10 @@ public class SettingsScreen implements Screen {
     private int midPointX, midPointY;
     private Viewport viewport;
     private Stage stage;
+
+    TextButton lightStartButton, darkStartButton, randomStartButton;
+    TextButton alternateYesButton, alternateNoButton;
+
 
 
     public SettingsScreen(CathedroidGame game) {
@@ -54,20 +63,56 @@ public class SettingsScreen implements Screen {
         //load textures
         Skin skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
 
-        //test button
-        TextButton button = new TextButton("Back", skin, "default");
-        button.setWidth(200f);
-        button.setHeight(20f);
-        button.setPosition(midPointX, midPointY);
-        stage.addActor(button);
+        //build buttonGroups
 
-        //table
-        //Table table = new Table();
-        //table.setFillParent(true);
-        //stage.addActor(table);
+        // starting player group
+        lightStartButton = new TextButton("Light", skin, "toggle");
+        darkStartButton = new TextButton("Dark", skin, "toggle");
+        randomStartButton = new TextButton("Random", skin, "toggle");
+        ButtonGroup startPlayerGroup = new ButtonGroup(lightStartButton, darkStartButton, randomStartButton);
+        startPlayerGroup.setMinCheckCount(1);
+        startPlayerGroup.setMaxCheckCount(1);
 
 
+        // alternate starting player group
+        alternateYesButton = new TextButton("Yes", skin, "toggle");
+        alternateNoButton = new TextButton("No", skin, "toggle");
+        ButtonGroup alternateStartGroup = new ButtonGroup(alternateYesButton, alternateNoButton);
 
+        // back button
+        TextButton backButton = new TextButton("Back", skin, "default");
+        backButton.addListener(new ClickListener(0) {
+            @Override
+            public void clicked(InputEvent e, float x, float y)
+            {
+                game.setMenuScreen();
+            }
+        });
+
+        //table - ugly as
+        //TODO make this nicer
+        Table table = new Table();
+        table.setFillParent(true);
+        stage.addActor(table);
+
+        table.add(new Label("Starting Player:  ", skin)).align(Align.right).height(30);
+        table.add(lightStartButton).width(150).height(30);
+        table.add(darkStartButton).width(150).height(30);
+        table.add(randomStartButton).width(150).height(30);
+        table.add(new Label(" ", skin)).height(30).width(150);
+        table.row();
+        table.add(new Label(" ", skin)).height(30);
+        table.row();
+        table.add(new Label("Alternate starting players from now on? ", skin)).align(Align.right).height(30);
+        table.add(alternateYesButton).width(150).height(30);
+        table.add(alternateNoButton).width(150).height(30);
+        table.add(new Label(" ", skin)).height(30);
+        table.row();
+        table.add(new Label(" ", skin)).height(30);
+        table.row();
+        table.add(new Label(" ", skin)).height(30).width(150);
+        table.add(new Label(" ", skin)).height(30).width(150);
+        table.add(backButton).height(30).width(150);
 
     }
 
@@ -76,6 +121,13 @@ public class SettingsScreen implements Screen {
         Gdx.input.setInputProcessor(stage);
         viewport.apply();
 
+        //update checked buttons to match current settings
+        lightStartButton.setChecked(game.isStartingPlayerLight());
+        darkStartButton.setChecked(game.isStartingPlayerDark());
+        randomStartButton.setChecked(game.isStartingPlayerRandom());
+
+        alternateYesButton.setChecked(game.getAlternateStarts());
+        alternateNoButton.setChecked(!game.getAlternateStarts());
     }
 
     @Override
@@ -103,7 +155,20 @@ public class SettingsScreen implements Screen {
 
     @Override
     public void hide() {
+
         Gdx.input.setInputProcessor(null);
+
+        // save settings
+        game.setAlternateStarts(alternateYesButton.isChecked());
+        if (lightStartButton.isChecked())
+            game.setStartingPlayerLight();
+        if (darkStartButton.isChecked())
+            game.setStartingPlayerDark();
+        if (randomStartButton.isChecked())
+            game.setStartingPlayerRandom();
+
+
+
     }
 
     @Override
@@ -112,3 +177,5 @@ public class SettingsScreen implements Screen {
     }
 
 }
+
+
