@@ -38,12 +38,14 @@ public class CathedroidGame extends Game {
 		setStartingPlayerRandom();
 		setAlternateStarts(true);
 
+		//screen control
 		previousScreen = null;
 		setScreen(menuScreen);
 	}
 
 	public void	startGameScreen (boolean newGame, boolean vsAI){
 		//start game
+		//all games are new until the loading feature is in
 		gameScreen.startNewGame(this.getStartingPlayer());
 		setScreen(gameScreen);
 	}
@@ -64,6 +66,7 @@ public class CathedroidGame extends Game {
 	public void returnFromInfoScreen() {
 		if (previousScreen == null)
 		{
+			//just in case
 			setMenuScreen();
 		}
 		else

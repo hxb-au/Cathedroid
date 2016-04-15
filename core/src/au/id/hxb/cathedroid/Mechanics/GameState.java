@@ -13,8 +13,9 @@ public class GameState {
     private int [][] coordinates, tmp;
     private boolean [][] checkedsquares;
     private Move moveList;
-    private boolean recentCapture;
     private Square captureList;
+    private int numMoves = 0;
+    private Player nextPlayer;
 
 
     public GameState(){
@@ -40,11 +41,9 @@ public class GameState {
                 checkedsquares[i][j] = false;
             }
         }
-        recentCapture = false;
     }
 
-    public boolean recentCapture() { return recentCapture; }
-
+    // start a new game with an empy board, no moves made and the requested startign player
     public void newGame(Player startingPlayer){
 
 
@@ -58,12 +57,15 @@ public class GameState {
         }
 
         moveList = null;
-        recentCapture = false;
+        numMoves = 0;
+        nextPlayer = startingPlayer;
 
     }
 
-    public Piece getCaptureRef()
-    {
+    // called after a move has been processed for the UI to learn which pieces have been captured.
+    // each call give a new piece, as multple pieces can be captured on a move.
+    // returns null if no pieces left to process (or  none captured to begin with)
+    public Piece getCaptureRef() {
         Piece capturedPiece = null;
         Move index = moveList;
 
@@ -83,7 +85,7 @@ public class GameState {
         return capturedPiece;
     }
 
-    public Player whoseTurn(){ return Player.LIGHT; }
+    public Player whoseTurn(){ return nextPlayer; }
 
     // the board is a 10x10 array of these. piece origins are used for capture and claim checks
     enum SquareState {
@@ -107,6 +109,10 @@ public class GameState {
         int x, y;
         int numSquares;
         Move move;
+
+        //correct turn?
+        if (player != nextPlayer)
+            return false;
 
         //load translated and rotated piece coverage in to coordinates array
         numSquares = getSquares(piece, orientation, pieceX, pieceY, coordinates);
@@ -147,11 +153,13 @@ public class GameState {
             board[x][y] = state;
         }
 
+        //store the new move in the list of moves
         move = new Move(piece, orientation, pieceX, pieceY, player);
         addMove(move);
+        numMoves++;
 
         //only check cliams after cathedral and 1 piece each are placed
-        if (moveList.numMoves() > 3)
+        if (numMoves > 3)
             checkPieceClaims(player, numSquares, coordinates);
 
         return true;
@@ -159,6 +167,9 @@ public class GameState {
 
     // check for claimed area around a new piece by checking each square around it
     // (including diagonals)
+    // this needs to restart at each square so a piece that defines two claimed areas will
+    // actualy be able to claim both areas.
+    // a matrix is used to avoid repeat work
     private void checkPieceClaims(Player player, int numSquares, int[][] coords){
         int i, j;
         int pieceX, pieceY;
@@ -190,6 +201,10 @@ public class GameState {
 
     }
 
+    // starting at the given square, flood fill (including via diagonals)
+    // treat friendly pieces as the edge of the flood and count enemy pieces in there
+    // if 0 or 1 enemy pieces are found, claim the area
+    // capture piece if relevant
     private void checkSquareClaim(int x, int y, Player player){
         int i,j;
         int currentX, currentY;

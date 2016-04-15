@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
+import com.badlogic.gdx.utils.Array;
 
 import au.id.hxb.cathedroid.Mechanics.GameState;
 import au.id.hxb.cathedroid.Mechanics.Orientation;
@@ -206,7 +207,6 @@ public class PieceActor extends Image {
             if (piecePlaced)
             {
 
-
                 // fix the piece in place
                 PieceActor.this.setTouchable(Touchable.disabled);
                 PieceActor.this.placed = true;
@@ -234,6 +234,9 @@ public class PieceActor extends Image {
                     //get next capture if it exists, or null
                     capturedPiece = gameState.getCaptureRef();
                 }
+
+                //set touchables for the new turn? maybe leave everything open
+                //TODO highlight correct pieces maybe?
 
             }
 
