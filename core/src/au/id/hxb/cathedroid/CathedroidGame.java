@@ -44,6 +44,7 @@ public class CathedroidGame extends Game {
 
 	public void	startGameScreen (boolean newGame, boolean vsAI){
 		//start game
+		gameScreen.startNewGame(this.getStartingPlayer());
 		setScreen(gameScreen);
 	}
 

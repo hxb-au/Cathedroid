@@ -45,6 +45,23 @@ public class GameState {
 
     public boolean recentCapture() { return recentCapture; }
 
+    public void newGame(Player startingPlayer){
+
+
+        //refill board array with empties
+        int i,j;
+
+        for (i = 0; i < board.length; i++) {
+            for (j = 0; j < board[i].length; j++) {
+                board[i][j] = SquareState.EMPTY;
+            }
+        }
+
+        moveList = null;
+        recentCapture = false;
+
+    }
+
     public Piece getCaptureRef()
     {
         Piece capturedPiece = null;

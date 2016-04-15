@@ -30,7 +30,13 @@ public class PieceActor extends Image {
     private static final int SQUARE_MID = 25;
     static GameState gameState;
     private final Piece piece;
-    private final Player player;
+
+    public void setPlayer(Player player) {
+        this.player = player;
+    }
+
+    private Player player;
+    private boolean placed = false;
 
     public PieceActor(Texture texture, Piece piece, Player player,
                       Rectangle hitBox1, Rectangle hitBox2, Rectangle hitBox3,
@@ -52,10 +58,8 @@ public class PieceActor extends Image {
         this.referenceY = referenceY;
 
         this.addListener(new PieceGestureListener());
-        if (player == Player.LIGHT)
-            this.addAction(Actions.moveTo(MathUtils.random(340f - 150f), MathUtils.random(720f - 150f)));
-        else
-            this.addAction(Actions.moveTo(MathUtils.random(340f - 150f)+940f, MathUtils.random(720f - 150f)));
+
+        this.reset();
 
     }
 
@@ -64,20 +68,27 @@ public class PieceActor extends Image {
         gameState = gs;
     }
 
-    void capture()
+    public void capture()
     {
         if (this.piece == Piece.CA) {
             this.setVisible(false);
         }
         else {
-            this.setTouchable(Touchable.enabled);
-
-            if (player == Player.LIGHT)
-                this.addAction(Actions.moveTo(MathUtils.random(340f - 150f), MathUtils.random(720f - 150f)));
-            else
-                this.addAction(Actions.moveTo(MathUtils.random(340f - 150f) + 940f, MathUtils.random(720f - 150f)));
+            this.reset();
         }
 
+    }
+
+    //set the piece to playable and return to starting position
+    public void reset(){
+        this.setTouchable(Touchable.enabled);
+        this.placed = false;
+
+        //messy starting positions either side of board.
+        if (player == Player.LIGHT)
+            this.addAction(Actions.moveTo(MathUtils.random(340f - 150f), MathUtils.random(720f - 150f)));
+        else
+            this.addAction(Actions.moveTo(MathUtils.random(340f - 150f)+940f, MathUtils.random(720f - 150f)));
     }
 
     @Override
@@ -198,6 +209,7 @@ public class PieceActor extends Image {
 
                 // fix the piece in place
                 PieceActor.this.setTouchable(Touchable.disabled);
+                PieceActor.this.placed = true;
 
                 // snap location to board grid by converting board location back to idealised stage location
                 //note y inversion

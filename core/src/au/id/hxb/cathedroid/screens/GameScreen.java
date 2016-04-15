@@ -10,6 +10,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -28,11 +29,13 @@ public class GameScreen implements Screen {
     private int midPointX, midPointY;
     private Viewport viewport;
     private Stage stage;
+    private GameState gameState;
 
 
     public GameScreen(CathedroidGame game) {
         Gdx.app.log("GameScreen", "Attached");
         this.game = game;
+        gameState = new GameState();
         int nativeWidth = 1280;
         int nativeHeight = 720;
         midPointX = nativeWidth / 2;
@@ -48,10 +51,34 @@ public class GameScreen implements Screen {
         bgImg.setName("bg");
         stage.addActor(bgImg);
         initPieceActors();
-
     }
+
+    public void startNewGame(Player startingPlayer) {
+
+        Gdx.app.log("GameScreen", "new game" + startingPlayer.toString());
+
+        //reset game logic
+        gameState.newGame(startingPlayer);
+
+        // give cathedral piece to starting player
+        PieceActor cathedralpiece = stage.getRoot().findActor(Piece.CA.getName());
+        cathedralpiece.setPlayer(startingPlayer);
+
+        //reset pieces
+        Array<Actor> pieceActors = stage.getActors();
+        for(Actor pieceActor : pieceActors)
+        {
+            //TODO this feels ugly - is there a better way?
+            if(pieceActor instanceof PieceActor)
+                ((PieceActor) pieceActor).reset();
+        }
+
+        //put cathedral on top
+        cathedralpiece.toFront();
+    }
+
     private void initPieceActors() {
-        PieceActor.setGameState(new GameState());
+        PieceActor.setGameState(gameState);
         PieceActor tmpPiece;
 
         //Light Pieces
