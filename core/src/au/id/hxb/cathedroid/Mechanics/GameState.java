@@ -110,7 +110,7 @@ public class GameState {
         int numSquares;
         Move move;
 
-        //correct turn?
+        //correct turn? fail if not
         if (player != nextPlayer)
             return false;
 
@@ -161,6 +161,14 @@ public class GameState {
         //only check cliams after cathedral and 1 piece each are placed
         if (numMoves > 3)
             checkPieceClaims(player, numSquares, coordinates);
+
+        // other player's turn
+        if (nextPlayer == Player.LIGHT)
+            nextPlayer = Player.DARK;
+        else
+            nextPlayer = Player.LIGHT;
+
+        Gdx.app.log("GameState", "Next player: " + nextPlayer.toString());
 
         return true;
     }
