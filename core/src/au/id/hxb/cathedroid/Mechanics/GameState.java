@@ -87,6 +87,7 @@ public class GameState {
 
     public Player whoseTurn(){ return nextPlayer; }
 
+
     // the board is a 10x10 array of these. piece origins are used for capture and claim checks
     enum SquareState {
         EMPTY,
@@ -168,6 +169,10 @@ public class GameState {
         else
             nextPlayer = Player.LIGHT;
 
+        //check for possible moves?
+        //TODO - allow a pass or just brute fore check if player can move.
+
+
         Gdx.app.log("GameState", "Next player: " + nextPlayer.toString());
 
         return true;
@@ -197,12 +202,12 @@ public class GameState {
 
 
             checkSquareClaim(pieceX + 1, pieceY + 1, player);
-            checkSquareClaim(pieceX + 1, pieceY    , player);
+            checkSquareClaim(pieceX + 1, pieceY,     player);
             checkSquareClaim(pieceX + 1, pieceY - 1, player);
-            checkSquareClaim(pieceX    , pieceY + 1, player);
-            checkSquareClaim(pieceX    , pieceY - 1, player);
+            checkSquareClaim(pieceX,     pieceY + 1, player);
+            checkSquareClaim(pieceX,     pieceY - 1, player);
             checkSquareClaim(pieceX - 1, pieceY + 1, player);
-            checkSquareClaim(pieceX - 1, pieceY    , player);
+            checkSquareClaim(pieceX - 1, pieceY,     player);
             checkSquareClaim(pieceX - 1, pieceY - 1, player);
 
         }
@@ -235,14 +240,12 @@ public class GameState {
         if (checkedsquares[x][y])
             return;
 
-
-
-
         queueHead = new Square(x,y);
         queueTail = queueHead;
         queueHead.markChecked();
+        Gdx.app.log("Claims", "Begin Claim Check " + queueHead.toString());
         
-        //pop top of queue by checking if it is empty/enemy 
+        //pop top of queue by checking if it is empty/enemy
         // if so, add surrounding unchecked squares to the queue and move it to included area
         // mark this square as checked and advance queue
         while (queueHead != null)
@@ -257,14 +260,15 @@ public class GameState {
                 //if this is a piece marker, not just walls, handle that.
                 if (queueHead.isEnemyOrigin(player)){
                     enemyPieces++;
-                    //Gdx.app.log("Hit Piece", Integer.toString(queueHead.x) + "," + Integer.toString(queueHead.y));
                     if (enemyPieces == 2)
-                        return; //found 2 pieces in this region, give up with no change
+                        capturedPieceOrigin = null; //found 2 pieces in this region, no captures.
+                    // must finish filling this region to mark all squares as checked otherwise another  partial region might find only 1 piece
+                    //TODO - this might be faster if we quit here and subsequent region checks expire when they hit previous ones.
+                    //this would require changing checkedSquares to an int from a bool.
                     if (enemyPieces == 1)
                         capturedPieceOrigin = queueHead; //hold on to this location for capture lookup
+                    Gdx.app.log("Claims", "Hit Enemy #" + Integer.toString(enemyPieces) + " " + queueHead.toString());
                 }
-
-                //haven't hit 2 pieces, so keep processing
 
                 currentX = queueHead.x;
                 currentY = queueHead.y;
@@ -293,6 +297,14 @@ public class GameState {
             }
         }
 
+        // region has too many enemies to claim. give up now that all connected squares are marked checked
+        if ( enemyPieces > 1)
+        {
+            Gdx.app.log("Claims", "Claim failed from " + new Square(x,y).toString());
+            return;
+        }
+
+        // still here? make the claim
         // included area calculated, so set it all to claimed
 
         //assign allied enum
@@ -303,6 +315,7 @@ public class GameState {
 
         int area = 0;
         while (includedAreaStack != null) {
+            Gdx.app.log("Claims",player.toString() +  " claims " + includedAreaStack.toString());
             board[includedAreaStack.x][includedAreaStack.y] = alliedClaim;
             area++;
             includedAreaStack = includedAreaStack.nextSquare;
@@ -594,7 +607,13 @@ public class GameState {
             return GameState.this.checkedsquares[this.x][this.y];
         }
 
-    
+        @Override
+        public String toString() {
+            //if (nextSquare == null)
+                return "(" + Character.toString((char)((int)'A' + x)) + ", " + Integer.toString(y+1) + ")";
+            //else
+                //return "(" + Character.toString('A' + (char)x) + ", " + Integer.toString(y+1) + "), " + nextSquare.toString();
+        }
     }
 }
 
