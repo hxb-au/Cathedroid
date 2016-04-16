@@ -115,6 +115,11 @@ public class GameState {
         if (player != nextPlayer)
             return false;
 
+        //first move Cathedral? fail if not
+        if (numMoves == 0 && piece != Piece.CA)
+            return false;
+
+
         //load translated and rotated piece coverage in to coordinates array
         numSquares = getSquares(piece, orientation, pieceX, pieceY, coordinates);
 
@@ -142,12 +147,13 @@ public class GameState {
             state = SquareState.DARKPIECE;
             originState = SquareState.DARKPIECE_ORIGIN;
         }
+
         //copy it in using coordinates generated for checking fit
-        // the first coordinate is marked as a piece origin for capture checks (should match reference point)
+        // the first coordinate is marked as a piece origin for capture checks (should match reference point for placement)
         x = coordinates[0][0];
         y = coordinates[0][1];
         board[x][y] = originState;
-        // the remaining coordinates are just marked as pieces
+        // the remaining coordinates are just marked as player piece
         for (i = 1; i < numSquares; i++) {
             x = coordinates[i][0];
             y = coordinates[i][1];
@@ -159,7 +165,7 @@ public class GameState {
         addMove(move);
         numMoves++;
 
-        //only check cliams after cathedral and 1 piece each are placed
+        //only check claims after cathedral and 1 piece each are placed
         if (numMoves > 3)
             checkPieceClaims(player, numSquares, coordinates);
 
@@ -170,13 +176,15 @@ public class GameState {
             nextPlayer = Player.LIGHT;
 
         //check for possible moves?
-        //TODO - allow a pass or just brute fore check if player can move.
+        //TODO - allow a pass or just brute force check if player can move.
 
 
         Gdx.app.log("GameState", "Next player: " + nextPlayer.toString());
 
         return true;
     }
+
+
 
     // check for claimed area around a new piece by checking each square around it
     // (including diagonals)
@@ -244,7 +252,7 @@ public class GameState {
         queueTail = queueHead;
         queueHead.markChecked();
         Gdx.app.log("Claims", "Begin Claim Check " + queueHead.toString());
-        
+
         //pop top of queue by checking if it is empty/enemy
         // if so, add surrounding unchecked squares to the queue and move it to included area
         // mark this square as checked and advance queue
