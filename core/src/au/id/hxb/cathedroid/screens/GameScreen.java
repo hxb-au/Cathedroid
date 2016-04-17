@@ -6,10 +6,13 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -30,6 +33,7 @@ public class GameScreen implements Screen {
     private Viewport viewport;
     private Stage stage;
     private GameState gameState;
+    private Group claimGroup;
 
 
     public GameScreen(CathedroidGame game) {
@@ -50,6 +54,7 @@ public class GameScreen implements Screen {
         Image bgImg = new Image(new Texture(Gdx.files.internal("board_on_grey.png")));
         bgImg.setName("bg");
         stage.addActor(bgImg);
+        initClaimActors();
         initPieceActors();
     }
 
@@ -73,12 +78,25 @@ public class GameScreen implements Screen {
                 ((PieceActor) pieceActor).reset();
         }
 
+        updateClaims();
+
         //put cathedral on top
         cathedralpiece.toFront();
     }
 
+    public void updateClaims(){
+        Array<Actor> claimActors = claimGroup.getChildren();
+        for(Actor claimActor : claimActors)
+        {
+            //TODO this feels ugly - is there a better way?
+            if(claimActor instanceof ClaimActor)
+                ((ClaimActor) claimActor).updateState();
+        }
+    }
+
     private void initPieceActors() {
         PieceActor.setGameState(gameState);
+        PieceActor.setGameScreen(this);
         PieceActor tmpPiece;
 
         //Light Pieces
@@ -291,6 +309,29 @@ public class GameScreen implements Screen {
         stage.addActor(tmpPiece);
 
 
+    }
+
+    private void initClaimActors() {
+        int i,j;
+        ClaimActor tmpClaim;
+        claimGroup = new Group();
+        claimGroup.setName("claimGroup");
+
+        //set ClaimActor statics
+        TextureRegionDrawable lightTex, darkTex;
+        lightTex = new TextureRegionDrawable(new TextureRegion( new Texture(Gdx.files.internal("lightClaimOverlay.png"))));
+        darkTex  = new TextureRegionDrawable(new TextureRegion( new Texture(Gdx.files.internal( "darkClaimOverlay.png"))));
+        ClaimActor.setDrawables(lightTex, darkTex);
+        ClaimActor.setGameState(gameState);
+
+        for(i=0; i < 10; i++){
+            for(j=0; j < 10; j++){
+                tmpClaim = new ClaimActor(i,j);
+                claimGroup.addActor(tmpClaim);
+            }
+        }
+
+        stage.addActor(claimGroup);
     }
 
     @Override

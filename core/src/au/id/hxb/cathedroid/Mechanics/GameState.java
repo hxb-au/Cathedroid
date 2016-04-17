@@ -74,6 +74,19 @@ public class GameState {
         }
     }
 
+    //used by claim visualisation to update itself
+    public Player checkClaim(int x, int y){
+        switch (board[x][y]){
+            case DARKCLAIM:
+                return Player.DARK;
+            case LIGHTCLAIM:
+                return Player.LIGHT;
+            default:
+                return null;
+        }
+    }
+
+
     //go through the list of captured piece coordinates and mark those pieces available
     // collect piece refs in a list for the UI to query
     private void processCaptures(){
