@@ -4,6 +4,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 
+import au.id.hxb.cathedroid.Mechanics.Player;
 import au.id.hxb.cathedroid.screens.GameScreen;
 import au.id.hxb.cathedroid.screens.InfoScreen;
 import au.id.hxb.cathedroid.screens.MenuScreen;
@@ -12,11 +13,16 @@ import au.id.hxb.cathedroid.screens.SettingsScreen;
 
 public class CathedroidGame extends Game {
 
+	// game screens
 	MenuScreen menuScreen;
 	GameScreen gameScreen;
 	InfoScreen infoScreen;
 	SettingsScreen settingsScreen;
 	Screen previousScreen;
+
+	// game config
+	Player startingPlayer;
+	boolean alternateStarts, randomStartPlayer;
 
 	@Override
 	public void create () {
@@ -27,11 +33,20 @@ public class CathedroidGame extends Game {
 		infoScreen = new InfoScreen(this);
 		settingsScreen =  new SettingsScreen(this);
 
+		//default rules
+		//TODO load from last time
+		setStartingPlayerRandom();
+		setAlternateStarts(true);
+
+		//screen control
 		previousScreen = null;
 		setScreen(menuScreen);
 	}
 
 	public void	startGameScreen (boolean newGame, boolean vsAI){
+		//start game
+		//all games are new until the loading feature is in
+		gameScreen.startNewGame(this.getStartingPlayer());
 		setScreen(gameScreen);
 	}
 
@@ -51,6 +66,7 @@ public class CathedroidGame extends Game {
 	public void returnFromInfoScreen() {
 		if (previousScreen == null)
 		{
+			//just in case
 			setMenuScreen();
 		}
 		else
@@ -58,6 +74,44 @@ public class CathedroidGame extends Game {
 			setScreen(previousScreen);
 		}
 	}
+
+	public void setAlternateStarts( Boolean setting ) { alternateStarts  = setting; }
+	public Boolean getAlternateStarts() { return alternateStarts; }
+
+	public void setStartingPlayerRandom () { randomStartPlayer = true; }
+	public void setStartingPlayerLight() { startingPlayer = Player.LIGHT; randomStartPlayer = false; }
+	public void setStartingPlayerDark()  { startingPlayer = Player.DARK; randomStartPlayer = false; }
+
+	public Boolean isStartingPlayerRandom() { return randomStartPlayer; }
+	public Boolean isStartingPlayerLight() { return !randomStartPlayer && startingPlayer == Player.LIGHT;}
+	public Boolean isStartingPlayerDark() { return !randomStartPlayer && startingPlayer == Player.DARK;}
+
+	private Player getStartingPlayer() {
+		if (randomStartPlayer)
+		{
+			startingPlayer = (Math.random() < 0.5) ? Player.LIGHT : Player.DARK ;
+		}
+
+		if (alternateStarts) {
+			//only random the first time, can't be random if it's going to alternate
+			randomStartPlayer = false;
+			Player tmp = startingPlayer;
+			if (startingPlayer == Player.LIGHT)
+				startingPlayer = Player.DARK;
+			else
+				startingPlayer = Player.LIGHT;
+
+			return tmp;
+		}
+		else
+		{
+			return startingPlayer;
+		}
+	}
+
+
+
+
 
 }
 

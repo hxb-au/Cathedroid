@@ -5,5 +5,9 @@ package au.id.hxb.cathedroid.Mechanics;
  */
 public enum Player {
     LIGHT,
-    DARK
+    DARK;
+
+    public Player getOther(){
+        return (this == LIGHT ? DARK : LIGHT);
+    }
 }

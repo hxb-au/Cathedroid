@@ -7,6 +7,18 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -20,9 +32,13 @@ public class SettingsScreen implements Screen {
     SpriteBatch batch;
     Texture placeholder;
     OrthographicCamera cam;
-    SettingsInputListener settingsInputListener;
     private int midPointX, midPointY;
     private Viewport viewport;
+    private Stage stage;
+
+    TextButton lightStartButton, darkStartButton, randomStartButton;
+    TextButton alternateYesButton, alternateNoButton;
+
 
 
     public SettingsScreen(CathedroidGame game) {
@@ -37,38 +53,93 @@ public class SettingsScreen implements Screen {
         cam = new OrthographicCamera(nativeWidth,nativeHeight);
         cam.setToOrtho(false, nativeWidth,nativeHeight);
         viewport = new FitViewport(nativeWidth, nativeHeight, cam);
-        settingsInputListener = new SettingsInputListener(game, cam);
+        stage = new Stage(viewport, batch);
+
+        initUI();
+
+    }
+
+    private void initUI(){
+        //load textures
+        Skin skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+
+        //build buttonGroups
+
+        // starting player group
+        lightStartButton = new TextButton("Light", skin, "toggle");
+        darkStartButton = new TextButton("Dark", skin, "toggle");
+        randomStartButton = new TextButton("Random", skin, "toggle");
+        ButtonGroup startPlayerGroup = new ButtonGroup(lightStartButton, darkStartButton, randomStartButton);
+        startPlayerGroup.setMinCheckCount(1);
+        startPlayerGroup.setMaxCheckCount(1);
+
+
+        // alternate starting player group
+        alternateYesButton = new TextButton("Yes", skin, "toggle");
+        alternateNoButton = new TextButton("No", skin, "toggle");
+        ButtonGroup alternateStartGroup = new ButtonGroup(alternateYesButton, alternateNoButton);
+
+        // back button
+        TextButton backButton = new TextButton("Back", skin, "default");
+        backButton.addListener(new ClickListener(0) {
+            @Override
+            public void clicked(InputEvent e, float x, float y)
+            {
+                game.setMenuScreen();
+            }
+        });
+
+        //table - ugly as
+        //TODO make this nicer
+        Table table = new Table();
+        table.setFillParent(true);
+        stage.addActor(table);
+
+        table.add(new Label("Starting Player:  ", skin)).align(Align.right).height(30);
+        table.add(lightStartButton).width(150).height(30);
+        table.add(darkStartButton).width(150).height(30);
+        table.add(randomStartButton).width(150).height(30);
+        table.add(new Label(" ", skin)).height(30).width(150);
+        table.row();
+        table.add(new Label(" ", skin)).height(30);
+        table.row();
+        table.add(new Label("Alternate starting players from now on? ", skin)).align(Align.right).height(30);
+        table.add(alternateYesButton).width(150).height(30);
+        table.add(alternateNoButton).width(150).height(30);
+        table.add(new Label(" ", skin)).height(30);
+        table.row();
+        table.add(new Label(" ", skin)).height(30);
+        table.row();
+        table.add(new Label(" ", skin)).height(30).width(150);
+        table.add(new Label(" ", skin)).height(30).width(150);
+        table.add(backButton).height(30).width(150);
 
     }
 
     @Override
     public void show() {
-        Gdx.input.setInputProcessor(settingsInputListener);
+        Gdx.input.setInputProcessor(stage);
         viewport.apply();
 
+        //update checked buttons to match current settings
+        lightStartButton.setChecked(game.isStartingPlayerLight());
+        darkStartButton.setChecked(game.isStartingPlayerDark());
+        randomStartButton.setChecked(game.isStartingPlayerRandom());
+
+        alternateYesButton.setChecked(game.getAlternateStarts());
+        alternateNoButton.setChecked(!game.getAlternateStarts());
     }
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0f, 1f, 0f, 1f); // Sets a Color to Fill the Screen with (RGB = 0, 0, 0), Opacity of 1 (100%)
+        Gdx.gl.glClearColor(0f, 0f, 0f, 1f); // Sets a Color to Fill the Screen with (RGB = 0, 0, 0), Opacity of 1 (100%)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT); // Fills the screen with the selected color
-
-        batch.setProjectionMatrix(viewport.getCamera().combined);
-        batch.begin();
-        batch.disableBlending();
-
-        batch.draw(placeholder,midPointX-placeholder.getWidth()/2,midPointY-placeholder.getHeight()/2);
-
-        batch.enableBlending();
-        batch.end();
-
+        stage.act(delta);
+        stage.draw();
     }
 
     @Override
     public void resize(int width, int height) {
-        Gdx.app.log("SettingsScreen", "resizing");
-        Gdx.app.log("Width", Integer.toString(width));
-        Gdx.app.log("Height", Integer.toString(height));
         viewport.update(width, height);
     }
 
@@ -84,36 +155,27 @@ public class SettingsScreen implements Screen {
 
     @Override
     public void hide() {
+
         Gdx.input.setInputProcessor(null);
+
+        // save settings
+        game.setAlternateStarts(alternateYesButton.isChecked());
+        if (lightStartButton.isChecked())
+            game.setStartingPlayerLight();
+        if (darkStartButton.isChecked())
+            game.setStartingPlayerDark();
+        if (randomStartButton.isChecked())
+            game.setStartingPlayerRandom();
+
+
+
     }
 
     @Override
     public void dispose() {
-
-    }
-    class SettingsInputListener extends InputAdapter {
-
-        private CathedroidGame game;
-        private OrthographicCamera cam;
-
-        //button locations?
-
-
-        public SettingsInputListener( CathedroidGame game, OrthographicCamera cam) {
-            this.game = game;
-            this.cam = cam;
-
-        }
-        @Override
-        public boolean touchDown (int screenX, int screenY, int pointer, int button) {
-            if (button == 0){
-                game.setMenuScreen();
-                return true;
-            }
-            else {
-                return false;
-            }
-        }
+        stage.dispose();
     }
 
 }
+
+

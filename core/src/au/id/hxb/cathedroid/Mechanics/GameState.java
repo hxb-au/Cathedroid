@@ -3,7 +3,8 @@ package au.id.hxb.cathedroid.Mechanics;
 
 import com.badlogic.gdx.Gdx;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.EnumMap;
 
 /**
  * Created by hxb on 4/04/2016.
@@ -13,60 +14,97 @@ public class GameState {
     private int [][] coordinates, tmp;
     private boolean [][] checkedsquares;
     private Move moveList;
-    private boolean recentCapture;
-    private Square captureList;
+    private Square captureCoordList;
+    private int numMoves = 0;
+    private Player nextPlayer;
+    private EnumMap<Piece, Boolean> pieceAvailable;
+    private ArrayList<Piece> capturedPieces;
+
+    private final int BOARD_WIDTH = 10, BOARD_HEIGHT = 10;
 
 
     public GameState(){
-        int i,j;
-        board = new SquareState[10][10];
-        checkedsquares = new boolean[10][10];
-        //Arrays.fill(board, SquareState.EMPTY);
+
+        board = new SquareState[BOARD_WIDTH][BOARD_HEIGHT];
+        checkedsquares = new boolean[BOARD_WIDTH][BOARD_HEIGHT];
+
         coordinates = new int[][] {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}};
         tmp = new int[][] {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}};
-        //Arrays.fill(coordinates, 0);
-        //Arrays.fill(tmp , 0);
 
-        //fill board array
-        for (i = 0; i < board.length; i++) {
-            for (j = 0; j < board[i].length; j++) {
+        pieceAvailable = new EnumMap<Piece, Boolean>(Piece.class);
+        capturedPieces = new ArrayList<Piece>();
+
+    }
+
+    // set up a new game with an empty board, no moves made and the requested starting player
+    public void newGame(Player startingPlayer){
+
+        //(re)fill board array with empties
+        int i,j;
+
+        for (i = 0; i < BOARD_WIDTH; i++) {
+            for (j = 0; j < BOARD_HEIGHT; j++) {
                 board[i][j] = SquareState.EMPTY;
             }
         }
 
-        //fill array of which squares have been checked 
-        for (i = 0; i < checkedsquares.length; i++) {
-            for (j = 0; j < checkedsquares[i].length; j++) {
-                checkedsquares[i][j] = false;
-            }
-        }
-        recentCapture = false;
-    }
+        //empty the list of moves
+        moveList = null;
+        numMoves = 0;
 
-    public boolean recentCapture() { return recentCapture; }
-
-    public Piece getCaptureRef()
-    {
-        Piece capturedPiece = null;
-        Move index = moveList;
-
-        // no captured pieces
-        if (captureList == null)
-            return null;
-
-        //find the most recent move that matches this coordinate
-        while(index != null)
+        // reset piece usage list
+        for( Piece piece : Piece.values())
         {
-            if (captureList.x == index.x && captureList.y == index.y)
-                capturedPiece = index.piece;
-            index = index.nextMove;
+            pieceAvailable.put(piece, true);
         }
 
-        captureList = captureList.nextSquare;
-        return capturedPiece;
+        //set starting player
+        nextPlayer = startingPlayer;
+
     }
 
-    public Player whoseTurn(){ return Player.LIGHT; }
+    // called after a move has been processed for the UI to learn which pieces have been captured.
+    // each call gives a new piece, as multiple pieces can be captured on a move.
+    // returns null if no pieces left to process (or  none captured to begin with)
+    public Piece getCaptureRef() {
+        if (capturedPieces.isEmpty())
+            return null;
+        else {
+            return capturedPieces.remove(0);
+        }
+    }
+
+    //go through the list of captured piece coordinates and mark those pieces available
+    // collect piece refs in a list for the UI to query
+    private void processCaptures(){
+
+        Piece capturedPiece = null;
+        Move index;
+
+        while (captureCoordList != null) {
+
+            index = moveList;
+
+            //find the most recent move that matches this coordinate
+            while (index != null) {
+                if (captureCoordList.x == index.x && captureCoordList.y == index.y)
+                    capturedPiece = index.piece;
+                index = index.nextMove;
+            }
+
+            // mark the piece as available in gameState's own list
+            if (capturedPiece != null)
+                pieceAvailable.put(capturedPiece, true);
+
+            //add it to the captured set for reference by the UI
+            capturedPieces.add(capturedPiece);
+
+            captureCoordList = captureCoordList.nextSquare;
+        }
+
+    }
+
+    public Player whoseTurn(){ return nextPlayer; }
 
     // the board is a 10x10 array of these. piece origins are used for capture and claim checks
     enum SquareState {
@@ -91,18 +129,30 @@ public class GameState {
         int numSquares;
         Move move;
 
-        //load translated and rotated piece coverage in to coordinates array
+        //correct turn? fail if not
+        if (player != nextPlayer)
+            return false;
+
+        //first move Cathedral? fail if not
+        if (numMoves == 0 && piece != Piece.CA)
+            return false;
+
+
+        // load translated and rotated piece coverage in to the coordinates array
+        // save count for iteration
         numSquares = getSquares(piece, orientation, pieceX, pieceY, coordinates);
 
         //check each coordinate
-        for (i = 0; i < numSquares; i++) {
-            x = coordinates[i][0];
-            y = coordinates[i][1];
-            if (!checkSquare(x, y, player))
-                return false;
-        }
+        if( !checkSquares(numSquares, coordinates,player))
+            return false;
+
+        // note: numSquares and coordinates are used again later if successful
 
         //still here? then the piece fits
+
+        //mark piece as used in gamestate's list
+        pieceAvailable.put(piece, false);
+
         //record piece in board
 
         // which colour piece is it?
@@ -118,31 +168,85 @@ public class GameState {
             state = SquareState.DARKPIECE;
             originState = SquareState.DARKPIECE_ORIGIN;
         }
-        //copy it in using coordinates generated for checking fit
-        // the first coordinate is marked as a piece origin for capture checks (should match reference point)
+
+        //copy it in using coordinates generated earlier for checking fit
+        // the first coordinate is marked as a piece origin for capture checks (should match reference point for placement)
         x = coordinates[0][0];
         y = coordinates[0][1];
         board[x][y] = originState;
-        // the remaining coordinates are just marked as pieces
+        // the remaining coordinates are just marked as player piece
         for (i = 1; i < numSquares; i++) {
             x = coordinates[i][0];
             y = coordinates[i][1];
             board[x][y] = state;
         }
 
+        //store the new move in the list of moves
         move = new Move(piece, orientation, pieceX, pieceY, player);
         addMove(move);
+        numMoves++;
 
-        //only check cliams after cathedral and 1 piece each are placed
-        if (moveList.numMoves() > 3)
+        //only check claims after cathedral and 1 piece each are placed
+        if (numMoves > 3) {
             checkPieceClaims(player, numSquares, coordinates);
+            processCaptures();
+        }
+
+        // other player's turn
+        nextPlayer = nextPlayer.getOther();
+
+        //if the next player can't make a move, swap back
+        if (movesImpossible(nextPlayer)) {
+            nextPlayer = nextPlayer.getOther();
+        }
+
+
+        Gdx.app.log("GameState", "Next player: " + nextPlayer.toString());
 
         return true;
     }
 
+    // check if the current player can make a move at all
+    // brute force - might be optimisable if iterations are re-ordered and non-empty/claimed squares skipped
+    private boolean movesImpossible(Player player){
+        int x,y;
+        int numSquares;
+
+        // for each piece
+        for (Piece testPiece : Piece.values()) {
+            // if that piece belongs to current player and is available
+            if (testPiece.getOwner() == player && pieceAvailable.get(testPiece)) {
+                //check each orientation of that piece
+                for (Orientation dir : Orientation.values()) {
+                    //in every position
+                    for (x = 0; x < BOARD_WIDTH; x++) {
+                        for (y = 0; y < BOARD_HEIGHT; y++){
+                            //check piece for fit
+
+                            // load translated and rotated piece coverage in to the coordinates array
+                            // save numSquares count for iteration
+                            numSquares = getSquares(testPiece, dir, x, y, coordinates);
+
+                            //check each coordinate, if the piece fits then moves are not impossible
+                            if(checkSquares(numSquares, coordinates,player))
+                                return false;
+                        }
+                    }
+                }
+
+            }
+        }
+
+        return true;
+    }
+
+
     // check for claimed area around a new piece by checking each square around it
     // (including diagonals)
-    private void checkPieceClaims(Player player, int numSquares, int[][] coords){
+    // this needs to restart at each square so a piece that defines two claimed areas will
+    // actualy be able to claim both areas.
+    // a matrix is used to avoid repeat work
+    private void checkPieceClaims(Player player, int numSquares, int[][] coordinates){
         int i, j;
         int pieceX, pieceY;
 
@@ -161,18 +265,22 @@ public class GameState {
 
 
             checkSquareClaim(pieceX + 1, pieceY + 1, player);
-            checkSquareClaim(pieceX + 1, pieceY    , player);
+            checkSquareClaim(pieceX + 1, pieceY,     player);
             checkSquareClaim(pieceX + 1, pieceY - 1, player);
-            checkSquareClaim(pieceX    , pieceY + 1, player);
-            checkSquareClaim(pieceX    , pieceY - 1, player);
+            checkSquareClaim(pieceX,     pieceY + 1, player);
+            checkSquareClaim(pieceX,     pieceY - 1, player);
             checkSquareClaim(pieceX - 1, pieceY + 1, player);
-            checkSquareClaim(pieceX - 1, pieceY    , player);
+            checkSquareClaim(pieceX - 1, pieceY,     player);
             checkSquareClaim(pieceX - 1, pieceY - 1, player);
 
         }
 
     }
 
+    // starting at the given square, flood fill (including via diagonals)
+    // treat friendly pieces as the edge of the flood and count enemy pieces in there
+    // if 0 or 1 enemy pieces are found, claim the area
+    // capture piece if relevant
     private void checkSquareClaim(int x, int y, Player player){
         int i,j;
         int currentX, currentY;
@@ -195,14 +303,12 @@ public class GameState {
         if (checkedsquares[x][y])
             return;
 
-
-
-
         queueHead = new Square(x,y);
         queueTail = queueHead;
         queueHead.markChecked();
-        
-        //pop top of queue by checking if it is empty/enemy 
+        Gdx.app.log("Claims", "Begin Claim Check " + queueHead.toString());
+
+        //pop top of queue by checking if it is empty/enemy
         // if so, add surrounding unchecked squares to the queue and move it to included area
         // mark this square as checked and advance queue
         while (queueHead != null)
@@ -217,14 +323,15 @@ public class GameState {
                 //if this is a piece marker, not just walls, handle that.
                 if (queueHead.isEnemyOrigin(player)){
                     enemyPieces++;
-                    //Gdx.app.log("Hit Piece", Integer.toString(queueHead.x) + "," + Integer.toString(queueHead.y));
                     if (enemyPieces == 2)
-                        return; //found 2 pieces in this region, give up with no change
+                        capturedPieceOrigin = null; //found 2 pieces in this region, no captures.
+                    // must finish filling this region to mark all squares as checked otherwise another  partial region might find only 1 piece
+                    //TODO - this might be faster if we quit here and subsequent region checks expire when they hit previous ones.
+                    //this would require changing checkedSquares to an int from a bool.
                     if (enemyPieces == 1)
                         capturedPieceOrigin = queueHead; //hold on to this location for capture lookup
+                    Gdx.app.log("Claims", "Hit Enemy #" + Integer.toString(enemyPieces) + " " + queueHead.toString());
                 }
-
-                //haven't hit 2 pieces, so keep processing
 
                 currentX = queueHead.x;
                 currentY = queueHead.y;
@@ -253,6 +360,14 @@ public class GameState {
             }
         }
 
+        // region has too many enemies to claim. give up now that all connected squares are marked checked
+        if ( enemyPieces > 1)
+        {
+            Gdx.app.log("Claims", "Claim failed from " + new Square(x,y).toString());
+            return;
+        }
+
+        // still here? make the claim
         // included area calculated, so set it all to claimed
 
         //assign allied enum
@@ -263,6 +378,7 @@ public class GameState {
 
         int area = 0;
         while (includedAreaStack != null) {
+            Gdx.app.log("Claims",player.toString() +  " claims " + includedAreaStack.toString());
             board[includedAreaStack.x][includedAreaStack.y] = alliedClaim;
             area++;
             includedAreaStack = includedAreaStack.nextSquare;
@@ -270,8 +386,8 @@ public class GameState {
 
         // if a capture occurred, push it on to the stack of captures.
         if(enemyPieces == 1){
-            capturedPieceOrigin.nextSquare = captureList;
-            captureList = capturedPieceOrigin;
+            capturedPieceOrigin.nextSquare = captureCoordList;
+            captureCoordList = capturedPieceOrigin;
         }
 
     }
@@ -474,6 +590,17 @@ public class GameState {
             return board[x][y] == SquareState.EMPTY || board[x][y] == SquareState.DARKCLAIM;
     }
 
+    private boolean checkSquares(int numSquares, int[][] coordinates, Player player) {
+     int x, y;
+        for (int i = 0; i < numSquares; i++) {
+            x = coordinates[i][0];
+            y = coordinates[i][1];
+            if (!checkSquare(x, y, player))
+                return false;
+        }
+        return true;
+    }
+
     // move class holds the record of moves made in a linked list. Useful for save/load and piece capture
     class Move {
         public Piece piece;
@@ -554,7 +681,13 @@ public class GameState {
             return GameState.this.checkedsquares[this.x][this.y];
         }
 
-    
+        @Override
+        public String toString() {
+            //if (nextSquare == null)
+                return "(" + Character.toString((char)((int)'A' + x)) + ", " + Integer.toString(y+1) + ")";
+            //else
+                //return "(" + Character.toString('A' + (char)x) + ", " + Integer.toString(y+1) + "), " + nextSquare.toString();
+        }
     }
 }
 
