@@ -30,6 +30,7 @@ public class PieceActor extends Image {
     private static final int BOARD_WIDTH = 500, BOARD_HEIGHT = 500;
     private static final int SQUARE_MID = 25;
     static GameState gameState;
+    static GameScreen gameScreen;
     private final Piece piece;
 
     public void setPlayer(Player player) {
@@ -67,6 +68,11 @@ public class PieceActor extends Image {
     static void setGameState(GameState gs)
     {
         gameState = gs;
+    }
+
+    static void setGameScreen(GameScreen gs)
+    {
+        gameScreen = gs;
     }
 
     public void capture()
@@ -237,6 +243,10 @@ public class PieceActor extends Image {
 
                 //set touchables for the new turn? maybe leave everything open
                 //TODO highlight correct pieces maybe?
+
+                //tell the gamescreen to update the claim visualisation
+                gameScreen.updateClaims();
+
 
             }
 
