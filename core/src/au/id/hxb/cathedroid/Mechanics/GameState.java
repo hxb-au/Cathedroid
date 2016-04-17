@@ -3,7 +3,7 @@ package au.id.hxb.cathedroid.Mechanics;
 
 import com.badlogic.gdx.Gdx;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.EnumMap;
 
 /**
@@ -14,10 +14,11 @@ public class GameState {
     private int [][] coordinates, tmp;
     private boolean [][] checkedsquares;
     private Move moveList;
-    private Square captureList;
+    private Square captureCoordList;
     private int numMoves = 0;
     private Player nextPlayer;
     private EnumMap<Piece, Boolean> pieceAvailable;
+    private ArrayList<Piece> capturedPieces;
 
     private final int BOARD_WIDTH = 10, BOARD_HEIGHT = 10;
 
@@ -31,6 +32,7 @@ public class GameState {
         tmp = new int[][] {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}};
 
         pieceAvailable = new EnumMap<Piece, Boolean>(Piece.class);
+        capturedPieces = new ArrayList<Piece>();
 
     }
 
@@ -65,28 +67,41 @@ public class GameState {
     // each call gives a new piece, as multiple pieces can be captured on a move.
     // returns null if no pieces left to process (or  none captured to begin with)
     public Piece getCaptureRef() {
-        Piece capturedPiece = null;
-        Move index = moveList;
-
-        // no captured pieces
-        if (captureList == null)
+        if (capturedPieces.isEmpty())
             return null;
+        else {
+            return capturedPieces.remove(0);
+        }
+    }
 
-        //find the most recent move that matches this coordinate
-        while(index != null)
-        {
-            if (captureList.x == index.x && captureList.y == index.y)
-                capturedPiece = index.piece;
-            index = index.nextMove;
+    //go through the list of captured piece coordinates and mark those pieces available
+    // collect piece refs in a list for the UI to query
+    private void processCaptures(){
+
+        Piece capturedPiece = null;
+        Move index;
+
+        while (captureCoordList != null) {
+
+            index = moveList;
+
+            //find the most recent move that matches this coordinate
+            while (index != null) {
+                if (captureCoordList.x == index.x && captureCoordList.y == index.y)
+                    capturedPiece = index.piece;
+                index = index.nextMove;
+            }
+
+            // mark the piece as available in gameState's own list
+            if (capturedPiece != null)
+                pieceAvailable.put(capturedPiece, true);
+
+            //add it to the captured set for reference by the UI
+            capturedPieces.add(capturedPiece);
+
+            captureCoordList = captureCoordList.nextSquare;
         }
 
-        // mark the piece as available in gameState's own list
-        //TODO this is bad, move to happen immediately in gamestate instead of requiring external trigger
-        if (capturedPiece != null)
-            pieceAvailable.put(capturedPiece, true);
-
-        captureList = captureList.nextSquare;
-        return capturedPiece;
     }
 
     public Player whoseTurn(){ return nextPlayer; }
@@ -172,8 +187,10 @@ public class GameState {
         numMoves++;
 
         //only check claims after cathedral and 1 piece each are placed
-        if (numMoves > 3)
+        if (numMoves > 3) {
             checkPieceClaims(player, numSquares, coordinates);
+            processCaptures();
+        }
 
         // other player's turn
         nextPlayer = nextPlayer.getOther();
@@ -369,8 +386,8 @@ public class GameState {
 
         // if a capture occurred, push it on to the stack of captures.
         if(enemyPieces == 1){
-            capturedPieceOrigin.nextSquare = captureList;
-            captureList = capturedPieceOrigin;
+            capturedPieceOrigin.nextSquare = captureCoordList;
+            captureCoordList = capturedPieceOrigin;
         }
 
     }
