@@ -39,7 +39,7 @@ public class PieceActor extends Image {
     private Player player;
     private boolean placed = false;
 
-    public PieceActor(Texture texture, Piece piece, Player player,
+    public PieceActor(Texture texture, Piece piece,
                       Rectangle hitBox1, Rectangle hitBox2, Rectangle hitBox3,
                       float originX, float originY,
                       float referenceX, float referenceY) {
@@ -52,7 +52,7 @@ public class PieceActor extends Image {
 
         this.setName(piece.getName());
         this.piece = piece;
-        this.player = player;
+        this.player = piece.getOwner();
         this.setOrigin(originX, originY);
         this.setTouchable(Touchable.enabled);
         this.referenceX = referenceX;

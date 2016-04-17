@@ -4,6 +4,7 @@ package au.id.hxb.cathedroid.Mechanics;
 import com.badlogic.gdx.Gdx;
 
 import java.util.Arrays;
+import java.util.EnumMap;
 
 /**
  * Created by hxb on 4/04/2016.
@@ -16,54 +17,69 @@ public class GameState {
     private Square captureList;
     private int numMoves = 0;
     private Player nextPlayer;
+    private EnumMap<Piece, Boolean> pieceAvailable;
+
+    private final int BOARD_WIDTH = 10, BOARD_HEIGHT = 10;
 
 
     public GameState(){
         int i,j;
-        board = new SquareState[10][10];
-        checkedsquares = new boolean[10][10];
+        board = new SquareState[BOARD_WIDTH][BOARD_HEIGHT];
+        checkedsquares = new boolean[BOARD_WIDTH][BOARD_HEIGHT];
         //Arrays.fill(board, SquareState.EMPTY);
         coordinates = new int[][] {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}};
         tmp = new int[][] {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}};
-        //Arrays.fill(coordinates, 0);
-        //Arrays.fill(tmp , 0);
 
+        pieceAvailable = new EnumMap<Piece, Boolean>(Piece.class);
+
+
+        /* now done by new game
         //fill board array
         for (i = 0; i < board.length; i++) {
             for (j = 0; j < board[i].length; j++) {
                 board[i][j] = SquareState.EMPTY;
             }
-        }
+        }*/
 
-        //fill array of which squares have been checked 
+        /* done in checking methods
+        //fill array of which squares have been checked
         for (i = 0; i < checkedsquares.length; i++) {
             for (j = 0; j < checkedsquares[i].length; j++) {
                 checkedsquares[i][j] = false;
             }
-        }
+        }*/
     }
 
-    // start a new game with an empy board, no moves made and the requested startign player
+    // set up a new game with an empty board, no moves made and the requested starting player
     public void newGame(Player startingPlayer){
 
 
         //refill board array with empties
         int i,j;
 
-        for (i = 0; i < board.length; i++) {
-            for (j = 0; j < board[i].length; j++) {
+        for (i = 0; i < BOARD_WIDTH; i++) {
+            for (j = 0; j < BOARD_HEIGHT; j++) {
                 board[i][j] = SquareState.EMPTY;
             }
         }
 
+        //empty the list of moves
         moveList = null;
         numMoves = 0;
+
+        // reset piece usage list
+        for( Piece piece : Piece.values())
+        {
+            pieceAvailable.put(piece, true);
+        }
+
+        //set starting player
         nextPlayer = startingPlayer;
 
     }
 
     // called after a move has been processed for the UI to learn which pieces have been captured.
-    // each call give a new piece, as multple pieces can be captured on a move.
+    // each call give a new piece, as multiple pieces can be captured on a move.
     // returns null if no pieces left to process (or  none captured to begin with)
     public Piece getCaptureRef() {
         Piece capturedPiece = null;
@@ -80,6 +96,10 @@ public class GameState {
                 capturedPiece = index.piece;
             index = index.nextMove;
         }
+
+        // mark the piece as available in gameState's own list
+        if (capturedPiece != null)
+            pieceAvailable.put(capturedPiece, true);
 
         captureList = captureList.nextSquare;
         return capturedPiece;
@@ -120,18 +140,21 @@ public class GameState {
             return false;
 
 
-        //load translated and rotated piece coverage in to coordinates array
+        // load translated and rotated piece coverage in to the coordinates array
+        // save count for iteration
         numSquares = getSquares(piece, orientation, pieceX, pieceY, coordinates);
 
         //check each coordinate
-        for (i = 0; i < numSquares; i++) {
-            x = coordinates[i][0];
-            y = coordinates[i][1];
-            if (!checkSquare(x, y, player))
-                return false;
-        }
+        if( !checkSquares(numSquares, coordinates,player))
+            return false;
+
+        // note: numSquares and coordinates are used again later if successful
 
         //still here? then the piece fits
+
+        //mark piece as used in gamestate's list
+        pieceAvailable.put(piece, false);
+
         //record piece in board
 
         // which colour piece is it?
@@ -148,7 +171,7 @@ public class GameState {
             originState = SquareState.DARKPIECE_ORIGIN;
         }
 
-        //copy it in using coordinates generated for checking fit
+        //copy it in using coordinates generated earlier for checking fit
         // the first coordinate is marked as a piece origin for capture checks (should match reference point for placement)
         x = coordinates[0][0];
         y = coordinates[0][1];
@@ -175,8 +198,13 @@ public class GameState {
         else
             nextPlayer = Player.LIGHT;
 
-        //check for possible moves?
-        //TODO - allow a pass or just brute force check if player can move.
+        //if the next player can't make a move, swap back
+        if (movesImpossible(nextPlayer)) {
+            if (nextPlayer == Player.LIGHT)
+                nextPlayer = Player.DARK;
+            else
+                nextPlayer = Player.LIGHT;
+        }
 
 
         Gdx.app.log("GameState", "Next player: " + nextPlayer.toString());
@@ -184,6 +212,39 @@ public class GameState {
         return true;
     }
 
+    // check if the current player can make a move at all
+    // brute force - might be optimisable if iterations are re-ordered and non-empty/claimed squares skipped
+    private boolean movesImpossible(Player player){
+        int x,y;
+        int numSquares;
+
+        // for each piece
+        for (Piece testPiece : Piece.values()) {
+            // if that piece belongs to current player and is available
+            if (testPiece.getOwner() == player && pieceAvailable.get(testPiece)) {
+                //check each orientation of that piece
+                for (Orientation dir : Orientation.values()) {
+                    //in every position
+                    for (x = 0; x < BOARD_WIDTH; x++) {
+                        for (y = 0; y < BOARD_HEIGHT; y++){
+                            //check piece for fit
+
+                            // load translated and rotated piece coverage in to the coordinates array
+                            // save numSquares count for iteration
+                            numSquares = getSquares(testPiece, dir, x, y, coordinates);
+
+                            //check each coordinate, if the piece fits then moves are not impossible
+                            if(checkSquares(numSquares, coordinates,player))
+                                return false;
+                        }
+                    }
+                }
+
+            }
+        }
+
+        return true;
+    }
 
 
     // check for claimed area around a new piece by checking each square around it
@@ -191,7 +252,7 @@ public class GameState {
     // this needs to restart at each square so a piece that defines two claimed areas will
     // actualy be able to claim both areas.
     // a matrix is used to avoid repeat work
-    private void checkPieceClaims(Player player, int numSquares, int[][] coords){
+    private void checkPieceClaims(Player player, int numSquares, int[][] coordinates){
         int i, j;
         int pieceX, pieceY;
 
@@ -533,6 +594,17 @@ public class GameState {
             return board[x][y] == SquareState.EMPTY || board[x][y] == SquareState.LIGHTCLAIM;
         else //dark
             return board[x][y] == SquareState.EMPTY || board[x][y] == SquareState.DARKCLAIM;
+    }
+
+    private boolean checkSquares(int numSquares, int[][] coordinates, Player player) {
+     int x, y;
+        for (int i = 0; i < numSquares; i++) {
+            x = coordinates[i][0];
+            y = coordinates[i][1];
+            if (!checkSquare(x, y, player))
+                return false;
+        }
+        return true;
     }
 
     // move class holds the record of moves made in a linked list. Useful for save/load and piece capture
