@@ -23,38 +23,21 @@ public class GameState {
 
 
     public GameState(){
-        int i,j;
+
         board = new SquareState[BOARD_WIDTH][BOARD_HEIGHT];
         checkedsquares = new boolean[BOARD_WIDTH][BOARD_HEIGHT];
-        //Arrays.fill(board, SquareState.EMPTY);
+
         coordinates = new int[][] {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}};
         tmp = new int[][] {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}};
 
         pieceAvailable = new EnumMap<Piece, Boolean>(Piece.class);
 
-
-        /* now done by new game
-        //fill board array
-        for (i = 0; i < board.length; i++) {
-            for (j = 0; j < board[i].length; j++) {
-                board[i][j] = SquareState.EMPTY;
-            }
-        }*/
-
-        /* done in checking methods
-        //fill array of which squares have been checked
-        for (i = 0; i < checkedsquares.length; i++) {
-            for (j = 0; j < checkedsquares[i].length; j++) {
-                checkedsquares[i][j] = false;
-            }
-        }*/
     }
 
     // set up a new game with an empty board, no moves made and the requested starting player
     public void newGame(Player startingPlayer){
 
-
-        //refill board array with empties
+        //(re)fill board array with empties
         int i,j;
 
         for (i = 0; i < BOARD_WIDTH; i++) {
@@ -79,7 +62,7 @@ public class GameState {
     }
 
     // called after a move has been processed for the UI to learn which pieces have been captured.
-    // each call give a new piece, as multiple pieces can be captured on a move.
+    // each call gives a new piece, as multiple pieces can be captured on a move.
     // returns null if no pieces left to process (or  none captured to begin with)
     public Piece getCaptureRef() {
         Piece capturedPiece = null;
@@ -98,6 +81,7 @@ public class GameState {
         }
 
         // mark the piece as available in gameState's own list
+        //TODO this is bad, move to happen immediately in gamestate instead of requiring external trigger
         if (capturedPiece != null)
             pieceAvailable.put(capturedPiece, true);
 
@@ -106,7 +90,6 @@ public class GameState {
     }
 
     public Player whoseTurn(){ return nextPlayer; }
-
 
     // the board is a 10x10 array of these. piece origins are used for capture and claim checks
     enum SquareState {
@@ -193,17 +176,11 @@ public class GameState {
             checkPieceClaims(player, numSquares, coordinates);
 
         // other player's turn
-        if (nextPlayer == Player.LIGHT)
-            nextPlayer = Player.DARK;
-        else
-            nextPlayer = Player.LIGHT;
+        nextPlayer = nextPlayer.getOther();
 
         //if the next player can't make a move, swap back
         if (movesImpossible(nextPlayer)) {
-            if (nextPlayer == Player.LIGHT)
-                nextPlayer = Player.DARK;
-            else
-                nextPlayer = Player.LIGHT;
+            nextPlayer = nextPlayer.getOther();
         }
 
 
