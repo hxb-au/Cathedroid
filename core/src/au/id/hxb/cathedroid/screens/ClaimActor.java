@@ -3,8 +3,9 @@ package au.id.hxb.cathedroid.screens;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 
-import au.id.hxb.cathedroid.Mechanics.GameState;
-import au.id.hxb.cathedroid.Mechanics.Player;
+import au.id.hxb.cathedroid.mechanics.GameState;
+import au.id.hxb.cathedroid.mechanics.Player;
+
 
 /**
  * Created by Hayden on 17/04/2016.
@@ -37,8 +38,6 @@ public class ClaimActor extends Image {
 
         this.setPosition(BOARD_ORIGIN_X + SQUARE_DIM * boardX, BOARD_ORIGIN_Y + SQUARE_DIM * (9 - boardY));
         this.setVisible(false);
-
-
 
     }
 

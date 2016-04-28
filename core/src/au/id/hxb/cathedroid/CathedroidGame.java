@@ -4,7 +4,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 
-import au.id.hxb.cathedroid.Mechanics.Player;
+import au.id.hxb.cathedroid.mechanics.Player;
 import au.id.hxb.cathedroid.screens.GameScreen;
 import au.id.hxb.cathedroid.screens.InfoScreen;
 import au.id.hxb.cathedroid.screens.MenuScreen;

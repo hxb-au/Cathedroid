@@ -18,9 +18,9 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 import au.id.hxb.cathedroid.CathedroidGame;
-import au.id.hxb.cathedroid.Mechanics.GameState;
-import au.id.hxb.cathedroid.Mechanics.Piece;
-import au.id.hxb.cathedroid.Mechanics.Player;
+import au.id.hxb.cathedroid.mechanics.GameState;
+import au.id.hxb.cathedroid.mechanics.Piece;
+import au.id.hxb.cathedroid.mechanics.Player;
 
 /**
  * Created by hxb on 6/03/2016.

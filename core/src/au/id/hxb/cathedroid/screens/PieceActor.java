@@ -13,10 +13,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
 import com.badlogic.gdx.utils.Array;
 
-import au.id.hxb.cathedroid.Mechanics.GameState;
-import au.id.hxb.cathedroid.Mechanics.Orientation;
-import au.id.hxb.cathedroid.Mechanics.Piece;
-import au.id.hxb.cathedroid.Mechanics.Player;
+import au.id.hxb.cathedroid.mechanics.GameState;
+import au.id.hxb.cathedroid.mechanics.Orientation;
+import au.id.hxb.cathedroid.mechanics.Piece;
+import au.id.hxb.cathedroid.mechanics.Player;
 
 /**
  * Created by Hayden on 23/03/2016.

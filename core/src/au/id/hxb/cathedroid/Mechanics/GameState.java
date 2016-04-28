@@ -1,4 +1,4 @@
-package au.id.hxb.cathedroid.Mechanics;
+package au.id.hxb.cathedroid.mechanics;
 
 
 import com.badlogic.gdx.Gdx;
