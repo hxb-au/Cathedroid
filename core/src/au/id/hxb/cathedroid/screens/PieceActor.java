@@ -29,7 +29,7 @@ public class PieceActor extends Image {
     private static final int BOARD_ORIGIN_X = 390, BOARD_ORIGIN_Y = 110;
     private static final int BOARD_WIDTH = 500, BOARD_HEIGHT = 500;
     private static final int SQUARE_MID = 25, SQUARE_SIZE = 50;
-    private static final int YMAX = 9;
+    private static final int XMAX = 9, YMAX = 9;
     static GameState gameState;
     static GameScreen gameScreen;
     private final Piece piece;
@@ -124,7 +124,7 @@ public class PieceActor extends Image {
         return null;
     }
 
-    //check this pieces' rotation and return an orientation
+    //check this piece's rotation and return an orientation
     //TODO if manual rotation happens, this will need an update
     private Orientation getOrientation(){
         Orientation orientation = Orientation.NORTH;
@@ -142,16 +142,19 @@ public class PieceActor extends Image {
         return orientation;
     }
 
+    //decrement rotation and bring the piece to the front of the others
     private void rotateCW(){
         this.setRotation(PieceActor.this.getRotation() - 90);
         this.toFront();
     }
 
+    //increment rotation and bring the piece to the front of the others
     private void rotateCCW(){
         this.setRotation(PieceActor.this.getRotation() + 90);
         this.toFront();
     }
 
+    //used to apply an accepted move before moving and locking the piece
     private void setOrientation(Orientation dir){
         switch(dir) {
             case NORTH:
@@ -167,6 +170,22 @@ public class PieceActor extends Image {
                 this.setRotation(90);
                 break;
         }
+    }
+
+    // get board coordinates as floats. 1 square = 1.0
+    // note y inversion
+    private Vector2 getBoardCoordinates() {
+
+        Vector2 stageVec = getReferenceInStageCoords();
+        float boardX = (                (stageVec.x - BOARD_ORIGIN_X))  / SQUARE_SIZE;
+        float boardY = ((BOARD_HEIGHT - (stageVec.y - BOARD_ORIGIN_Y))) / SQUARE_SIZE;
+
+        return new Vector2(boardX,boardY);
+
+    }
+
+    private Vector2 getReferenceInStageCoords() {
+        return localToStageCoordinates(new Vector2(referenceX,referenceY));
     }
     
     // gamescreen calls this if a move was valid or if the AI delivers a move
@@ -219,11 +238,9 @@ public class PieceActor extends Image {
 
             if (deltaTheta > 10){
                 PieceActor.this.rotateCCW();
-
             }
             if (deltaTheta < -10){
                 PieceActor.this.rotateCW();
-
             }
         }
 
@@ -246,35 +263,26 @@ public class PieceActor extends Image {
         //long press to attempt a move
         @Override
         public boolean longPress(Actor actor, float x, float y) {
-            float stageX, stageY;
+            Vector2 boardVec;
             int boardX, boardY;
             boolean piecePlaced;
 
+            boardVec = getBoardCoordinates();
 
-            // convert piece reference point to screen coordinates
-            tmpInV2.x = referenceX;
-            tmpInV2.y = referenceY;
-            tmpOutV2 = PieceActor.this.localToStageCoordinates(tmpInV2);
-            stageX = tmpOutV2.x;
-            stageY = tmpOutV2.y;
-            //Gdx.app.log("LongPress Stage Coords:", tmpOutV2.toString());
+            boardX = (int)(boardVec.x);
+            boardY = (int)(boardVec.y);
 
             //check it's on the board. Give up if not.
-            if (stageX < BOARD_ORIGIN_X || stageX > BOARD_ORIGIN_X + BOARD_WIDTH)
+            if (boardX < 0 || boardX > XMAX)
                 return true;
-            if (stageY < BOARD_ORIGIN_Y || stageY > BOARD_ORIGIN_Y + BOARD_HEIGHT)
+            if (boardY < 0|| boardY > YMAX)
                 return true;
-
-            // convert stage coordinate to board coordinates - note y inversion
-            boardX =        ((int)(stageX - BOARD_ORIGIN_X)) / SQUARE_SIZE;
-            boardY = YMAX - ((int)(stageY - BOARD_ORIGIN_Y)) / SQUARE_SIZE;
-
 
             //determine orientation
             Orientation orientation = PieceActor.this.getOrientation();
 
+            //might use piecePlaced later
             piecePlaced = gameScreen.attemptMove(PieceActor.this, PieceActor.this.piece, orientation, boardX, boardY, player);
-
 
             return true;
         }
