@@ -28,7 +28,8 @@ public class PieceActor extends Image {
     private final float referenceX, referenceY;
     private static final int BOARD_ORIGIN_X = 390, BOARD_ORIGIN_Y = 110;
     private static final int BOARD_WIDTH = 500, BOARD_HEIGHT = 500;
-    private static final int SQUARE_MID = 25;
+    private static final int SQUARE_MID = 25, SQUARE_SIZE = 50;
+    private static final int YMAX = 9;
     static GameState gameState;
     static GameScreen gameScreen;
     private final Piece piece;
@@ -124,6 +125,7 @@ public class PieceActor extends Image {
     }
 
     //check this pieces' rotation and return an orientation
+    //TODO if manual rotation happens, this will need an update
     private Orientation getOrientation(){
         Orientation orientation = Orientation.NORTH;
         float rotation = PieceActor.this.getRotation() % 360;
@@ -140,12 +142,72 @@ public class PieceActor extends Image {
         return orientation;
     }
 
+    private void rotateCW(){
+        this.setRotation(PieceActor.this.getRotation() - 90);
+        this.toFront();
+    }
+
+    private void rotateCCW(){
+        this.setRotation(PieceActor.this.getRotation() + 90);
+        this.toFront();
+    }
+
+    private void setOrientation(Orientation dir){
+        switch(dir) {
+            case NORTH:
+                this.setRotation(0);
+                break;
+            case EAST:
+                this.setRotation(270);
+                break;
+            case SOUTH:
+                this.setRotation(180);
+                break;
+            case WEST:
+                this.setRotation(90);
+                break;
+        }
+    }
+    
+    // gamescreen calls this if a move was valid or if the AI delivers a move
+    public void placePiece(Orientation dir, int boardX, int boardY){
+        Vector2 referenceVec2, stageVec2;
+
+        //mark the piece as palced an disable UI events for it
+        this.placed = true;
+        this.setTouchable(Touchable.disabled);
+
+        //TODO make this smooth
+        this.setOrientation(dir);
+
+        // snap location to board grid by converting board location back to idealised stage location
+        //note y inversion
+        float idealStageX = (      boardX  * SQUARE_SIZE) + BOARD_ORIGIN_X + SQUARE_MID;
+        float idealStageY = ((YMAX-boardY) * SQUARE_SIZE) + BOARD_ORIGIN_Y + SQUARE_MID;
+
+        // convert piece reference point to stage coordinates
+        referenceVec2 = new Vector2(referenceX, referenceY);
+        stageVec2 = PieceActor.this.localToStageCoordinates(referenceVec2);
+        
+        float currentStageX = stageVec2.x;
+        float currentStageY = stageVec2.y;
+        
+        float deltaX = idealStageX - currentStageX;
+        float deltaY = idealStageY - currentStageY;
+
+        //adjust position
+        //TODO make this smooth
+        PieceActor.this.setPosition(PieceActor.this.getX() + deltaX, PieceActor.this.getY()+deltaY);
+
+    }
+
 
     class PieceGestureListener extends ActorGestureListener {
         private Vector2 tmpInV2 = new Vector2(), tmpOutV2 = new Vector2();
         private Vector2 v2before, v2after;
         private float deltaTheta;
 
+        //no luck with this yet
         @Override
         public void pinch(InputEvent event,
                           Vector2 initialPointer1, Vector2 initialPointer2,
@@ -156,15 +218,16 @@ public class PieceActor extends Image {
             deltaTheta = v2after.angle() - v2before.angle();
 
             if (deltaTheta > 10){
-                PieceActor.this.setRotation(PieceActor.this.getRotation() + 90);
+                PieceActor.this.rotateCCW();
 
             }
             if (deltaTheta < -10){
-                PieceActor.this.setRotation(PieceActor.this.getRotation() - 90);
+                PieceActor.this.rotateCW();
 
             }
         }
 
+        // drag the piece around. jumps a little at the start though.
         @Override
         public void pan(InputEvent event, float x, float y, float deltaX, float deltaY) {
             tmpInV2.x = x - PieceActor.this.getOriginX();
@@ -174,20 +237,19 @@ public class PieceActor extends Image {
             PieceActor.this.toFront();
         }
 
+        // tap to rotate piece
         @Override
         public void tap(InputEvent event, float x, float y, int count, int button) {
-            PieceActor.this.setRotation(PieceActor.this.getRotation() - 90);
-            PieceActor.this.toFront();
+            PieceActor.this.rotateCW();
         }
 
+        //long press to attempt a move
         @Override
         public boolean longPress(Actor actor, float x, float y) {
             float stageX, stageY;
-            float idealStageX, idealStageY;
-            float deltaX, deltaY;
             int boardX, boardY;
             boolean piecePlaced;
-            Piece capturedPiece;
+
 
             // convert piece reference point to screen coordinates
             tmpInV2.x = referenceX;
@@ -204,56 +266,15 @@ public class PieceActor extends Image {
                 return true;
 
             // convert stage coordinate to board coordinates - note y inversion
-            boardX =     ((int)(stageX - BOARD_ORIGIN_X)) / 50;
-            boardY = 9 - ((int)(stageY - BOARD_ORIGIN_Y)) / 50;
+            boardX =        ((int)(stageX - BOARD_ORIGIN_X)) / SQUARE_SIZE;
+            boardY = YMAX - ((int)(stageY - BOARD_ORIGIN_Y)) / SQUARE_SIZE;
 
 
             //determine orientation
             Orientation orientation = PieceActor.this.getOrientation();
 
-            piecePlaced = gameState.attemptMove(piece, orientation, boardX, boardY, player);
-            //log it?
-            //Gdx.app.log("Piece placed:",piece.toString() + " " + orientation.toString() + " "+ Integer.toString(boardX+1) + ", " + Character.toString((char)(boardY + (int)'A'))+ (piecePlaced ? " Success" : " Failure") );
+            piecePlaced = gameScreen.attemptMove(PieceActor.this, PieceActor.this.piece, orientation, boardX, boardY, player);
 
-            if (piecePlaced)
-            {
-
-                // fix the piece in place
-                PieceActor.this.setTouchable(Touchable.disabled);
-                PieceActor.this.placed = true;
-
-                // snap location to board grid by converting board location back to idealised stage location
-                //note y inversion
-                idealStageX =    boardX  * 50f + BOARD_ORIGIN_X + SQUARE_MID;
-                idealStageY = (9-boardY) * 50f + BOARD_ORIGIN_Y + SQUARE_MID;
-
-                //compare idealised location to original (in stage coordinates)
-                deltaX = idealStageX - stageX;
-                deltaY = idealStageY - stageY;
-
-                PieceActor.this.setPosition(PieceActor.this.getX() + deltaX, PieceActor.this.getY()+deltaY);
-
-                //check for captured pieces and remove them
-                capturedPiece = gameState.getCaptureRef();
-                while (capturedPiece != null)
-                {
-                    //find the actor and tell it it's been captured.
-                    PieceActor capturedActor = PieceActor.this.getParent().findActor(capturedPiece.getName());
-                    if (capturedActor != null)
-                        capturedActor.capture();
-
-                    //get next capture if it exists, or null
-                    capturedPiece = gameState.getCaptureRef();
-                }
-
-                //set touchables for the new turn? maybe leave everything open
-                //TODO highlight correct pieces maybe?
-
-                //tell the gamescreen to update the claim visualisation
-                gameScreen.updateClaimActors();
-
-
-            }
 
             return true;
         }

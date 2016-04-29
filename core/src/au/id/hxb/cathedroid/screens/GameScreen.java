@@ -19,6 +19,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 import au.id.hxb.cathedroid.CathedroidGame;
 import au.id.hxb.cathedroid.mechanics.GameState;
+import au.id.hxb.cathedroid.mechanics.Orientation;
 import au.id.hxb.cathedroid.mechanics.Piece;
 import au.id.hxb.cathedroid.mechanics.Player;
 
@@ -75,6 +76,7 @@ public class GameScreen implements Screen {
                 ((PieceActor) pieceActor).reset();
         }
 
+        //update the claim markers to match now empty board
         updateClaimActors();
 
         //put cathedral on top
@@ -330,6 +332,41 @@ public class GameScreen implements Screen {
 
         stage.addActor(claimGroup);
     }
+
+    public boolean attemptMove(PieceActor pieceActor, Piece piece, Orientation dir, int boardX, int boardY, Player player){
+        boolean successfulMove = gameState.attemptMove(piece, dir, boardX, boardY, player);
+
+        if(successfulMove){
+            // put the piece in place and lock it
+            pieceActor.placePiece(dir, boardX, boardY);
+
+            //check for captures and handle them
+            handleCaptures();
+
+            // board state will have changed. check claims
+            updateClaimActors();
+        }
+
+
+        // TODO check if next player is AI and make that move if necessary
+
+        return successfulMove;
+    }
+
+    private void handleCaptures() {
+        Piece capturedPiece = gameState.getCaptureRef();
+        while (capturedPiece != null)
+        {
+            //find the actor and tell it it's been captured.
+            PieceActor capturedActor = stage.getRoot().findActor(capturedPiece.getName());
+            if (capturedActor != null)
+                capturedActor.capture();
+
+            //get next capture if it exists, or null
+            capturedPiece = gameState.getCaptureRef();
+        }
+    }
+
 
     @Override
     public void show() {
