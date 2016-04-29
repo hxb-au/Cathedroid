@@ -24,7 +24,7 @@ import au.id.hxb.cathedroid.mechanics.Player;
 public class PieceActor extends Image {
     private Rectangle hitBox1, hitBox2, hitBox3;
 
-    private float deltaTheta;
+
     private final float referenceX, referenceY;
     private static final int BOARD_ORIGIN_X = 390, BOARD_ORIGIN_Y = 110;
     private static final int BOARD_WIDTH = 500, BOARD_HEIGHT = 500;
@@ -75,6 +75,7 @@ public class PieceActor extends Image {
         gameScreen = gs;
     }
 
+    // return the piece or just hide the cathedral
     public void capture()
     {
         if (this.piece == Piece.CA) {
@@ -92,6 +93,7 @@ public class PieceActor extends Image {
         this.placed = false;
 
         //messy starting positions either side of board.
+        //TODO clean this crap up and have set places
         if (player == Player.LIGHT)
             this.addAction(Actions.moveTo(MathUtils.random(340f - 150f), MathUtils.random(720f - 150f)));
         else
@@ -117,15 +119,32 @@ public class PieceActor extends Image {
             if (hitBox3.contains(x,y))
                 return this;
 
-
         // nope out
         return null;
+    }
+
+    //check this pieces' rotation and return an orientation
+    private Orientation getOrientation(){
+        Orientation orientation = Orientation.NORTH;
+        float rotation = PieceActor.this.getRotation() % 360;
+        if (rotation < 0)             //java modulo is crap
+            rotation += 360;
+
+        if      (rotation == 90)
+            orientation = Orientation.WEST;
+        else if (rotation == 180)
+            orientation = Orientation.SOUTH;
+        else if (rotation == 270)
+            orientation = Orientation.EAST;
+
+        return orientation;
     }
 
 
     class PieceGestureListener extends ActorGestureListener {
         private Vector2 tmpInV2 = new Vector2(), tmpOutV2 = new Vector2();
         private Vector2 v2before, v2after;
+        private float deltaTheta;
 
         @Override
         public void pinch(InputEvent event,
@@ -190,21 +209,7 @@ public class PieceActor extends Image {
 
 
             //determine orientation
-            Orientation orientation = Orientation.NORTH;
-            float rotation = PieceActor.this.getRotation() % 360;
-
-            //java modulo is crap
-            if (rotation < 0)
-                rotation += 360;
-
-            if      (rotation == 90)
-                orientation = Orientation.WEST;
-            else if (rotation == 180)
-                orientation = Orientation.SOUTH;
-            else if (rotation == 270)
-                orientation = Orientation.EAST;
-            //Gdx.app.log("Orientation:",Float.toString(rotation));
-
+            Orientation orientation = PieceActor.this.getOrientation();
 
             piecePlaced = gameState.attemptMove(piece, orientation, boardX, boardY, player);
             //log it?
@@ -245,7 +250,7 @@ public class PieceActor extends Image {
                 //TODO highlight correct pieces maybe?
 
                 //tell the gamescreen to update the claim visualisation
-                gameScreen.updateClaims();
+                gameScreen.updateClaimActors();
 
 
             }

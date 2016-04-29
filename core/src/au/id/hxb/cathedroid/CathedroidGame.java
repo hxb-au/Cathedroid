@@ -75,6 +75,8 @@ public class CathedroidGame extends Game {
 		}
 	}
 
+
+	//starting player logic
 	public void setAlternateStarts( Boolean setting ) { alternateStarts  = setting; }
 	public Boolean getAlternateStarts() { return alternateStarts; }
 
