@@ -63,6 +63,28 @@ public class GameState {
 
     }
 
+    // copy given gamesState back in to this one, used for lookahead
+    public void revert(GameState original) {
+        //copy board array
+        int i,j;
+
+        for (i = 0; i < BOARD_WIDTH; i++) {
+            for (j = 0; j < BOARD_HEIGHT; j++) {
+                board[i][j] = original.board[i][j];
+            }
+        }
+
+        //copy the list of moves - by reference as moves are not removed
+        moveList = original.moveList;
+        numMoves = original.numMoves;
+
+        // copy piece usage list
+        pieceAvailable.putAll(original.pieceAvailable);
+
+        //set starting player
+        nextPlayer = original.nextPlayer;
+    }
+
     // called after a move has been processed for the UI to learn which pieces have been captured.
     // each call gives a new piece, as multiple pieces can be captured on a move.
     // returns null if no pieces left to process (or  none captured to begin with)
@@ -135,10 +157,6 @@ public class GameState {
     // this is the main interface to the gamestate. Attempt to make a move with the given details. 
     // returns true if move was accepted and processes updates to gamestate.
     public boolean attemptMove(Piece piece, Orientation orientation, int pieceX, int pieceY, Player player){
-        int i;
-        SquareState state;
-        SquareState originState;
-        int x, y;
         int numSquares;
         Move move;
 
@@ -167,32 +185,7 @@ public class GameState {
         pieceAvailable.put(piece, false);
 
         //record piece in board
-
-        // which colour piece is it?
-        if (piece == Piece.CA) {
-            state = SquareState.CATHEDRALPIECE;
-            originState = SquareState.CATHEDRALPIECE_ORIGIN;
-        }
-        else if (player == Player.LIGHT) {
-            state = SquareState.LIGHTPIECE;
-            originState = SquareState.LIGHTPIECE_ORIGIN;
-        }
-        else {//dark
-            state = SquareState.DARKPIECE;
-            originState = SquareState.DARKPIECE_ORIGIN;
-        }
-
-        //copy it in using coordinates generated earlier for checking fit
-        // the first coordinate is marked as a piece origin for capture checks (should match reference point for placement)
-        x = coordinates[0][0];
-        y = coordinates[0][1];
-        board[x][y] = originState;
-        // the remaining coordinates are just marked as player piece
-        for (i = 1; i < numSquares; i++) {
-            x = coordinates[i][0];
-            y = coordinates[i][1];
-            board[x][y] = state;
-        }
+        fillInSquares(piece, numSquares, coordinates);
 
         //store the new move in the list of moves
         move = new Move(piece, orientation, pieceX, pieceY, player);
@@ -217,6 +210,39 @@ public class GameState {
         Gdx.app.log("GameState", "Next player: " + nextPlayer.toString());
 
         return true;
+    }
+
+    private void fillInSquares(Piece piece, int numSquares, int[][] coordinates) {
+        // which colour piece is it?
+        SquareState state, originState;
+
+        if (piece == Piece.CA) {
+            state = SquareState.CATHEDRALPIECE;
+            originState = SquareState.CATHEDRALPIECE_ORIGIN;
+        }
+        else if (piece.getOwner() == Player.LIGHT) {
+            state = SquareState.LIGHTPIECE;
+            originState = SquareState.LIGHTPIECE_ORIGIN;
+        }
+        else {//dark
+            state = SquareState.DARKPIECE;
+            originState = SquareState.DARKPIECE_ORIGIN;
+        }
+
+        int x,y;
+
+        //copy it in using coordinates generated earlier for checking fit
+        // the first coordinate is marked as a piece origin for capture checks (should match reference point for placement)
+        x = coordinates[0][0];
+        y = coordinates[0][1];
+        board[x][y] = originState;
+        
+        // the remaining coordinates are just marked as player piece
+        for (int i = 1; i < numSquares; i++) {
+            x = coordinates[i][0];
+            y = coordinates[i][1];
+            board[x][y] = state;
+        }
     }
 
     // check if the current player can make a move at all
