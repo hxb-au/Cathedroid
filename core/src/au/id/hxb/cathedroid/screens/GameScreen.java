@@ -19,9 +19,11 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 import au.id.hxb.cathedroid.CathedroidGame;
 import au.id.hxb.cathedroid.mechanics.GameState;
+import au.id.hxb.cathedroid.mechanics.Move;
 import au.id.hxb.cathedroid.mechanics.Orientation;
 import au.id.hxb.cathedroid.mechanics.Piece;
 import au.id.hxb.cathedroid.mechanics.Player;
+import au.id.hxb.cathedroid.mechanics.ai.AIEngine;
 
 /**
  * Created by hxb on 6/03/2016.
@@ -33,6 +35,7 @@ public class GameScreen implements Screen {
     private Viewport viewport;
     private Stage stage;
     private GameState gameState;
+    private AIEngine ai;
     private Group claimGroup;
 
 
@@ -40,6 +43,7 @@ public class GameScreen implements Screen {
         Gdx.app.log("GameScreen", "Attached");
         this.game = game;
         gameState = new GameState();
+        ai = new AIEngine();
         int nativeWidth = 1280;
         int nativeHeight = 720;
 
@@ -58,7 +62,7 @@ public class GameScreen implements Screen {
 
     public void startNewGame(Player startingPlayer) {
 
-        Gdx.app.log("GameScreen", "new game" + startingPlayer.toString());
+        Gdx.app.log("GameScreen", "new game " + startingPlayer.toString());
 
         //reset game logic
         gameState.newGame(startingPlayer);
@@ -81,6 +85,11 @@ public class GameScreen implements Screen {
 
         //put cathedral on top
         cathedralpiece.toFront();
+
+        //get AI to play first if required
+        if (game.isAI(gameState.whoseTurn())) {
+            makeAIMove();
+        }
     }
 
     public void updateClaimActors(){
@@ -334,24 +343,47 @@ public class GameScreen implements Screen {
     }
 
     public boolean attemptMove(PieceActor pieceActor, Piece piece, Orientation dir, int boardX, int boardY, Player player){
+        //TODO pass as Move
         boolean successfulMove = gameState.attemptMove(piece, dir, boardX, boardY, player);
 
-        if(successfulMove){
-            // put the piece in place and lock it
-            pieceActor.placePiece(dir, boardX, boardY);
 
-            //check for captures and handle them
-            handleCaptures();
 
-            // board state will have changed. check claims
-            updateClaimActors();
+        if(successfulMove) {
+            Move move = new Move(piece, dir, boardX, boardY, player);
+
+            applyMove(move, pieceActor);
+
+            //check for endgame
+
+            if (!gameState.isGameOver() && game.isAI(gameState.whoseTurn())) {
+                //only run AI if game isn't over
+                makeAIMove();
+            }
+
         }
-
-
-        // TODO check if next player is AI and make that move if necessary
 
         return successfulMove;
     }
+
+    private void makeAIMove() {
+        Move aiMove = ai.makeMove(gameState);
+        PieceActor aiPiece = stage.getRoot().findActor(aiMove.piece.getName());
+
+        applyMove(aiMove, aiPiece);
+    }
+
+    private void applyMove(Move move, PieceActor pieceActor) {
+        Gdx.app.log("GameScreen", "Move being applied " + move.toString());
+        // put the piece in place and lock it
+        pieceActor.placePiece(move.orientation, move.x, move.y);
+
+        //check for captures and handle them
+        handleCaptures();
+
+        // board state will have changed. check claims
+        updateClaimActors();
+    }
+
 
     private void handleCaptures() {
         Piece capturedPiece = gameState.getCaptureRef();
