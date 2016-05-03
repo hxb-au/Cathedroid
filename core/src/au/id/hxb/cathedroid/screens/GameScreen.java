@@ -18,9 +18,10 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 import au.id.hxb.cathedroid.CathedroidGame;
-import au.id.hxb.cathedroid.Mechanics.GameState;
-import au.id.hxb.cathedroid.Mechanics.Piece;
-import au.id.hxb.cathedroid.Mechanics.Player;
+import au.id.hxb.cathedroid.mechanics.GameState;
+import au.id.hxb.cathedroid.mechanics.Orientation;
+import au.id.hxb.cathedroid.mechanics.Piece;
+import au.id.hxb.cathedroid.mechanics.Player;
 
 /**
  * Created by hxb on 6/03/2016.
@@ -29,7 +30,6 @@ public class GameScreen implements Screen {
     private CathedroidGame game;
     private OrthographicCamera cam;
     private SpriteBatch batch;
-    private int midPointX, midPointY;
     private Viewport viewport;
     private Stage stage;
     private GameState gameState;
@@ -42,8 +42,6 @@ public class GameScreen implements Screen {
         gameState = new GameState();
         int nativeWidth = 1280;
         int nativeHeight = 720;
-        midPointX = nativeWidth / 2;
-        midPointY = nativeHeight / 2;
 
         cam = new OrthographicCamera(nativeWidth,nativeHeight);
         cam.setToOrtho(false, nativeWidth,nativeHeight);
@@ -73,22 +71,23 @@ public class GameScreen implements Screen {
         Array<Actor> pieceActors = stage.getActors();
         for(Actor pieceActor : pieceActors)
         {
-            //TODO this feels ugly - is there a better way?
+            //TODO this casting feels ugly - is there a better way?
             if(pieceActor instanceof PieceActor)
                 ((PieceActor) pieceActor).reset();
         }
 
-        updateClaims();
+        //update the claim markers to match now empty board
+        updateClaimActors();
 
         //put cathedral on top
         cathedralpiece.toFront();
     }
 
-    public void updateClaims(){
+    public void updateClaimActors(){
         Array<Actor> claimActors = claimGroup.getChildren();
         for(Actor claimActor : claimActors)
         {
-            //TODO this feels ugly - is there a better way?
+            //TODO this casting feels ugly - is there a better way?
             if(claimActor instanceof ClaimActor)
                 ((ClaimActor) claimActor).updateState();
         }
@@ -334,6 +333,41 @@ public class GameScreen implements Screen {
         stage.addActor(claimGroup);
     }
 
+    public boolean attemptMove(PieceActor pieceActor, Piece piece, Orientation dir, int boardX, int boardY, Player player){
+        boolean successfulMove = gameState.attemptMove(piece, dir, boardX, boardY, player);
+
+        if(successfulMove){
+            // put the piece in place and lock it
+            pieceActor.placePiece(dir, boardX, boardY);
+
+            //check for captures and handle them
+            handleCaptures();
+
+            // board state will have changed. check claims
+            updateClaimActors();
+        }
+
+
+        // TODO check if next player is AI and make that move if necessary
+
+        return successfulMove;
+    }
+
+    private void handleCaptures() {
+        Piece capturedPiece = gameState.getCaptureRef();
+        while (capturedPiece != null)
+        {
+            //find the actor and tell it it's been captured.
+            PieceActor capturedActor = stage.getRoot().findActor(capturedPiece.getName());
+            if (capturedActor != null)
+                capturedActor.capture();
+
+            //get next capture if it exists, or null
+            capturedPiece = gameState.getCaptureRef();
+        }
+    }
+
+
     @Override
     public void show() {
         Gdx.input.setInputProcessor(stage);
@@ -342,20 +376,9 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(.7f, .7f, .7f, 1f); // Sets a Color to Fill the Screen with (RGB = 0, 0, 0), Opacity of 1 (100%)
+        Gdx.gl.glClearColor(0f, 0f, 0f, 1f); // Sets a Color to Fill the Screen with (RGB = 0, 0, 0), Opacity of 1 (100%)
+        //used to fill with .7, .7, .7 but that's confusing as tyhe game world doens't extend in that way.
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT); // Fills the screen with the selected color
-
-        //do i still need this?
-        //batch.setProjectionMatrix(viewport.getCamera().combined);
-
-        /*
-        batch.begin();
-        batch.disableBlending();
-
-        batch.draw(placeholder,midPointX-placeholder.getWidth()/2,midPointY-placeholder.getHeight()/2);
-
-        batch.enableBlending();
-        batch.end();*/
 
         stage.act(delta);
         stage.draw();

@@ -1,4 +1,4 @@
-package au.id.hxb.cathedroid.Mechanics;
+package au.id.hxb.cathedroid.mechanics;
 
 /**
  * Created by Hayden on 4/04/2016.

@@ -110,6 +110,7 @@ public class MenuScreen implements Screen{
         private OrthographicCamera cam;
 
         //button locations
+        //TODO replace with a 2d ui stage and actors
         private Rectangle new2pRect, load2pRect, new1pRect, load1pRect;
         private Rectangle settingsRect, infoRect;
         private final int gameButtonWidth = 186, gameButtonHeight = 84;
