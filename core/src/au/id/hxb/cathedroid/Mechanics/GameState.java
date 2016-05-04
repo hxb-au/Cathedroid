@@ -6,19 +6,22 @@ import com.badlogic.gdx.Gdx;
 import java.util.ArrayList;
 import java.util.EnumMap;
 
+import au.id.hxb.cathedroid.mechanics.ai.AIEvaluator;
+
 /**
  * Created by hxb on 4/04/2016.
  */
 public class GameState {
     private SquareState[][] board;
     private int [][] coordinates, tmp;
-    private boolean [][] checkedsquares;
+    private boolean [][] checkedSquares;
     private Move moveList;
     private Square captureCoordList;
     private int numMoves = 0;
     private Player nextPlayer;
     private EnumMap<Piece, Boolean> pieceAvailable;
     private ArrayList<Piece> capturedPieces;
+    private boolean gameOver;
 
     private final int BOARD_WIDTH = 10, BOARD_HEIGHT = 10;
 
@@ -26,7 +29,7 @@ public class GameState {
     public GameState(){
 
         board = new SquareState[BOARD_WIDTH][BOARD_HEIGHT];
-        checkedsquares = new boolean[BOARD_WIDTH][BOARD_HEIGHT];
+        checkedSquares = new boolean[BOARD_WIDTH][BOARD_HEIGHT];
 
         coordinates = new int[][] {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}};
         tmp = new int[][] {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}};
@@ -60,6 +63,7 @@ public class GameState {
 
         //set starting player
         nextPlayer = startingPlayer;
+        gameOver = false;
 
     }
 
@@ -141,20 +145,7 @@ public class GameState {
 
     public Player whoseTurn(){ return nextPlayer; }
 
-    // the board is a 10x10 array of these. piece origins are used for capture and claim checks
-    enum SquareState {
-        EMPTY,
-        DARKPIECE,
-        DARKPIECE_ORIGIN,
-        LIGHTPIECE,
-        LIGHTPIECE_ORIGIN,
-        CATHEDRALPIECE,
-        CATHEDRALPIECE_ORIGIN,
-        DARKCLAIM,
-        LIGHTCLAIM;
-    }
-
-    // this is the main interface to the gamestate. Attempt to make a move with the given details. 
+    // this is the main interface to the gamestate. Attempt to make a move with the given details.
     // returns true if move was accepted and processes updates to gamestate.
     public boolean attemptMove(Piece piece, Orientation orientation, int pieceX, int pieceY, Player player){
         int numSquares;
@@ -204,10 +195,20 @@ public class GameState {
         //if the next player can't make a move, swap back
         if (movesImpossible(nextPlayer)) {
             nextPlayer = nextPlayer.getOther();
+
+            //if both players cant move, game over
+            if (movesImpossible(nextPlayer)) {
+                gameOver = true;
+            }
+
         }
 
 
-        Gdx.app.log("GameState", "Next player: " + nextPlayer.toString());
+
+        if (gameOver)
+            Gdx.app.log("GameState","No more moves. Game over");
+        else
+            Gdx.app.log("GameState", "Next player: " + nextPlayer.toString());
 
         return true;
     }
@@ -291,9 +292,9 @@ public class GameState {
 
 
         //reset array of which squares have been checked
-        for (i = 0; i < checkedsquares.length; i++) {
-            for (j = 0; j < checkedsquares[i].length; j++) {
-                checkedsquares[i][j] = false;
+        for (i = 0; i < checkedSquares.length; i++) {
+            for (j = 0; j < checkedSquares[i].length; j++) {
+                checkedSquares[i][j] = false;
             }
         }
 
@@ -339,7 +340,7 @@ public class GameState {
             return;
 
         // avoid repeats
-        if (checkedsquares[x][y])
+        if (checkedSquares[x][y])
             return;
 
         queueHead = new Square(x,y);
@@ -366,7 +367,7 @@ public class GameState {
                         capturedPieceOrigin = null; //found 2 pieces in this region, no captures.
                     // must finish filling this region to mark all squares as checked otherwise another  partial region might find only 1 piece
                     //TODO - this might be faster if we quit here and subsequent region checks expire when they hit previous ones.
-                    //this would require changing checkedSquares to an int from a bool.
+                    //note that this would require changing checkedSquares to an int from a bool.
                     if (enemyPieces == 1)
                         capturedPieceOrigin = queueHead; //hold on to this location for capture lookup
                     Gdx.app.log("Claims", "Hit Enemy #" + Integer.toString(enemyPieces) + " " + queueHead.toString());
@@ -380,7 +381,7 @@ public class GameState {
                     for (j=-1; j<2; j++){
                         if(currentX+i >= 0 && currentX+i <= 9  &&
                            currentY+j >= 0 && currentY+j <= 9  &&
-                           !checkedsquares[currentX+i][currentY+j]){
+                           !checkedSquares[currentX+i][currentY+j]){
                              queueTail.nextSquare = new Square(currentX+i, currentY+j);
                              //Gdx.app.log("Claims queue", Integer.toString(currentX+i) + "," + Integer.toString(currentY+j));
                              queueTail = queueTail.nextSquare;
@@ -454,7 +455,10 @@ public class GameState {
         // plug it in and done.
         tmp.nextMove = move;
 
+    }
 
+    public float AIevaluate(AIEvaluator ai, Player aiPlayer){
+        return ai.evaluate(board, pieceAvailable, nextPlayer, aiPlayer);
     }
 
     //put the piece's coordinates in the array and return the number of squares occupied
@@ -640,37 +644,10 @@ public class GameState {
         return true;
     }
 
-    // move class holds the record of moves made in a linked list. Useful for save/load and piece capture
-    class Move {
-        public Piece piece;
-        public Orientation orientation;
-        public int x,y;
-        public Move nextMove;
-        public Player player;
-
-        public Move ( Piece piece, Orientation orientation, int x, int y, Player player){
-            this.piece = piece;
-            this.orientation = orientation;
-            this.x = x;
-            this.y = y;
-            this.player = player;
-            this.nextMove = null;
-        }
-
-        @Override
-        public String toString(){
-            return player.toString() + ": " + piece.getCode() + orientation.toLetter() + Character.toString((char)(x + (int)'A')) + Integer.toString(y+1);
-        }
-
-        public int numMoves(){
-            if (nextMove == null)
-                return 1;
-            else
-                return nextMove.numMoves() + 1;
-        }
-
+    public boolean isGameOver() {
+        return gameOver;
     }
-    
+
     // a linked list of 2-D coordinates with some team logic
     class Square {
         public int x, y;
@@ -713,11 +690,11 @@ public class GameState {
         }
 
         public void markChecked(){
-            GameState.this.checkedsquares[this.x][this.y] = true;
+            GameState.this.checkedSquares[this.x][this.y] = true;
         }
 
         public boolean isChecked(){
-            return GameState.this.checkedsquares[this.x][this.y];
+            return GameState.this.checkedSquares[this.x][this.y];
         }
 
         @Override

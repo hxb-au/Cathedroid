@@ -23,6 +23,8 @@ public class CathedroidGame extends Game {
 	// game config
 	Player startingPlayer;
 	boolean alternateStarts, randomStartPlayer;
+	Player aiPlayer;
+	boolean aiOn;
 
 	@Override
 	public void create () {
@@ -46,8 +48,18 @@ public class CathedroidGame extends Game {
 	public void	startGameScreen (boolean newGame, boolean vsAI){
 		//start game
 		//all games are new until the loading feature is in
-		gameScreen.startNewGame(this.getStartingPlayer());
+		if (vsAI)
+		{
+			enableAI();
+			setAILight();
+		}
+		else
+		{
+			disableAI();
+		}
 		setScreen(gameScreen);
+		gameScreen.startNewGame(this.getStartingPlayer());
+
 	}
 
 	public void setMenuScreen() {
@@ -111,9 +123,16 @@ public class CathedroidGame extends Game {
 		}
 	}
 
+	//ai player logic
+	//TODO this seems a bit improv. add to settings screen and give proper control here
+	public boolean isAI(Player p){
+		return (aiOn && aiPlayer != null && p == aiPlayer);
+	}
 
-
-
+	public void enableAI() { aiOn = true; }
+	public void disableAI() { aiOn = false; }
+	public void setAILight() { aiPlayer = Player.LIGHT; }
+	public void setAIDark()  { aiPlayer = Player.DARK;  }
 
 }
 
