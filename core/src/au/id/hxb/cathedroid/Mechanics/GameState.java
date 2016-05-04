@@ -197,13 +197,18 @@ public class GameState {
             nextPlayer = nextPlayer.getOther();
 
             //if both players cant move, game over
-            if (movesImpossible(nextPlayer))
+            if (movesImpossible(nextPlayer)) {
                 gameOver = true;
+            }
 
         }
 
 
-        Gdx.app.log("GameState", "Next player: " + nextPlayer.toString());
+
+        if (gameOver)
+            Gdx.app.log("GameState","No more moves. Game over");
+        else
+            Gdx.app.log("GameState", "Next player: " + nextPlayer.toString());
 
         return true;
     }
@@ -362,7 +367,7 @@ public class GameState {
                         capturedPieceOrigin = null; //found 2 pieces in this region, no captures.
                     // must finish filling this region to mark all squares as checked otherwise another  partial region might find only 1 piece
                     //TODO - this might be faster if we quit here and subsequent region checks expire when they hit previous ones.
-                    //this would require changing checkedSquares to an int from a bool.
+                    //note that this would require changing checkedSquares to an int from a bool.
                     if (enemyPieces == 1)
                         capturedPieceOrigin = queueHead; //hold on to this location for capture lookup
                     Gdx.app.log("Claims", "Hit Enemy #" + Integer.toString(enemyPieces) + " " + queueHead.toString());

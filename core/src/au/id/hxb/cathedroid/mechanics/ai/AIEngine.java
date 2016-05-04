@@ -11,6 +11,8 @@ import au.id.hxb.cathedroid.mechanics.Player;
  */
 public class AIEngine {
 
+    //select a move by some means, apply it to the current gamestate and return the move for UI processing
+    //TODO should the move be applied by the gamescreen to its gamestate?
     public Move makeMove(GameState gameState) {
         return makeRandomMove(gameState);
     }

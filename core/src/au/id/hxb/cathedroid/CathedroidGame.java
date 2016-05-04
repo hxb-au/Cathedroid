@@ -57,8 +57,9 @@ public class CathedroidGame extends Game {
 		{
 			disableAI();
 		}
-		gameScreen.startNewGame(this.getStartingPlayer());
 		setScreen(gameScreen);
+		gameScreen.startNewGame(this.getStartingPlayer());
+
 	}
 
 	public void setMenuScreen() {

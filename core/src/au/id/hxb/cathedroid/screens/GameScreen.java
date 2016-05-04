@@ -37,6 +37,7 @@ public class GameScreen implements Screen {
     private GameState gameState;
     private AIEngine ai;
     private Group claimGroup;
+    private boolean aiRunning = false;
 
 
     public GameScreen(CathedroidGame game) {
@@ -87,9 +88,9 @@ public class GameScreen implements Screen {
         cathedralpiece.toFront();
 
         //get AI to play first if required
-        if (game.isAI(gameState.whoseTurn())) {
-            makeAIMove();
-        }
+        //if (game.isAI(gameState.whoseTurn())) {
+        //    makeAIMove();
+        //}
     }
 
     public void updateClaimActors(){
@@ -355,10 +356,10 @@ public class GameScreen implements Screen {
 
             //check for endgame
 
-            if (!gameState.isGameOver() && game.isAI(gameState.whoseTurn())) {
+            //if (!gameState.isGameOver() && game.isAI(gameState.whoseTurn())) {
                 //only run AI if game isn't over
-                makeAIMove();
-            }
+            //    makeAIMove();
+            //}
 
         }
 
@@ -414,6 +415,15 @@ public class GameScreen implements Screen {
 
         stage.act(delta);
         stage.draw();
+
+        //if it's an AI turn, make the move.
+        //only run AI if game isn't over
+        //TODO put in a different thread with a lock.
+        if (!aiRunning && !gameState.isGameOver() && game.isAI(gameState.whoseTurn())) {
+            aiRunning = true;
+            makeAIMove();
+            aiRunning = false;
+        }
 
     }
 
