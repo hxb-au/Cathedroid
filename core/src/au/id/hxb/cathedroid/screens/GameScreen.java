@@ -347,19 +347,15 @@ public class GameScreen implements Screen {
         //TODO pass as Move
         boolean successfulMove = gameState.attemptMove(piece, dir, boardX, boardY, player);
 
-
-
         if(successfulMove) {
             Move move = new Move(piece, dir, boardX, boardY, player);
 
             applyMove(move, pieceActor);
 
             //check for endgame
+            if (gameState.isGameOver())
+                Gdx.app.log("GameScreen", "Gamestate indicates game over");
 
-            //if (!gameState.isGameOver() && game.isAI(gameState.whoseTurn())) {
-                //only run AI if game isn't over
-            //    makeAIMove();
-            //}
 
         }
 
