@@ -69,7 +69,7 @@ public class GameState {
 
     // copy given gamesState back in to this one, used for lookahead
     public void revert(GameState original) {
-        //copy board array
+        //deep copy board array
         int i,j;
 
         for (i = 0; i < BOARD_WIDTH; i++) {
@@ -82,7 +82,7 @@ public class GameState {
         moveList = original.moveList;
         numMoves = original.numMoves;
 
-        // copy piece usage list
+        // deep copy piece usage list
         pieceAvailable.putAll(original.pieceAvailable);
 
         //set starting player
@@ -159,6 +159,9 @@ public class GameState {
         if (numMoves == 0 && piece != Piece.CA)
             return false;
 
+        //is piece available? fail if not
+        if (!pieceAvailable.get(piece))
+            return false;
 
         // load translated and rotated piece coverage in to the coordinates array
         // save count for iteration
