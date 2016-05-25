@@ -173,7 +173,7 @@ public class GameState {
 
         // note: numSquares and coordinates are used again later if successful
 
-        //still here? then the piece fits
+        //still here? then the piece fits and it's going in
 
         //mark piece as used in gamestate's list
         pieceAvailable.put(piece, false);
