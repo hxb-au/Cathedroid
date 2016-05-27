@@ -48,6 +48,7 @@ public class InfoScreen implements Screen {
     public void show() {
         Gdx.input.setInputProcessor(infoInputListener);
         viewport.apply();
+        Gdx.input.setCatchBackKey(true);
 
     }
 
@@ -88,6 +89,7 @@ public class InfoScreen implements Screen {
     @Override
     public void hide() {
         Gdx.input.setInputProcessor(null);
+        Gdx.input.setCatchBackKey(false);
     }
 
     @Override
