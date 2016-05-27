@@ -44,7 +44,6 @@ public class GameScreen implements Screen {
     private AIEngine ai;
     private Group claimGroup;
     private boolean aiRunning = false;
-    private BackProcessor backProcessor;
     private InputProcessor inputMux;
 
 
@@ -62,7 +61,7 @@ public class GameScreen implements Screen {
         batch = new SpriteBatch();
         stage = new Stage(viewport, batch);
 
-        backProcessor = new BackProcessor();
+        BackProcessor backProcessor = new BackProcessor();
 
         inputMux = new InputMultiplexer(stage, backProcessor);
 
