@@ -1,6 +1,7 @@
 package au.id.hxb.cathedroid.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
@@ -109,6 +110,18 @@ public class InfoScreen implements Screen {
         @Override
         public boolean touchDown (int screenX, int screenY, int pointer, int button) {
             if (button == 0){
+                game.returnFromInfoScreen();
+                return true;
+            }
+            else {
+                return false;
+            }
+
+        }
+
+        @Override
+        public boolean keyDown(int keycode) {
+            if (keycode == Input.Keys.ESCAPE || keycode == Input.Keys.BACK) {
                 game.returnFromInfoScreen();
                 return true;
             }
