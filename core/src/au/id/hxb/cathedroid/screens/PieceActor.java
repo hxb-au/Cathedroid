@@ -1,10 +1,12 @@
 package au.id.hxb.cathedroid.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.actions.*;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -33,6 +35,10 @@ public class PieceActor extends Image {
     static GameState gameState;
     static GameScreen gameScreen;
     private final Piece piece;
+
+    private boolean highlighted = false;
+
+
 
     public void setPlayer(Player player) {
         this.player = player;
@@ -220,6 +226,28 @@ public class PieceActor extends Image {
 
     }
 
+    public void setHighlight(boolean highlightOn)
+    {
+        if (! highlighted && highlightOn){
+
+            highlighted = true;
+            SequenceAction pulseAction = new SequenceAction(
+                    Actions.color(Color.ORANGE, 0.5f),
+                    Actions.color(Color.WHITE,0.5f)
+            );
+
+            this.addAction(Actions.forever(pulseAction));
+        }
+
+        if (!highlightOn)
+        {
+            this.clearActions();
+            this.addAction(Actions.color(Color.WHITE));
+            highlighted = false;
+        }
+
+
+    }
 
     class PieceGestureListener extends ActorGestureListener {
         private Vector2 tmpInV2 = new Vector2(), tmpOutV2 = new Vector2();
@@ -252,12 +280,14 @@ public class PieceActor extends Image {
             tmpInV2.rotate(PieceActor.this.getRotation());
             PieceActor.this.addAction(Actions.moveBy(tmpInV2.x, tmpInV2.y));
             PieceActor.this.toFront();
+            PieceActor.this.setHighlight(true);
         }
 
         // tap to rotate piece
         @Override
         public void tap(InputEvent event, float x, float y, int count, int button) {
             PieceActor.this.rotateCW();
+            PieceActor.this.setHighlight(false);
         }
 
         //long press to attempt a move
