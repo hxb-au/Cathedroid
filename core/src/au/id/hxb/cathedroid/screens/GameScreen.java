@@ -45,6 +45,8 @@ public class GameScreen implements Screen {
     private Group claimGroup;
     private boolean aiRunning = false;
     private InputProcessor inputMux;
+    private Group lightPieces, darkPieces;
+    private PieceActor cathedralPiece;
 
 
     public GameScreen(CathedroidGame game) {
@@ -60,6 +62,7 @@ public class GameScreen implements Screen {
         viewport = new FitViewport(nativeWidth, nativeHeight, cam);
         batch = new SpriteBatch();
         stage = new Stage(viewport, batch);
+
 
         BackProcessor backProcessor = new BackProcessor();
 
@@ -80,8 +83,7 @@ public class GameScreen implements Screen {
         gameState.newGame(startingPlayer);
 
         // give cathedral piece to starting player
-        PieceActor cathedralpiece = stage.getRoot().findActor(Piece.CA.getName());
-        cathedralpiece.setPlayer(startingPlayer);
+        cathedralPiece.setPlayer(startingPlayer);
 
         //reset pieces
         Array<Actor> pieceActors = stage.getActors();
@@ -95,12 +97,15 @@ public class GameScreen implements Screen {
         updateClaimActors();
 
         //put cathedral on top
-        cathedralpiece.toFront();
+        cathedralPiece.toFront();
 
         //get AI to play first if required
         //if (game.isAI(gameState.whoseTurn())) {
         //    makeAIMove();
         //}
+
+        //highlight appropriate pieces
+        highlightNext();
     }
 
     public void updateClaimActors() {
@@ -117,6 +122,12 @@ public class GameScreen implements Screen {
         PieceActor.setGameScreen(this);
         PieceActor tmpPiece;
 
+        lightPieces = new Group();
+        darkPieces = new Group();
+
+        stage.addActor(lightPieces);
+        stage.addActor(darkPieces);
+
         //Light Pieces
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-TA.png")),
                 Piece.L_TA1,
@@ -124,98 +135,98 @@ public class GameScreen implements Screen {
                 25f, 25f, //rotational centre
                 25f, 25f  //reference point for game rules
         );
-        stage.addActor(tmpPiece);
+        lightPieces.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-TA.png")),
                 Piece.L_TA2,
                 new Rectangle(0, 0, 50, 50), null, null, //hitboxes
                 25f, 25f, //rotational centre
                 25f, 25f  //reference point for game rules
         );
-        stage.addActor(tmpPiece);
+        lightPieces.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-ST.png")),
                 Piece.L_ST1,
                 new Rectangle(0, 0, 50, 100), null, null, //hitboxes
                 25f, 50f, //rotational centre
                 25f, 75f  //reference point for game rules
         );
-        stage.addActor(tmpPiece);
+        lightPieces.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-ST.png")),
                 Piece.L_ST2,
                 new Rectangle(0, 0, 50, 100), null, null, //hitboxes
                 25f, 50f, //rotational centre
                 25f, 75f  //reference point for game rules
         );
-        stage.addActor(tmpPiece);
+        lightPieces.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-IN.png")),
                 Piece.L_IN1,
                 new Rectangle(0, 0, 100, 50), new Rectangle(0, 0, 50, 100), null, //hitboxes
                 25f, 25f, //rotational centre
                 25f, 75f  //reference point for game rules
         );
-        stage.addActor(tmpPiece);
+        lightPieces.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-IN.png")),
                 Piece.L_IN2,
                 new Rectangle(0, 0, 100, 50), new Rectangle(0, 0, 50, 100), null, //hitboxes
                 25f, 25f, //rotational centre
                 25f, 75f  //reference point for game rules
         );
-        stage.addActor(tmpPiece);
+        lightPieces.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-BR.png")),
                 Piece.L_BR,
                 new Rectangle(0, 0, 50, 150), null, null, //hitboxes
                 25f, 75f, //rotational centre
                 25f, 125f  //reference point for game rules
         );
-        stage.addActor(tmpPiece);
+        lightPieces.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-SQ.png")),
                 Piece.L_SQ,
                 new Rectangle(0, 0, 100, 100), null, null, //hitboxes
                 50f, 50f, //rotational centre
                 25f, 75f  //reference point for game rules
         );
-        stage.addActor(tmpPiece);
+        lightPieces.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-AB.png")),
                 Piece.L_AB,
                 new Rectangle(0, 50, 50, 100), new Rectangle(50, 0, 50, 100), null, //hitboxes
                 50f, 75f, //rotational centre
                 25f, 125f  //reference point for game rules
         );
-        stage.addActor(tmpPiece);
+        lightPieces.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-MA.png")),
                 Piece.L_MA,
                 new Rectangle(0, 0, 150, 50), new Rectangle(50, 0, 50, 100), null, //hitboxes
                 75f, 25f, //rotational centre
                 75f, 75f  //reference point for game rules
         );
-        stage.addActor(tmpPiece);
+        lightPieces.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-TO.png")),
                 Piece.L_TO,
                 new Rectangle(0, 0, 100, 50), new Rectangle(50, 50, 100, 50), new Rectangle(100, 100, 50, 50), //hitboxes
                 75f, 75f, //rotational centre
                 125f, 125f  //reference point for game rules
         );
-        stage.addActor(tmpPiece);
+        lightPieces.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-IF.png")),
                 Piece.L_IF,
                 new Rectangle(0, 50, 150, 50), new Rectangle(50, 0, 50, 150), null, //hitboxes
                 75f, 75f, //rotational centre
                 75f, 75f  //reference point for game rules
         );
-        stage.addActor(tmpPiece);
+        lightPieces.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-CS.png")),
                 Piece.L_CS,
                 new Rectangle(0, 0, 100, 50), new Rectangle(0, 0, 50, 150), new Rectangle(0, 100, 100, 50), //hitboxes
                 25f, 75f, //rotational centre
                 75f, 125f  //reference point for game rules
         );
-        stage.addActor(tmpPiece);
+        lightPieces.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/L-AC.png")),
                 Piece.L_AC,
                 new Rectangle(50, 0, 100, 50), new Rectangle(0, 50, 100, 50), new Rectangle(50, 0, 50, 150), //hitboxes
                 75f, 75f, //rotational centre
                 75f, 125f  //reference point for game rules
         );
-        stage.addActor(tmpPiece);
+        lightPieces.addActor(tmpPiece);
 
         //Dark Pieces
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-TA.png")),
@@ -224,107 +235,107 @@ public class GameScreen implements Screen {
                 25f, 25f, //rotational centre
                 25f, 25f  //reference point for game rules
         );
-        stage.addActor(tmpPiece);
+        darkPieces.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-TA.png")),
                 Piece.D_TA2,
                 new Rectangle(0, 0, 50, 50), null, null, //hitboxes
                 25f, 25f, //rotational centre
                 25f, 25f  //reference point for game rules
         );
-        stage.addActor(tmpPiece);
+        darkPieces.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-ST.png")),
                 Piece.D_ST1,
                 new Rectangle(0, 0, 50, 100), null, null, //hitboxes
                 25f, 50f, //rotational centre
                 25f, 75f  //reference point for game rules
         );
-        stage.addActor(tmpPiece);
+        darkPieces.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-ST.png")),
                 Piece.D_ST2,
                 new Rectangle(0, 0, 50, 100), null, null, //hitboxes
                 25f, 50f, //rotational centre
                 25f, 75f  //reference point for game rules
         );
-        stage.addActor(tmpPiece);
+        darkPieces.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-IN.png")),
                 Piece.D_IN1,
                 new Rectangle(0, 0, 100, 50), new Rectangle(0, 0, 50, 100), null, //hitboxes
                 25f, 25f, //rotational centre
                 25f, 75f  //reference point for game rules
         );
-        stage.addActor(tmpPiece);
+        darkPieces.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-IN.png")),
                 Piece.D_IN2,
                 new Rectangle(0, 0, 100, 50), new Rectangle(0, 0, 50, 100), null, //hitboxes
                 25f, 25f, //rotational centre
                 25f, 75f  //reference point for game rules
         );
-        stage.addActor(tmpPiece);
+        darkPieces.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-BR.png")),
                 Piece.D_BR,
                 new Rectangle(0, 0, 50, 150), null, null, //hitboxes
                 25f, 75f, //rotational centre
                 25f, 125f  //reference point for game rules
         );
-        stage.addActor(tmpPiece);
+        darkPieces.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-SQ.png")),
                 Piece.D_SQ,
                 new Rectangle(0, 0, 100, 100), null, null, //hitboxes
                 50f, 50f, //rotational centre
                 25f, 75f  //reference point for game rules
         );
-        stage.addActor(tmpPiece);
+        darkPieces.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-AB.png")),
                 Piece.D_AB,
                 new Rectangle(0, 0, 50, 100), new Rectangle(50, 50, 50, 100), null, //hitboxes
                 50f, 75f, //rotational centre
                 75f, 125f  //reference point for game rules
         );
-        stage.addActor(tmpPiece);
+        darkPieces.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-MA.png")),
                 Piece.D_MA,
                 new Rectangle(0, 0, 150, 50), new Rectangle(50, 0, 50, 100), null, //hitboxes
                 75f, 25f, //rotational centre
                 75f, 75f  //reference point for game rules
         );
-        stage.addActor(tmpPiece);
+        darkPieces.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-TO.png")),
                 Piece.D_TO,
                 new Rectangle(0, 0, 100, 50), new Rectangle(50, 50, 100, 50), new Rectangle(100, 100, 50, 50), //hitboxes
                 75f, 75f, //rotational centre
                 125f, 125f  //reference point for game rules
         );
-        stage.addActor(tmpPiece);
+        darkPieces.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-IF.png")),
                 Piece.D_IF,
                 new Rectangle(0, 50, 150, 50), new Rectangle(50, 0, 50, 150), null, //hitboxes
                 75f, 75f, //rotational centre
                 75f, 75f  //reference point for game rules
         );
-        stage.addActor(tmpPiece);
+        darkPieces.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-CS.png")),
                 Piece.D_CS,
                 new Rectangle(0, 0, 100, 50), new Rectangle(0, 0, 50, 150), new Rectangle(0, 100, 100, 50), //hitboxes
                 25f, 75f, //rotational centre
                 75f, 125f  //reference point for game rules
         );
-        stage.addActor(tmpPiece);
+        darkPieces.addActor(tmpPiece);
         tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/D-AC.png")),
                 Piece.D_AC,
                 new Rectangle(0, 0, 100, 50), new Rectangle(50, 50, 100, 50), new Rectangle(50, 0, 50, 150), //hitboxes
                 75f, 75f, //rotational centre
                 75f, 125f  //reference point for game rules
         );
-        stage.addActor(tmpPiece);
+        darkPieces.addActor(tmpPiece);
 
         //Cathedral Piece
-        tmpPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/CA.png")),
+        cathedralPiece = new PieceActor(new Texture(Gdx.files.internal("pieces/CA.png")),
                 Piece.CA,
                 new Rectangle(0, 100, 150, 50), new Rectangle(50, 0, 50, 200), null, //hitboxes
                 75f, 125f, //rotational centre
                 75f, 175f  //reference point for game rules
         );
-        stage.addActor(tmpPiece);
+        stage.addActor(cathedralPiece);
 
 
     }
@@ -350,6 +361,62 @@ public class GameScreen implements Screen {
         }
 
         stage.addActor(claimGroup);
+    }
+
+    public void highlightDarks() {
+        highlightNone();
+        for (Actor pieceActor : darkPieces.getChildren())
+        {
+            ((PieceActor)pieceActor).setHighlight(true);
+        }
+    }
+
+    public void highlightLights() {
+        highlightNone();
+        for (Actor pieceActor : lightPieces.getChildren())
+        {
+            ((PieceActor)pieceActor).setHighlight(true);
+        }
+    }
+
+    public void highlightCathedral() {
+        highlightNone();
+        cathedralPiece.setHighlight(true);
+    }
+
+    public void highlightPiece(PieceActor pieceActor){
+        highlightNone();
+
+        pieceActor.setHighlight(true);
+    }
+
+    public void highlightNext() {
+        if (gameState.cathedralMoveReqd()) {
+            highlightCathedral();
+        }
+        else {
+            switch (gameState.whoseTurn()) {
+                case LIGHT:
+                    highlightLights();
+                    break;
+                case DARK:
+                    highlightDarks();
+                    break;
+            }
+        }
+
+    }
+
+    public void highlightNone() {
+        for (Actor pieceActor : lightPieces.getChildren())
+        {
+            ((PieceActor)pieceActor).setHighlight(false);
+        }
+        for (Actor pieceActor : darkPieces.getChildren())
+        {
+            ((PieceActor)pieceActor).setHighlight(false);
+        }
+        cathedralPiece.setHighlight(false);
     }
 
     public boolean attemptMove(PieceActor pieceActor, Piece piece, Orientation dir, int boardX, int boardY, Player player) {
@@ -388,6 +455,10 @@ public class GameScreen implements Screen {
 
         // board state will have changed. check claims
         updateClaimActors();
+
+        //highlight pieces for next turn
+        highlightNext();
+
     }
 
 

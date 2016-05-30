@@ -17,6 +17,11 @@ public class GameState {
     private boolean [][] checkedSquares;
     private Move moveList;
     private Square captureCoordList;
+
+    public boolean cathedralMoveReqd() {
+        return numMoves == 0;
+    }
+
     private int numMoves = 0;
     private Player nextPlayer;
     private EnumMap<Piece, Boolean> pieceAvailable;

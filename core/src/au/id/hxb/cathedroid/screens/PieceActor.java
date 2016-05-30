@@ -37,6 +37,7 @@ public class PieceActor extends Image {
     private final Piece piece;
 
     private boolean highlighted = false;
+    private Action highlightAction;
 
 
 
@@ -228,24 +229,38 @@ public class PieceActor extends Image {
 
     public void setHighlight(boolean highlightOn)
     {
-        if (! highlighted && highlightOn){
+        if (! highlighted && highlightOn && !placed){
 
             highlighted = true;
             SequenceAction pulseAction = new SequenceAction(
-                    Actions.color(Color.ORANGE, 0.5f),
+                    Actions.color(Color.BLACK, 0.5f),
                     Actions.color(Color.WHITE,0.5f)
             );
+            highlightAction = Actions.forever(pulseAction);
 
-            this.addAction(Actions.forever(pulseAction));
+            addAction(highlightAction);
         }
 
         if (!highlightOn)
         {
-            this.clearActions();
-            this.addAction(Actions.color(Color.WHITE));
+            removeAction(highlightAction);
+            addAction(Actions.color(Color.WHITE));
             highlighted = false;
         }
 
+
+    }
+
+    public void highlightIfCurrent() {
+        if (gameState.cathedralMoveReqd() && piece == Piece.CA) {
+            gameScreen.highlightCathedral();
+            return;
+        }
+
+        if (gameState.whoseTurn() == piece.getOwner()) {
+            gameScreen.highlightPiece(this);
+            return;
+        }
 
     }
 
@@ -280,14 +295,14 @@ public class PieceActor extends Image {
             tmpInV2.rotate(PieceActor.this.getRotation());
             PieceActor.this.addAction(Actions.moveBy(tmpInV2.x, tmpInV2.y));
             PieceActor.this.toFront();
-            PieceActor.this.setHighlight(true);
+            highlightIfCurrent();
         }
 
         // tap to rotate piece
         @Override
         public void tap(InputEvent event, float x, float y, int count, int button) {
             PieceActor.this.rotateCW();
-            PieceActor.this.setHighlight(false);
+            highlightIfCurrent();
         }
 
         //long press to attempt a move
