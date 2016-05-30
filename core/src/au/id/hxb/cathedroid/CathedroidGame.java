@@ -25,6 +25,7 @@ public class CathedroidGame extends Game {
 	boolean alternateStarts, randomStartPlayer;
 	Player aiPlayer;
 	boolean aiOn;
+	boolean aiRandom;
 
 	@Override
 	public void create () {
@@ -39,6 +40,7 @@ public class CathedroidGame extends Game {
 		//TODO load from last time
 		setStartingPlayerRandom();
 		setAlternateStarts(true);
+		setAIRandom();
 
 		//screen control
 		previousScreen = null;
@@ -51,7 +53,10 @@ public class CathedroidGame extends Game {
 		if (vsAI)
 		{
 			enableAI();
-			setAILight();
+			if (aiRandom)
+			{
+				aiPlayer = (Math.random() < 0.5) ? Player.LIGHT : Player.DARK ;
+			}
 		}
 		else
 		{
@@ -131,8 +136,13 @@ public class CathedroidGame extends Game {
 
 	public void enableAI() { aiOn = true; }
 	public void disableAI() { aiOn = false; }
-	public void setAILight() { aiPlayer = Player.LIGHT; }
-	public void setAIDark()  { aiPlayer = Player.DARK;  }
+	public void setAILight() { aiPlayer = Player.LIGHT; aiRandom = false; }
+	public void setAIDark()  { aiPlayer = Player.DARK;  aiRandom = false;  }
+	public void setAIRandom() { aiRandom = true; }
+
+	public boolean isAILight() { return !aiRandom && aiPlayer == Player.LIGHT; }
+	public boolean isAIDark() { return !aiRandom && aiPlayer == Player.DARK; }
+	public boolean isAiRandom() { return aiRandom; }
 
 }
 

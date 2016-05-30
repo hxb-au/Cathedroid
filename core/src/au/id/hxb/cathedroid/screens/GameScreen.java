@@ -15,7 +15,10 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntFloatMap;
@@ -47,6 +50,7 @@ public class GameScreen implements Screen {
     private InputProcessor inputMux;
     private Group lightPieces, darkPieces;
     private PieceActor cathedralPiece;
+    private Skin skin;
 
 
     public GameScreen(CathedroidGame game) {
@@ -67,6 +71,9 @@ public class GameScreen implements Screen {
         BackProcessor backProcessor = new BackProcessor();
 
         inputMux = new InputMultiplexer(stage, backProcessor);
+
+        //load dialog textures
+        skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
 
         Image bgImg = new Image(new Texture(Gdx.files.internal("board_on_grey.png")));
         bgImg.setName("bg");
@@ -393,18 +400,21 @@ public class GameScreen implements Screen {
     public void highlightNext() {
         if (gameState.cathedralMoveReqd()) {
             highlightCathedral();
+            return;
         }
-        else {
-            switch (gameState.whoseTurn()) {
-                case LIGHT:
-                    highlightLights();
-                    break;
-                case DARK:
-                    highlightDarks();
-                    break;
-            }
+        if (gameState.isGameOver()){
+            highlightNone();
+            return;
         }
 
+        switch (gameState.whoseTurn()) {
+            case LIGHT:
+                highlightLights();
+                return;
+            case DARK:
+                highlightDarks();
+                return;
+        }
     }
 
     public void highlightNone() {
@@ -458,6 +468,36 @@ public class GameScreen implements Screen {
 
         //highlight pieces for next turn
         highlightNext();
+
+        //check for gameover
+        if (gameState.isGameOver()){
+            endGameDialog();
+        }
+
+    }
+
+    private void endGameDialog(){
+
+        String winnerStr, lightStr, darkStr;
+        int lightScore = gameState.getScore(Player.LIGHT);
+        int darkScore  = gameState.getScore(Player.DARK);
+        lightStr = Integer.toString(lightScore);
+        darkStr  = Integer.toString(darkScore );
+
+
+        Dialog diag = new Dialog("Game Over", skin);
+
+        if (lightScore == darkScore)
+            winnerStr = "Draw:";
+        else if (lightScore < darkScore)
+            winnerStr = "Light Player Wins: ";
+        else //if (lightScore > darkScore)
+            winnerStr = "Dark Player Wins: ";
+
+        diag.text(winnerStr + lightStr + "-" + darkStr);
+        diag.button("OK");
+
+        diag.show(stage);
 
     }
 

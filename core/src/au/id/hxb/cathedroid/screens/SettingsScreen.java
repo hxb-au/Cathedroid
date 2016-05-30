@@ -41,6 +41,7 @@ public class SettingsScreen implements Screen {
     private InputProcessor inputMux;
 
     TextButton lightStartButton, darkStartButton, randomStartButton;
+    TextButton lightAiButton, darkAiButton, randomAiButton;
     TextButton alternateYesButton, alternateNoButton;
 
 
@@ -85,6 +86,15 @@ public class SettingsScreen implements Screen {
         alternateNoButton = new TextButton("No", skin, "toggle");
         ButtonGroup alternateStartGroup = new ButtonGroup(alternateYesButton, alternateNoButton);
 
+        // ai player group
+        lightAiButton = new TextButton("Light", skin, "toggle");
+        darkAiButton = new TextButton("Dark", skin, "toggle");
+        randomAiButton = new TextButton("Random", skin, "toggle");
+        ButtonGroup aiPlayerGroup = new ButtonGroup(lightAiButton, darkAiButton, randomAiButton);
+        aiPlayerGroup.setMinCheckCount(1);
+        aiPlayerGroup.setMaxCheckCount(1);
+
+
         // back button
         TextButton backButton = new TextButton("Back", skin, "default");
         backButton.addListener(new ClickListener(0) {
@@ -116,6 +126,14 @@ public class SettingsScreen implements Screen {
         table.row();
         table.add(new Label(" ", skin)).height(30);
         table.row();
+        table.add(new Label("AI Player:  ", skin)).align(Align.right).height(30);
+        table.add(lightAiButton).width(150).height(30);
+        table.add(darkAiButton).width(150).height(30);
+        table.add(randomAiButton).width(150).height(30);
+        table.add(new Label(" ", skin)).height(30);
+        table.row();
+        table.add(new Label(" ", skin)).height(30);
+        table.row();
         table.add(new Label(" ", skin)).height(30).width(150);
         table.add(new Label(" ", skin)).height(30).width(150);
         table.add(backButton).height(30).width(150);
@@ -135,6 +153,10 @@ public class SettingsScreen implements Screen {
 
         alternateYesButton.setChecked(game.getAlternateStarts());
         alternateNoButton.setChecked(!game.getAlternateStarts());
+
+        lightAiButton.setChecked(game.isAILight());
+        darkAiButton.setChecked(game.isAIDark());
+        randomAiButton.setChecked(game.isAiRandom());
     }
 
     @Override
@@ -175,7 +197,12 @@ public class SettingsScreen implements Screen {
         if (randomStartButton.isChecked())
             game.setStartingPlayerRandom();
 
-
+        if (lightAiButton.isChecked())
+            game.setAILight();
+        if (darkAiButton.isChecked())
+            game.setAIDark();
+        if (randomAiButton.isChecked())
+            game.setAIRandom();
 
     }
 

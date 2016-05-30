@@ -239,6 +239,7 @@ public class PieceActor extends Image {
             highlightAction = Actions.forever(pulseAction);
 
             addAction(highlightAction);
+            return;
         }
 
         if (!highlightOn)
@@ -246,9 +247,8 @@ public class PieceActor extends Image {
             removeAction(highlightAction);
             addAction(Actions.color(Color.WHITE));
             highlighted = false;
+            return;
         }
-
-
     }
 
     public void highlightIfCurrent() {
