@@ -17,6 +17,11 @@ public class GameState {
     private boolean [][] checkedSquares;
     private Move moveList;
     private Square captureCoordList;
+
+    public boolean cathedralMoveReqd() {
+        return numMoves == 0;
+    }
+
     private int numMoves = 0;
     private Player nextPlayer;
     private EnumMap<Piece, Boolean> pieceAvailable;
@@ -173,7 +178,7 @@ public class GameState {
 
         // note: numSquares and coordinates are used again later if successful
 
-        //still here? then the piece fits
+        //still here? then the piece fits and it's going in
 
         //mark piece as used in gamestate's list
         pieceAvailable.put(piece, false);
@@ -468,12 +473,12 @@ public class GameState {
     private int getSquares( Piece piece, Orientation orientation, int x, int y, int[][] coords){
         int numSquares, i;
 
+        numSquares = piece.getSize();
         // get piece coordinates as offsets from its origin when facing north
         // first coordinate is always 0,0 so origin gets marked correctly for piece capture algorithm
         switch (piece){
 
             case CA: //cathedral
-                numSquares = 6;
                 tmp[0][0] =  0; tmp [0][1] =  0;
                 tmp[1][0] = -1; tmp [1][1] =  1;
                 tmp[2][0] =  0; tmp [2][1] =  1;
@@ -485,14 +490,12 @@ public class GameState {
             case L_TA2:
             case D_TA1:
             case D_TA2: //all taverns
-                numSquares = 1;
                 tmp[0][0] = 0; tmp [0][1] = 0;
                 break;
             case L_ST1:
             case L_ST2:
             case D_ST1:
             case D_ST2:// all stables
-                numSquares = 2;
                 tmp[0][0] = 0; tmp [0][1] = 0;
                 tmp[1][0] = 0; tmp [1][1] = 1;
                 break;
@@ -500,35 +503,30 @@ public class GameState {
             case L_IN2:
             case D_IN1:
             case D_IN2: // all inns
-                numSquares = 3;
                 tmp[0][0] = 0; tmp [0][1] = 0;
                 tmp[1][0] = 0; tmp [1][1] = 1;
                 tmp[2][0] = 1; tmp [2][1] = 1;
                 break;
             case L_BR:
             case D_BR: // both bridges
-                numSquares = 3;
                 tmp[0][0] = 0; tmp [0][1] = 0;
                 tmp[1][0] = 0; tmp [1][1] = 1;
                 tmp[2][0] = 0; tmp [2][1] = 2;
                 break;
             case L_SQ:
             case D_SQ: // both squares
-                numSquares = 4;
                 tmp[0][0] = 0; tmp [0][1] = 0;
                 tmp[1][0] = 0; tmp [1][1] = 1;
                 tmp[2][0] = 1; tmp [2][1] = 1;
                 tmp[3][0] = 1; tmp [3][1] = 0;
                 break;
             case L_AB: //light abbey
-                numSquares = 4;
                 tmp[0][0] = 0; tmp [0][1] = 0;
                 tmp[1][0] = 0; tmp [1][1] = 1;
                 tmp[2][0] = 1; tmp [2][1] = 1;
                 tmp[3][0] = 1; tmp [3][1] = 2;
                 break;
             case D_AB: // dark abbey
-                numSquares = 4;
                 tmp[0][0] = 0; tmp [0][1] = 0;
                 tmp[1][0] = 0; tmp [1][1] = 1;
                 tmp[2][0] =-1; tmp [2][1] = 1;
@@ -536,7 +534,6 @@ public class GameState {
                 break;
             case L_MA:
             case D_MA: // both manors
-                numSquares = 4;
                 tmp[0][0] = 0; tmp [0][1] = 0;
                 tmp[1][0] = 0; tmp [1][1] = 1;
                 tmp[2][0] = 1; tmp [2][1] = 1;
@@ -544,7 +541,6 @@ public class GameState {
                 break;
             case L_TO:
             case D_TO: // both towers
-                numSquares = 5;
                 tmp[0][0] = 0; tmp [0][1] = 0;
                 tmp[1][0] = 0; tmp [1][1] = 1;
                 tmp[2][0] =-1; tmp [2][1] = 1;
@@ -553,7 +549,6 @@ public class GameState {
                 break;
             case L_IF:
             case D_IF: // both infirmaries
-                numSquares = 5;
                 tmp[0][0] = 0; tmp [0][1] = 0;
                 tmp[1][0] = 0; tmp [1][1] = 1;
                 tmp[2][0] = 0; tmp [2][1] =-1;
@@ -562,7 +557,6 @@ public class GameState {
                 break;
             case L_CS:
             case D_CS: // both castles
-                numSquares = 5;
                 tmp[0][0] = 0; tmp [0][1] = 0;
                 tmp[1][0] =-1; tmp [1][1] = 0;
                 tmp[2][0] =-1; tmp [2][1] = 1;
@@ -570,7 +564,6 @@ public class GameState {
                 tmp[4][0] = 0; tmp [4][1] = 2;
                 break;
             case L_AC: // light academy
-                numSquares = 5;
                 tmp[0][0] = 0; tmp [0][1] = 0;
                 tmp[1][0] = 0; tmp [1][1] = 1;
                 tmp[2][0] =-1; tmp [2][1] = 1;
@@ -578,7 +571,6 @@ public class GameState {
                 tmp[4][0] = 1; tmp [4][1] = 2;
                 break;
             case D_AC:
-                numSquares = 5;
                 tmp[0][0] = 0; tmp [0][1] = 0;
                 tmp[1][0] = 0; tmp [1][1] = 1;
                 tmp[2][0] = 1; tmp [2][1] = 1;
@@ -586,7 +578,6 @@ public class GameState {
                 tmp[4][0] =-1; tmp [4][1] = 2;
                 break;
             default:
-                numSquares = 0;
 
         }
 
@@ -649,6 +640,16 @@ public class GameState {
 
     public boolean isGameOver() {
         return gameOver;
+    }
+
+    public int getScore(Player player) {
+        int score = 0;
+        for (Piece piece : Piece.values()) {
+            if (piece.getOwner() == player && pieceAvailable.get(piece))
+                score += piece.getSize();
+        }
+
+        return score;
     }
 
     // a linked list of 2-D coordinates with some team logic

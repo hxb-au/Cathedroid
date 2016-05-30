@@ -1,7 +1,10 @@
 package au.id.hxb.cathedroid.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -35,8 +38,10 @@ public class SettingsScreen implements Screen {
     private int midPointX, midPointY;
     private Viewport viewport;
     private Stage stage;
+    private InputProcessor inputMux;
 
     TextButton lightStartButton, darkStartButton, randomStartButton;
+    TextButton lightAiButton, darkAiButton, randomAiButton;
     TextButton alternateYesButton, alternateNoButton;
 
 
@@ -54,6 +59,8 @@ public class SettingsScreen implements Screen {
         cam.setToOrtho(false, nativeWidth,nativeHeight);
         viewport = new FitViewport(nativeWidth, nativeHeight, cam);
         stage = new Stage(viewport, batch);
+        inputMux = new InputMultiplexer(new BackProcessor(), stage);
+
 
         initUI();
 
@@ -78,6 +85,15 @@ public class SettingsScreen implements Screen {
         alternateYesButton = new TextButton("Yes", skin, "toggle");
         alternateNoButton = new TextButton("No", skin, "toggle");
         ButtonGroup alternateStartGroup = new ButtonGroup(alternateYesButton, alternateNoButton);
+
+        // ai player group
+        lightAiButton = new TextButton("Light", skin, "toggle");
+        darkAiButton = new TextButton("Dark", skin, "toggle");
+        randomAiButton = new TextButton("Random", skin, "toggle");
+        ButtonGroup aiPlayerGroup = new ButtonGroup(lightAiButton, darkAiButton, randomAiButton);
+        aiPlayerGroup.setMinCheckCount(1);
+        aiPlayerGroup.setMaxCheckCount(1);
+
 
         // back button
         TextButton backButton = new TextButton("Back", skin, "default");
@@ -110,6 +126,14 @@ public class SettingsScreen implements Screen {
         table.row();
         table.add(new Label(" ", skin)).height(30);
         table.row();
+        table.add(new Label("AI Player:  ", skin)).align(Align.right).height(30);
+        table.add(lightAiButton).width(150).height(30);
+        table.add(darkAiButton).width(150).height(30);
+        table.add(randomAiButton).width(150).height(30);
+        table.add(new Label(" ", skin)).height(30);
+        table.row();
+        table.add(new Label(" ", skin)).height(30);
+        table.row();
         table.add(new Label(" ", skin)).height(30).width(150);
         table.add(new Label(" ", skin)).height(30).width(150);
         table.add(backButton).height(30).width(150);
@@ -118,7 +142,8 @@ public class SettingsScreen implements Screen {
 
     @Override
     public void show() {
-        Gdx.input.setInputProcessor(stage);
+        Gdx.input.setInputProcessor(inputMux);
+        Gdx.input.setCatchBackKey(true);
         viewport.apply();
 
         //update checked buttons to match current settings
@@ -128,6 +153,10 @@ public class SettingsScreen implements Screen {
 
         alternateYesButton.setChecked(game.getAlternateStarts());
         alternateNoButton.setChecked(!game.getAlternateStarts());
+
+        lightAiButton.setChecked(game.isAILight());
+        darkAiButton.setChecked(game.isAIDark());
+        randomAiButton.setChecked(game.isAiRandom());
     }
 
     @Override
@@ -157,6 +186,7 @@ public class SettingsScreen implements Screen {
     public void hide() {
 
         Gdx.input.setInputProcessor(null);
+        Gdx.input.setCatchBackKey(false);
 
         // save settings
         game.setAlternateStarts(alternateYesButton.isChecked());
@@ -167,7 +197,12 @@ public class SettingsScreen implements Screen {
         if (randomStartButton.isChecked())
             game.setStartingPlayerRandom();
 
-
+        if (lightAiButton.isChecked())
+            game.setAILight();
+        if (darkAiButton.isChecked())
+            game.setAIDark();
+        if (randomAiButton.isChecked())
+            game.setAIRandom();
 
     }
 
@@ -176,6 +211,17 @@ public class SettingsScreen implements Screen {
         stage.dispose();
     }
 
+    class BackProcessor extends InputAdapter {
+        @Override
+        public boolean keyDown(int keycode) {
+            if (keycode == Input.Keys.ESCAPE || keycode == Input.Keys.BACK) {
+                SettingsScreen.this.game.setMenuScreen();
+                return true;
+            }
+
+            return false;
+        }
+    }
 }
 
 
