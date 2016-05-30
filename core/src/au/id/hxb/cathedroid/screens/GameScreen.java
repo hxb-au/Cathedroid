@@ -6,6 +6,7 @@ import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -23,6 +24,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntFloatMap;
 import com.badlogic.gdx.utils.IntIntMap;
+import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -51,6 +53,7 @@ public class GameScreen implements Screen {
     private Group lightPieces, darkPieces;
     private PieceActor cathedralPiece;
     private Skin skin;
+    private Json json;
 
 
     public GameScreen(CathedroidGame game) {
@@ -67,6 +70,7 @@ public class GameScreen implements Screen {
         batch = new SpriteBatch();
         stage = new Stage(viewport, batch);
 
+        json = new Json();
 
         BackProcessor backProcessor = new BackProcessor();
 
@@ -473,6 +477,15 @@ public class GameScreen implements Screen {
         if (gameState.isGameOver()){
             endGameDialog();
         }
+
+        //save move to file
+        FileHandle file;
+        if (game.isAiOn())
+            file = Gdx.files.local("1pSave.json");
+        else
+            file = Gdx.files.local("2pSave.json");
+
+        file.writeString(json.toJson(move),true);
 
     }
 
