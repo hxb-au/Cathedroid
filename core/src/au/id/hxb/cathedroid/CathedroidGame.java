@@ -50,21 +50,24 @@ public class CathedroidGame extends Game {
 	public void	startGameScreen (boolean newGame, boolean vsAI){
 		//start game
 		//all games are new until the loading feature is in
-		if (vsAI)
-		{
-			enableAI();
-			if (aiRandom)
-			{
-				aiPlayer = (Math.random() < 0.5) ? Player.LIGHT : Player.DARK ;
+		if(newGame) {
+			if (vsAI) {
+				enableAI();
+				if (aiRandom) {
+					aiPlayer = (Math.random() < 0.5) ? Player.LIGHT : Player.DARK;
+				}
+			} else {
+				disableAI();
 			}
+			setScreen(gameScreen);
+			gameScreen.startNewGame(this.getStartingPlayer());
 		}
-		else
+		else //load
 		{
-			disableAI();
+			aiOn = vsAI;
+			setScreen(gameScreen);
+			gameScreen.loadGame();
 		}
-		setScreen(gameScreen);
-		gameScreen.startNewGame(this.getStartingPlayer());
-
 	}
 
 	public void setMenuScreen() {

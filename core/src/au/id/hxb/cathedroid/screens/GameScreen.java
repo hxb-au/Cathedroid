@@ -28,6 +28,8 @@ import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
+import java.util.ArrayList;
+
 import au.id.hxb.cathedroid.CathedroidGame;
 import au.id.hxb.cathedroid.mechanics.GameState;
 import au.id.hxb.cathedroid.mechanics.Move;
@@ -90,6 +92,62 @@ public class GameScreen implements Screen {
 
         Gdx.app.log("GameScreen", "new game " + startingPlayer.toString());
 
+        setupGame(startingPlayer);
+
+        //clear the save file
+        FileHandle file;
+        if (game.isAiOn())
+            file = Gdx.files.local("1pSave.json");
+        else
+            file = Gdx.files.local("2pSave.json");
+
+        file.writeString("",false);
+
+        //highlight appropriate pieces for first move
+        highlightNext();
+    }
+
+    public void loadGame() {
+
+        Gdx.app.log("GameScreen", "loading game");
+
+        // load moves list to array of moves
+        FileHandle file;
+        if (game.isAiOn())
+            file = Gdx.files.local("1pSave.json");
+        else
+            file = Gdx.files.local("2pSave.json");
+
+        String[] savedMoveStrings = file.readString().split("[\\r\\n]+");
+
+        Move[] moves = new Move[savedMoveStrings.length];
+
+        for (int i = 0; i < moves.length; i++){
+            moves[i] = json.fromJson(Move.class, savedMoveStrings[i]);
+        }
+        //determine stating player
+        Player startingPlayer = moves[0].player;
+
+        //set up board and game logic
+        setupGame(startingPlayer);
+
+        //render once so loaded moves work
+        render(0);
+
+        //apply each move in turn
+        for (Move move : moves){
+            boolean result = gameState.attemptMove(move.piece, move.orientation, move.x, move.y, move.player);
+            //apply to ui if it worked
+            if (result) {
+                applyMove(move, (PieceActor)stage.getRoot().findActor(move.piece.getName()));
+            }
+        }
+
+        //highlight pieces for next move
+        highlightNext();
+    }
+
+    public void setupGame(Player startingPlayer) {
         //reset game logic
         gameState.newGame(startingPlayer);
 
@@ -110,13 +168,8 @@ public class GameScreen implements Screen {
         //put cathedral on top
         cathedralPiece.toFront();
 
-        //get AI to play first if required
-        //if (game.isAI(gameState.whoseTurn())) {
-        //    makeAIMove();
-        //}
 
-        //highlight appropriate pieces
-        highlightNext();
+
     }
 
     public void updateClaimActors() {
@@ -485,7 +538,8 @@ public class GameScreen implements Screen {
         else
             file = Gdx.files.local("2pSave.json");
 
-        file.writeString(json.toJson(move),true);
+        //add the move to the save file
+        file.writeString(json.toJson(move) + "\n", true);
 
     }
 
