@@ -144,6 +144,8 @@ public class CathedroidGame extends Game {
 	public void setAILight() { aiPlayer = Player.LIGHT; aiRandom = false; }
 	public void setAIDark()  { aiPlayer = Player.DARK;  aiRandom = false;  }
 	public void setAIRandom() { aiRandom = true; }
+	public Player getAiPlayer() { return aiPlayer; }
+	public void setAiPlayer(Player p) { aiPlayer = p; }
 
 	public boolean isAILight() { return !aiRandom && aiPlayer == Player.LIGHT; }
 	public boolean isAIDark() { return !aiRandom && aiPlayer == Player.DARK; }

@@ -96,12 +96,17 @@ public class GameScreen implements Screen {
 
         //clear the save file
         FileHandle file;
-        if (game.isAiOn())
+        if (game.isAiOn()) {
             file = Gdx.files.local("1pSave.json");
-        else
-            file = Gdx.files.local("2pSave.json");
+            file.writeString(json.toJson(game.getAiPlayer())+"\n",false);
+        }
+        else {
 
-        file.writeString("",false);
+            file = Gdx.files.local("2pSave.json");
+            file.writeString("",false); //empty save file
+        }
+
+
 
         //highlight appropriate pieces for first move
         highlightNext();
@@ -120,14 +125,30 @@ public class GameScreen implements Screen {
 
         String[] savedMoveStrings = file.readString().split("[\\r\\n]+");
 
+
+        int aiLineOffset = 0;
+        //attempt to pull AI player
+        if (game.isAiOn()) {
+            aiLineOffset = 1;
+            Player aiPlayer = json.fromJson(Player.class, savedMoveStrings[0]);
+            if (aiPlayer != null) {
+                game.setAiPlayer(aiPlayer);
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+
         //no moves loaded
         if (savedMoveStrings.length == 0)
             return false;
 
-        Move[] moves = new Move[savedMoveStrings.length];
+        Move[] moves = new Move[savedMoveStrings.length-aiLineOffset];
 
-        for (int i = 0; i < moves.length; i++){
-            moves[i] = json.fromJson(Move.class, savedMoveStrings[i]);
+        for (int i =0 ; i < moves.length; i++){
+            moves[i] = json.fromJson(Move.class, savedMoveStrings[i+aiLineOffset]);
         }
 
 
