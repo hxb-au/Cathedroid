@@ -107,7 +107,7 @@ public class GameScreen implements Screen {
         highlightNext();
     }
 
-    public void loadGame() {
+    public boolean loadGame() {
 
         Gdx.app.log("GameScreen", "loading game");
 
@@ -120,12 +120,21 @@ public class GameScreen implements Screen {
 
         String[] savedMoveStrings = file.readString().split("[\\r\\n]+");
 
+        //no moves loaded
+        if (savedMoveStrings.length == 0)
+            return false;
+
         Move[] moves = new Move[savedMoveStrings.length];
 
         for (int i = 0; i < moves.length; i++){
             moves[i] = json.fromJson(Move.class, savedMoveStrings[i]);
         }
-        //determine stating player
+
+
+        //determine stating player, fail if null
+        if (moves[0] == null || moves[0].player == null)
+            return false;
+
         Player startingPlayer = moves[0].player;
 
         //set up board and game logic
@@ -145,6 +154,9 @@ public class GameScreen implements Screen {
 
         //highlight pieces for next move
         highlightNext();
+
+        //success
+        return true;
     }
 
     public void setupGame(Player startingPlayer) {
@@ -154,13 +166,26 @@ public class GameScreen implements Screen {
         // give cathedral piece to starting player
         cathedralPiece.setPlayer(startingPlayer);
 
+        //render once so reset moves work
+        render(0);
+
+
         //reset pieces
-        Array<Actor> pieceActors = stage.getActors();
-        for (Actor pieceActor : pieceActors) {
+        Array<Actor> darkActors = darkPieces.getChildren();
+        for (Actor pieceActor : darkActors) {
             //TODO this casting feels ugly - is there a better way?
             if (pieceActor instanceof PieceActor)
                 ((PieceActor) pieceActor).reset();
         }
+
+        Array<Actor> lightActors = lightPieces.getChildren();
+        for (Actor pieceActor : lightActors) {
+            //TODO this casting feels ugly - is there a better way?
+            if (pieceActor instanceof PieceActor)
+                ((PieceActor) pieceActor).reset();
+        }
+
+        cathedralPiece.reset();
 
         //update the claim markers to match now empty board
         updateClaimActors();

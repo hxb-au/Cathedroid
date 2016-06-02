@@ -49,7 +49,6 @@ public class CathedroidGame extends Game {
 
 	public void	startGameScreen (boolean newGame, boolean vsAI){
 		//start game
-		//all games are new until the loading feature is in
 		if(newGame) {
 			if (vsAI) {
 				enableAI();
@@ -66,7 +65,9 @@ public class CathedroidGame extends Game {
 		{
 			aiOn = vsAI;
 			setScreen(gameScreen);
-			gameScreen.loadGame();
+			boolean success = gameScreen.loadGame();
+			if (!success)
+				startGameScreen(true, vsAI);
 		}
 	}
 
