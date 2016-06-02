@@ -10,6 +10,16 @@ public class Move {
     public Move nextMove;
     public Player player;
 
+    public Move(){
+        this.piece = null;
+        this.orientation = null;
+        this.x = -1;
+        this.y = -1;
+        this.player = null;
+        this.nextMove = null;
+
+    }
+
     public Move(Piece piece, Orientation orientation, int x, int y, Player player) {
         this.piece = piece;
         this.orientation = orientation;

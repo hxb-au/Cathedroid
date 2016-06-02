@@ -49,22 +49,26 @@ public class CathedroidGame extends Game {
 
 	public void	startGameScreen (boolean newGame, boolean vsAI){
 		//start game
-		//all games are new until the loading feature is in
-		if (vsAI)
-		{
-			enableAI();
-			if (aiRandom)
-			{
-				aiPlayer = (Math.random() < 0.5) ? Player.LIGHT : Player.DARK ;
+		if(newGame) {
+			if (vsAI) {
+				enableAI();
+				if (aiRandom) {
+					aiPlayer = (Math.random() < 0.5) ? Player.LIGHT : Player.DARK;
+				}
+			} else {
+				disableAI();
 			}
+			setScreen(gameScreen);
+			gameScreen.startNewGame(this.getStartingPlayer());
 		}
-		else
+		else //load
 		{
-			disableAI();
+			aiOn = vsAI;
+			setScreen(gameScreen);
+			boolean success = gameScreen.loadGame();
+			if (!success)
+				startGameScreen(true, vsAI);
 		}
-		setScreen(gameScreen);
-		gameScreen.startNewGame(this.getStartingPlayer());
-
 	}
 
 	public void setMenuScreen() {
@@ -136,9 +140,12 @@ public class CathedroidGame extends Game {
 
 	public void enableAI() { aiOn = true; }
 	public void disableAI() { aiOn = false; }
+	public boolean isAiOn() {return aiOn; }
 	public void setAILight() { aiPlayer = Player.LIGHT; aiRandom = false; }
 	public void setAIDark()  { aiPlayer = Player.DARK;  aiRandom = false;  }
 	public void setAIRandom() { aiRandom = true; }
+	public Player getAiPlayer() { return aiPlayer; }
+	public void setAiPlayer(Player p) { aiPlayer = p; }
 
 	public boolean isAILight() { return !aiRandom && aiPlayer == Player.LIGHT; }
 	public boolean isAIDark() { return !aiRandom && aiPlayer == Player.DARK; }

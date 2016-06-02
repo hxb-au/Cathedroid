@@ -6,6 +6,7 @@ import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -23,8 +24,11 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntFloatMap;
 import com.badlogic.gdx.utils.IntIntMap;
+import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+
+import java.util.ArrayList;
 
 import au.id.hxb.cathedroid.CathedroidGame;
 import au.id.hxb.cathedroid.mechanics.GameState;
@@ -51,6 +55,7 @@ public class GameScreen implements Screen {
     private Group lightPieces, darkPieces;
     private PieceActor cathedralPiece;
     private Skin skin;
+    private Json json;
 
 
     public GameScreen(CathedroidGame game) {
@@ -67,6 +72,7 @@ public class GameScreen implements Screen {
         batch = new SpriteBatch();
         stage = new Stage(viewport, batch);
 
+        json = new Json();
 
         BackProcessor backProcessor = new BackProcessor();
 
@@ -86,19 +92,121 @@ public class GameScreen implements Screen {
 
         Gdx.app.log("GameScreen", "new game " + startingPlayer.toString());
 
+        setupGame(startingPlayer);
+
+        //clear the save file
+        FileHandle file;
+        if (game.isAiOn()) {
+            file = Gdx.files.local("1pSave.json");
+            file.writeString(json.toJson(game.getAiPlayer())+"\n",false);
+        }
+        else {
+
+            file = Gdx.files.local("2pSave.json");
+            file.writeString("",false); //empty save file
+        }
+
+
+
+        //highlight appropriate pieces for first move
+        highlightNext();
+    }
+
+    public boolean loadGame() {
+
+        Gdx.app.log("GameScreen", "loading game");
+
+        // load moves list to array of moves
+        FileHandle file;
+        if (game.isAiOn())
+            file = Gdx.files.local("1pSave.json");
+        else
+            file = Gdx.files.local("2pSave.json");
+
+        String[] savedMoveStrings = file.readString().split("[\\r\\n]+");
+
+
+        int aiLineOffset = 0;
+        //attempt to pull AI player
+        if (game.isAiOn()) {
+            aiLineOffset = 1;
+            Player aiPlayer = json.fromJson(Player.class, savedMoveStrings[0]);
+            if (aiPlayer != null) {
+                game.setAiPlayer(aiPlayer);
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+
+        //no moves loaded
+        if (savedMoveStrings.length == 0)
+            return false;
+
+        Move[] moves = new Move[savedMoveStrings.length-aiLineOffset];
+
+        for (int i =0 ; i < moves.length; i++){
+            moves[i] = json.fromJson(Move.class, savedMoveStrings[i+aiLineOffset]);
+        }
+
+
+        //determine stating player, fail if null
+        if (moves[0] == null || moves[0].player == null)
+            return false;
+
+        Player startingPlayer = moves[0].player;
+
+        //set up board and game logic
+        setupGame(startingPlayer);
+
+        //render once so loaded moves work
+        render(0);
+
+        //apply each move in turn
+        for (Move move : moves){
+            boolean result = gameState.attemptMove(move.piece, move.orientation, move.x, move.y, move.player);
+            //apply to ui if it worked
+            if (result) {
+                applyMove(move, (PieceActor)stage.getRoot().findActor(move.piece.getName()));
+            }
+        }
+
+        //highlight pieces for next move
+        highlightNext();
+
+        //success
+        return true;
+    }
+
+    public void setupGame(Player startingPlayer) {
         //reset game logic
         gameState.newGame(startingPlayer);
 
         // give cathedral piece to starting player
         cathedralPiece.setPlayer(startingPlayer);
 
+        //render once so reset moves work
+        render(0);
+
+
         //reset pieces
-        Array<Actor> pieceActors = stage.getActors();
-        for (Actor pieceActor : pieceActors) {
+        Array<Actor> darkActors = darkPieces.getChildren();
+        for (Actor pieceActor : darkActors) {
             //TODO this casting feels ugly - is there a better way?
             if (pieceActor instanceof PieceActor)
                 ((PieceActor) pieceActor).reset();
         }
+
+        Array<Actor> lightActors = lightPieces.getChildren();
+        for (Actor pieceActor : lightActors) {
+            //TODO this casting feels ugly - is there a better way?
+            if (pieceActor instanceof PieceActor)
+                ((PieceActor) pieceActor).reset();
+        }
+
+        cathedralPiece.reset();
 
         //update the claim markers to match now empty board
         updateClaimActors();
@@ -106,13 +214,8 @@ public class GameScreen implements Screen {
         //put cathedral on top
         cathedralPiece.toFront();
 
-        //get AI to play first if required
-        //if (game.isAI(gameState.whoseTurn())) {
-        //    makeAIMove();
-        //}
 
-        //highlight appropriate pieces
-        highlightNext();
+
     }
 
     public void updateClaimActors() {
@@ -473,6 +576,16 @@ public class GameScreen implements Screen {
         if (gameState.isGameOver()){
             endGameDialog();
         }
+
+        //save move to file
+        FileHandle file;
+        if (game.isAiOn())
+            file = Gdx.files.local("1pSave.json");
+        else
+            file = Gdx.files.local("2pSave.json");
+
+        //add the move to the save file
+        file.writeString(json.toJson(move) + "\n", true);
 
     }
 
