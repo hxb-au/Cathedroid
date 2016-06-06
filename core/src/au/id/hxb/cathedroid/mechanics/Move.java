@@ -40,4 +40,13 @@ public class Move {
         else
             return nextMove.numMoves() + 1;
     }
+
+    public void makeFinal() {
+        if (nextMove == null)
+            return;
+
+        //dispose of other moves?
+        nextMove = null;
+
+    }
 }

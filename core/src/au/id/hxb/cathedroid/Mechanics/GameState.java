@@ -15,7 +15,7 @@ public class GameState {
     private SquareState[][] board;
     private int [][] coordinates, tmp;
     private boolean [][] checkedSquares;
-    private Move moveList;
+    private Move moveList, lastmove;
     private Square captureCoordList;
 
     public boolean cathedralMoveReqd() {
@@ -86,6 +86,7 @@ public class GameState {
         //copy the list of moves - by reference as moves are not removed
         moveList = original.moveList;
         numMoves = original.numMoves;
+        lastmove = original.lastmove;
 
         // deep copy piece usage list
         pieceAvailable.putAll(original.pieceAvailable);
@@ -134,6 +135,9 @@ public class GameState {
                 if (captureCoordList.x == index.x && captureCoordList.y == index.y)
                     capturedPiece = index.piece;
                 index = index.nextMove;
+                // if ai has mesed with movelist, chop it off here
+                if (index == lastmove)
+                    index.makeFinal();
             }
 
             // mark the piece as available in gameState's own list
@@ -449,19 +453,18 @@ public class GameState {
         //trivial empty list case
         if (moveList == null){
             moveList = move;
+            lastmove = move;
             return;
         }
 
-        //use a temp pointer to traverse the list
-        Move tmp;
-        tmp = this.moveList;
+        //append
+        lastmove.nextMove = move;
 
-        //find the end of the list
-        while(tmp.nextMove != null)
-            tmp = tmp.nextMove;
+        //update tail reference
+        lastmove = move;
 
-        // plug it in and done.
-        tmp.nextMove = move;
+        //ensure it's the end
+        lastmove.nextMove = null;
 
     }
 
