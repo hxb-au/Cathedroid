@@ -1,5 +1,0 @@
-{piece:CA,orientation:NORTH,x:4,y:5,player:DARK}
-{piece:L_ST2,orientation:NORTH,x:3,y:4,player:LIGHT}
-{piece:D_CS,orientation:EAST,x:8,y:3,player:DARK}
-{piece:L_AB,orientation:SOUTH,x:8,y:5,player:LIGHT}
-{piece:D_AC,orientation:NORTH,x:2,y:0,player:DARK}
