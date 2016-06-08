@@ -15,7 +15,7 @@ public class GameState {
     private SquareState[][] board;
     private int [][] coordinates, tmp;
     private boolean [][] checkedSquares;
-    private Move moveList;
+    private Move moveList, lastmove;
     private Square captureCoordList;
 
     public boolean cathedralMoveReqd() {
@@ -86,6 +86,7 @@ public class GameState {
         //copy the list of moves - by reference as moves are not removed
         moveList = original.moveList;
         numMoves = original.numMoves;
+        lastmove = original.lastmove;
 
         // deep copy piece usage list
         pieceAvailable.putAll(original.pieceAvailable);
@@ -134,6 +135,9 @@ public class GameState {
                 if (captureCoordList.x == index.x && captureCoordList.y == index.y)
                     capturedPiece = index.piece;
                 index = index.nextMove;
+                // if ai has mesed with movelist, chop it off here
+                if (index == lastmove)
+                    index.makeFinal();
             }
 
             // mark the piece as available in gameState's own list
@@ -152,28 +156,27 @@ public class GameState {
 
     // this is the main interface to the gamestate. Attempt to make a move with the given details.
     // returns true if move was accepted and processes updates to gamestate.
-    public boolean attemptMove(Piece piece, Orientation orientation, int pieceX, int pieceY, Player player){
-        int numSquares;
-        Move move;
+    public boolean attemptMove(Piece piece, Orientation orientation, int pieceX, int pieceY, Player player) {
 
-        //correct turn? fail if not
-        if (player != nextPlayer)
-            return false;
+        Move move = new Move(piece, orientation, pieceX, pieceY, player);
 
-        //first move Cathedral? fail if not
-        if (numMoves == 0 && piece != Piece.CA)
-            return false;
+        return attemptMove(move);
+    }
 
-        //is piece available? fail if not
-        if (!pieceAvailable.get(piece))
+    public boolean attemptMove(Move move) {
+
+
+        //bail early if the piece is not appropriate
+        if (!isPieceLegallyPlayable(move.player, move.piece))
             return false;
 
         // load translated and rotated piece coverage in to the coordinates array
-        // save count for iteration
-        numSquares = getSquares(piece, orientation, pieceX, pieceY, coordinates);
+        // save numSquares count for iteration
+        int numSquares = move.piece.getSize();
+        loadPieceCoordinates(move, numSquares, coordinates);
 
         //check each coordinate
-        if( !checkSquares(numSquares, coordinates,player))
+        if( !checkSquares(numSquares, coordinates, move.player))
             return false;
 
         // note: numSquares and coordinates are used again later if successful
@@ -181,22 +184,27 @@ public class GameState {
         //still here? then the piece fits and it's going in
 
         //mark piece as used in gamestate's list
-        pieceAvailable.put(piece, false);
+        pieceAvailable.put(move.piece, false);
 
         //record piece in board
-        fillInSquares(piece, numSquares, coordinates);
+        fillInSquares(move.piece, numSquares, coordinates);
 
         //store the new move in the list of moves
-        move = new Move(piece, orientation, pieceX, pieceY, player);
         addMove(move);
         numMoves++;
 
         //only check claims after cathedral and 1 piece each are placed
         if (numMoves > 3) {
-            checkPieceClaims(player, numSquares, coordinates);
+            checkPieceClaims(move.player, numSquares, coordinates);
             processCaptures();
         }
 
+        nextTurn();
+
+        return true;
+    }
+
+    private void nextTurn() {
         // other player's turn
         nextPlayer = nextPlayer.getOther();
 
@@ -211,13 +219,30 @@ public class GameState {
 
         }
 
-
-
         if (gameOver)
             Gdx.app.log("GameState","No more moves. Game over");
         else
             Gdx.app.log("GameState", "Next player: " + nextPlayer.toString());
+    }
 
+    private boolean isPieceLegallyPlayable(Player player, Piece piece) {
+        //correct turn? fail if not
+        if (player != nextPlayer)
+            return false;
+
+        //first move Cathedral? fail if not
+        if (cathedralMoveReqd() && piece != Piece.CA)
+            return false;
+
+        //does piece belong to player? fail if not
+        if (piece != Piece.CA && piece.getOwner() != player)
+            return false;
+
+        //is piece available? fail if not
+        if (!pieceAvailable.get(piece))
+            return false;
+
+        //else
         return true;
     }
 
@@ -273,7 +298,8 @@ public class GameState {
 
                             // load translated and rotated piece coverage in to the coordinates array
                             // save numSquares count for iteration
-                            numSquares = getSquares(testPiece, dir, x, y, coordinates);
+                            numSquares = testPiece.getSize();
+                            loadPieceCoordinates(testPiece, dir, x, y, numSquares, coordinates);
 
                             //check each coordinate, if the piece fits then moves are not impossible
                             if(checkSquares(numSquares, coordinates,player))
@@ -449,19 +475,18 @@ public class GameState {
         //trivial empty list case
         if (moveList == null){
             moveList = move;
+            lastmove = move;
             return;
         }
 
-        //use a temp pointer to traverse the list
-        Move tmp;
-        tmp = this.moveList;
+        //append
+        lastmove.nextMove = move;
 
-        //find the end of the list
-        while(tmp.nextMove != null)
-            tmp = tmp.nextMove;
+        //update tail reference
+        lastmove = move;
 
-        // plug it in and done.
-        tmp.nextMove = move;
+        //ensure it's the end
+        lastmove.nextMove = null;
 
     }
 
@@ -470,10 +495,13 @@ public class GameState {
     }
 
     //put the piece's coordinates in the array and return the number of squares occupied
-    private int getSquares( Piece piece, Orientation orientation, int x, int y, int[][] coords){
-        int numSquares, i;
+    private void loadPieceCoordinates(Move move, int numSquares, int[][] coords){
+        loadPieceCoordinates(move.piece, move.orientation, move.x, move.y, numSquares, coords);
+    }
 
-        numSquares = piece.getSize();
+    private void loadPieceCoordinates(Piece piece, Orientation orientation, int x, int y, int numSquares, int[][] coords){
+        int i;
+
         // get piece coordinates as offsets from its origin when facing north
         // first coordinate is always 0,0 so origin gets marked correctly for piece capture algorithm
         switch (piece){
@@ -608,9 +636,6 @@ public class GameState {
                 }
                 break;
         }
-
-        // return the number of squares to process in coords
-        return numSquares;
     }
 
     // check a single square for room for a player's piece - claimed area and empty are both good

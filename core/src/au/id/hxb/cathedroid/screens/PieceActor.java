@@ -225,6 +225,9 @@ public class PieceActor extends Image {
         //TODO make this smooth
         PieceActor.this.setPosition(PieceActor.this.getX() + deltaX, PieceActor.this.getY()+deltaY);
 
+        //set behind other pieces
+        this.toBack();
+
     }
 
     public void setHighlight(boolean highlightOn)
@@ -232,6 +235,7 @@ public class PieceActor extends Image {
         if (! highlighted && highlightOn && !placed){
 
             highlighted = true;
+            this.toFront();
             SequenceAction pulseAction = new SequenceAction(
                     Actions.color(Color.BLACK, 0.5f),
                     Actions.color(Color.WHITE,0.5f)
@@ -251,17 +255,23 @@ public class PieceActor extends Image {
         }
     }
 
-    public void highlightIfCurrent() {
-        if (gameState.cathedralMoveReqd() && piece == Piece.CA) {
-            gameScreen.highlightCathedral();
+    private void highlightIfCurrent() {
+        if (gameState.cathedralMoveReqd()) {
+            // don't swap highlight around if it's cathedral time. it's already highlighted
             return;
         }
 
         if (gameState.whoseTurn() == piece.getOwner()) {
             gameScreen.highlightPiece(this);
-            return;
         }
 
+    }
+
+    public void highlightIfPlayer(Player highlightedPlayer) {
+        if (this.piece == Piece.CA)
+            setHighlight(false);
+        else
+            setHighlight(this.player == highlightedPlayer);
     }
 
     class PieceGestureListener extends ActorGestureListener {

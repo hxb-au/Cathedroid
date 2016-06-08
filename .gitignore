@@ -63,3 +63,6 @@ build/
 ## OS Specific
 .DS_Store
 Thumbs.db
+
+## save files that change
+*save.json
