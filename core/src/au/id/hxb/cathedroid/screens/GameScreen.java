@@ -523,9 +523,9 @@ public class GameScreen implements Screen {
     }
 
     private void makeAIMove() {
-        Move aiMove = ai.makeMove(gameState);
+        Move aiMove = ai.selectMove(gameState);
         PieceActor aiPiece = stage.getRoot().findActor(aiMove.piece.getName());
-
+        gameState.attemptMove(aiMove);
         applyMove(aiMove, aiPiece);
     }
 

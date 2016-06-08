@@ -1,1 +1,9 @@
 DARK
+{piece:CA,orientation:NORTH,x:4,y:2,player:LIGHT}
+{piece:D_ST2,orientation:WEST,x:6,y:9,player:DARK}
+{piece:L_TO,orientation:NORTH,x:3,y:4,player:LIGHT}
+{piece:D_MA,orientation:NORTH,x:6,y:1,player:DARK}
+{piece:CA,orientation:NORTH,x:4,y:2,player:LIGHT}
+{piece:D_ST2,orientation:WEST,x:6,y:9,player:DARK}
+{piece:L_TO,orientation:NORTH,x:3,y:4,player:LIGHT}
+{piece:D_MA,orientation:NORTH,x:6,y:1,player:DARK}
