@@ -1,9 +1,4 @@
-DARK
-{piece:CA,orientation:NORTH,x:4,y:2,player:LIGHT}
-{piece:D_ST2,orientation:WEST,x:6,y:9,player:DARK}
-{piece:L_TO,orientation:NORTH,x:3,y:4,player:LIGHT}
-{piece:D_MA,orientation:NORTH,x:6,y:1,player:DARK}
-{piece:CA,orientation:NORTH,x:4,y:2,player:LIGHT}
-{piece:D_ST2,orientation:WEST,x:6,y:9,player:DARK}
-{piece:L_TO,orientation:NORTH,x:3,y:4,player:LIGHT}
-{piece:D_MA,orientation:NORTH,x:6,y:1,player:DARK}
+LIGHT
+{piece:CA,orientation:EAST,x:8,y:7,player:LIGHT}
+{piece:D_TO,orientation:NORTH,x:7,y:4,player:DARK}
+{piece:L_TA2,orientation:SOUTH,x:9,y:9,player:LIGHT}

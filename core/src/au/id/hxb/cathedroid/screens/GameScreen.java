@@ -52,6 +52,7 @@ public class GameScreen implements Screen {
     private PieceActor cathedralPiece;
     private Skin skin;
     private Json json;
+    private boolean readyForMoves = false;
 
 
     public GameScreen(CathedroidGame game) {
@@ -619,11 +620,13 @@ public class GameScreen implements Screen {
         //if it's an AI turn, make the move.
         //only run AI if game isn't over
         //TODO put in a different thread with a lock.
-        if (!aiRunning && !gameState.isGameOver() && game.isAI(gameState.whoseTurn())) {
+        if (readyForMoves && !aiRunning && !gameState.isGameOver() && game.isAI(gameState.whoseTurn())) {
             aiRunning = true;
             makeAIMove();
             aiRunning = false;
         }
+
+        readyForMoves = true;
 
     }
 
@@ -648,6 +651,7 @@ public class GameScreen implements Screen {
 
     @Override
     public void hide() {
+        readyForMoves = false;
         Gdx.input.setInputProcessor(null);
         Gdx.input.setCatchBackKey(false);
     }
