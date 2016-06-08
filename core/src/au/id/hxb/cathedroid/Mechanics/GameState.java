@@ -234,6 +234,10 @@ public class GameState {
         if (cathedralMoveReqd() && piece != Piece.CA)
             return false;
 
+        //does piece belong to player? fail if not
+        if (piece != Piece.CA && piece.getOwner() != player)
+            return false;
+
         //is piece available? fail if not
         if (!pieceAvailable.get(piece))
             return false;
