@@ -250,7 +250,7 @@ class SimpleEval implements AIEvaluator {
                 return squaresDiff *= Float.POSITIVE_INFINITY;
         }
         else {
-            return squaresDiff + claimsDiff;
+            return squaresDiff + claimsDiff + (float)Math.random()*.01f;
         }
 
     }
