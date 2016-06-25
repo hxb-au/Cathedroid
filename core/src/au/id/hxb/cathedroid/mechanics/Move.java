@@ -49,4 +49,13 @@ public class Move {
         nextMove = null;
 
     }
+
+    public void copy(Move original) {
+        this.piece = original.piece;
+        this.x = original.x;
+        this.y = original.y;
+        this.orientation = original.orientation;
+        this.player = original.player;
+        this.nextMove = original.nextMove;
+    }
 }

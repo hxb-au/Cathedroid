@@ -218,11 +218,12 @@ public class GameState {
             }
 
         }
-
+        /*
         if (gameOver)
             Gdx.app.log("GameState","No more moves. Game over");
         else
             Gdx.app.log("GameState", "Next player: " + nextPlayer.toString());
+            */
     }
 
     private boolean isPieceLegallyPlayable(Player player, Piece piece) {
@@ -380,7 +381,7 @@ public class GameState {
         queueHead = new Square(x,y);
         queueTail = queueHead;
         queueHead.markChecked();
-        Gdx.app.log("Claims", "Begin Claim Check " + queueHead.toString());
+        //Gdx.app.log("Claims", "Begin Claim Check " + queueHead.toString());
 
         //pop top of queue by checking if it is empty/enemy
         // if so, add surrounding unchecked squares to the queue and move it to included area
@@ -404,7 +405,7 @@ public class GameState {
                     //note that this would require changing checkedSquares to an int from a bool.
                     if (enemyPieces == 1)
                         capturedPieceOrigin = queueHead; //hold on to this location for capture lookup
-                    Gdx.app.log("Claims", "Hit Enemy #" + Integer.toString(enemyPieces) + " " + queueHead.toString());
+                    //Gdx.app.log("Claims", "Hit Enemy #" + Integer.toString(enemyPieces) + " " + queueHead.toString());
                 }
 
                 currentX = queueHead.x;
@@ -437,7 +438,7 @@ public class GameState {
         // region has too many enemies to claim. give up now that all connected squares are marked checked
         if ( enemyPieces > 1)
         {
-            Gdx.app.log("Claims", "Claim failed from " + new Square(x,y).toString());
+            //Gdx.app.log("Claims", "Claim failed from " + new Square(x,y).toString());
             return;
         }
 
@@ -452,7 +453,7 @@ public class GameState {
 
         int area = 0;
         while (includedAreaStack != null) {
-            Gdx.app.log("Claims",player.toString() +  " claims " + includedAreaStack.toString());
+            //Gdx.app.log("Claims",player.toString() +  " claims " + includedAreaStack.toString());
             board[includedAreaStack.x][includedAreaStack.y] = alliedClaim;
             area++;
             includedAreaStack = includedAreaStack.nextSquare;
@@ -470,7 +471,7 @@ public class GameState {
     //append the move to the movelist
     private void addMove(Move move){
         //log
-        Gdx.app.log("Move recorded", move.toString());
+        //Gdx.app.log("Move recorded", move.toString());
 
         //trivial empty list case
         if (moveList == null){
