@@ -113,19 +113,6 @@ public class AIEngine {
         float testMoveScore, bestMoveScore;
         Move testMove, bestMove = new Move();
 
-        //special cases of consecutive moves
-        if (!maximising && currentPlayer == aiPlayer){
-            //disregard boundary
-            boundary = Float.POSITIVE_INFINITY;
-            maximising = true;
-        }
-
-        if (maximising && currentPlayer != aiPlayer){
-            //disregard boundary
-            boundary = Float.NEGATIVE_INFINITY;
-            maximising = false;
-        }
-
 
         if (maximising)
             bestMoveScore = Float.NEGATIVE_INFINITY;
@@ -145,11 +132,16 @@ public class AIEngine {
                             testMove = new Move(testPiece, dir, x, y, currentPlayer);
                             //if the move is legal, evaluate it
                             if (testState.attemptMove(testMove)){
+
                                 //look further or evaluate current state
-                                if (depth == 0)
+                                if (depth == 0 || testState.isGameOver())
                                     testMoveScore = testState.AIevaluate(evaluator, aiPlayer);
-                                else
-                                    testMoveScore = lookAhead(testState, aiPlayer, !maximising, bestMoveScore, depth -1, null);
+                                else {
+                                    if (testState.whoseTurn() == currentPlayer)
+                                        testMoveScore = lookAhead(testState, aiPlayer, maximising, boundary, depth - 1, null);
+                                    else
+                                        testMoveScore = lookAhead(testState, aiPlayer, !maximising, bestMoveScore, depth - 1, null);
+                                }
 
                                 // update best moves if relevant
                                 if (maximising){
@@ -200,8 +192,8 @@ public class AIEngine {
 
 class SimpleEval implements AIEvaluator {
     @Override
-    public float evaluate(SquareState[][] board, EnumMap<Piece, Boolean> pieceAvailable, Player nextPlayer, Player aiPlayer) {
-        float lightPoints = 0, darkPoints = 0;
+    public float evaluate(SquareState[][] board, EnumMap<Piece, Boolean> pieceAvailable, Player aiPlayer, boolean isGameOver) {
+        float lightSquares = 0, lightClaims = 0, darkSquares = 0, darkClaims = 0, squaresDiff, claimsDiff;
 
         for (SquareState[] line : board) {
             for (SquareState squareState : line) {
@@ -209,14 +201,18 @@ class SimpleEval implements AIEvaluator {
                     case EMPTY:
                         break;
                     case LIGHTCLAIM:
+                        lightClaims++;
+                        break;
                     case LIGHTPIECE:
                     case LIGHTPIECE_ORIGIN:
-                        lightPoints++;
+                        lightSquares++;
                         break;
                     case DARKCLAIM:
+                        darkClaims++;
+                        break;
                     case DARKPIECE:
                     case DARKPIECE_ORIGIN:
-                        darkPoints++;
+                        darkSquares++;
                         break;
                     default:
                         break;
@@ -226,11 +222,28 @@ class SimpleEval implements AIEvaluator {
 
         switch (aiPlayer) {
             case DARK:
-                return darkPoints - lightPoints;// + (float)(Math.random()*0.01f);
+                squaresDiff = darkSquares - lightSquares;// + (float)(Math.random()*0.01f);
+                claimsDiff = darkClaims - lightClaims;
+                break;
             case LIGHT:
-                return lightPoints - darkPoints;// + (float)(Math.random()*0.01f);
+                squaresDiff = lightSquares - darkSquares;// + (float)(Math.random()*0.01f);
+                claimsDiff = lightClaims - darkClaims;
             default:
-                return 0;
+                squaresDiff = 0;
+                claimsDiff = 0;
         }
+
+        // if game is over, return superlative result (or 0 for draw), otherwise add claims advantage as speculation.
+
+        if (isGameOver) {
+            if (squaresDiff == 0)
+                return 0;
+            else
+                return squaresDiff *= Float.POSITIVE_INFINITY;
+        }
+        else {
+            return squaresDiff + claimsDiff;
+        }
+
     }
 }

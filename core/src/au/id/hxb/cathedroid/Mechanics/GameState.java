@@ -496,7 +496,7 @@ public class GameState {
     }
 
     public float AIevaluate(AIEvaluator ai, Player aiPlayer){
-        return ai.evaluate(board, pieceAvailable, nextPlayer, aiPlayer);
+        return ai.evaluate(board, pieceAvailable, aiPlayer, gameOver);
     }
 
     //put the piece's coordinates in the array and return the number of squares occupied
