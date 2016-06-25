@@ -19,6 +19,8 @@ public class AIEngine {
 
     AIEvaluator evaluator;
     private final int BOARD_WIDTH = 10, BOARD_HEIGHT = 10;
+    int counter = 0;
+    int lookAheadSteps = 1;
 
     //select a move by some means, return the move where the gameScreen applies it to the UI and the main gameState
     public  AIEngine() {
@@ -27,7 +29,7 @@ public class AIEngine {
 
     //public Move selectMove(GameState gameState) { return selectMoveSimple(gameState);  }
     public Move selectMove(GameState gameState) {
-        return selectMoveLookAhead(gameState, 1);
+        return selectMoveLookAhead(gameState, lookAheadSteps);
     }
 
     private Move selectRandomMove(GameState gameState){
@@ -94,8 +96,12 @@ public class AIEngine {
     private Move selectMoveLookAhead(GameState gameState, int lookDepth) {
 
         Move result = new Move();
+        counter = 0;
 
         lookAhead(gameState, gameState.whoseTurn(), true, Float.POSITIVE_INFINITY, lookDepth, result);
+        Gdx.app.log("AI", "Moves made: " + Integer.toString(counter));
+        // if (counter < 10000)
+          //   lookAheadSteps = 2;
 
         return result;
 
@@ -132,6 +138,7 @@ public class AIEngine {
                             testMove = new Move(testPiece, dir, x, y, currentPlayer);
                             //if the move is legal, evaluate it
                             if (testState.attemptMove(testMove)){
+                                counter++;
 
                                 //look further or evaluate current state
                                 if (depth == 0 || testState.isGameOver())
@@ -228,6 +235,7 @@ class SimpleEval implements AIEvaluator {
             case LIGHT:
                 squaresDiff = lightSquares - darkSquares;// + (float)(Math.random()*0.01f);
                 claimsDiff = lightClaims - darkClaims;
+                break;
             default:
                 squaresDiff = 0;
                 claimsDiff = 0;
