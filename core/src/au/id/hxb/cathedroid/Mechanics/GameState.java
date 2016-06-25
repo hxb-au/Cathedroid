@@ -22,6 +22,10 @@ public class GameState {
         return numMoves == 0;
     }
 
+    public int getNumMoves() {
+        return numMoves;
+    }
+
     private int numMoves = 0;
     private Player nextPlayer;
     private EnumMap<Piece, Boolean> pieceAvailable;

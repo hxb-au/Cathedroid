@@ -27,7 +27,7 @@ public class AIEngine {
 
     //public Move selectMove(GameState gameState) { return selectMoveSimple(gameState);  }
     public Move selectMove(GameState gameState) {
-        return selectMoveLookAhead(gameState, 2);
+        return selectMoveLookAhead(gameState, 1);
     }
 
     private Move selectRandomMove(GameState gameState){
@@ -112,6 +112,20 @@ public class AIEngine {
 
         float testMoveScore, bestMoveScore;
         Move testMove, bestMove = new Move();
+
+        //special cases of consecutive moves
+        if (!maximising && currentPlayer == aiPlayer){
+            //disregard boundary
+            boundary = Float.POSITIVE_INFINITY;
+            maximising = true;
+        }
+
+        if (maximising && currentPlayer != aiPlayer){
+            //disregard boundary
+            boundary = Float.NEGATIVE_INFINITY;
+            maximising = false;
+        }
+
 
         if (maximising)
             bestMoveScore = Float.NEGATIVE_INFINITY;
