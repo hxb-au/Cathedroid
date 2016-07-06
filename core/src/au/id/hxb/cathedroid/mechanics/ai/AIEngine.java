@@ -100,8 +100,11 @@ public class AIEngine {
 
         lookAhead(gameState, gameState.whoseTurn(), true, Float.POSITIVE_INFINITY, lookDepth, result);
         Gdx.app.log("AI", "Moves made: " + Integer.toString(counter));
-        // if (counter < 10000)
-          //   lookAheadSteps = 2;
+        if (counter < 3000) {
+            lookAheadSteps = 2;
+            Gdx.app.log("AI", "Going to 2 move lookahead");
+        }
+
 
         return result;
 
@@ -126,11 +129,12 @@ public class AIEngine {
             bestMoveScore = Float.POSITIVE_INFINITY;
 
         // for each piece
+        //TODO skip doubles
         for (Piece testPiece : Piece.values()) {
             // if that piece belongs to current player
             if (testPiece.getOwner() == currentPlayer || (testPiece == Piece.CA && gameState.cathedralMoveReqd() )) {
                 //check each orientation of that piece
-                for (Orientation dir : Orientation.values()) {
+                for (Orientation dir : testPiece.getUniqueOrientations()) {
                     //in every position
                     for (x = 0; x < BOARD_WIDTH; x++) {
                         for (y = 0; y < BOARD_HEIGHT; y++){

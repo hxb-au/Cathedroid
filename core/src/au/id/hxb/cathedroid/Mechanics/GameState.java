@@ -295,7 +295,7 @@ public class GameState {
             // if that piece belongs to current player and is available
             if (testPiece.getOwner() == player && pieceAvailable.get(testPiece)) {
                 //check each orientation of that piece
-                for (Orientation dir : Orientation.values()) {
+                for (Orientation dir : testPiece.getUniqueOrientations()) {
                     //in every position
                     for (x = 0; x < BOARD_WIDTH; x++) {
                         for (y = 0; y < BOARD_HEIGHT; y++){
