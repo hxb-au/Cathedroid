@@ -549,7 +549,7 @@ public class GameScreen implements Screen {
             endGameDialog();
         }
 
-        //save move to file
+        //prepare to save move to file
         FileHandle file;
         if (game.isAiOn())
             file = Gdx.files.local("1pSave.json");

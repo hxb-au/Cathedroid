@@ -100,10 +100,10 @@ public class AIEngine {
 
         lookAhead(gameState, gameState.whoseTurn(), true, Float.POSITIVE_INFINITY, lookDepth, result);
         Gdx.app.log("AI", "Moves made: " + Integer.toString(counter));
-        if (counter < 3000) {
+        /*if (counter < 3000) {
             lookAheadSteps = 2;
             Gdx.app.log("AI", "Going to 2 move lookahead");
-        }
+        }*/
 
 
         return result;
@@ -118,6 +118,10 @@ public class AIEngine {
         int x = 0, y = 0;
         //Orientation dir = null;
         Piece piece = null;
+        boolean includedTavern = false;
+        boolean includedStable = false;
+        boolean includedInn    = false;
+
 
         float testMoveScore, bestMoveScore;
         Move testMove, bestMove = new Move();
@@ -128,11 +132,31 @@ public class AIEngine {
         else
             bestMoveScore = Float.POSITIVE_INFINITY;
 
+
+
         // for each piece
-        //TODO skip doubles
         for (Piece testPiece : Piece.values()) {
             // if that piece belongs to current player
             if (testPiece.getOwner() == currentPlayer || (testPiece == Piece.CA && gameState.cathedralMoveReqd() )) {
+
+                if (testPiece.isInn()) {
+                    if (includedInn)
+                    else
+                        includedInn = true;
+                }
+
+                if (testPiece.isStable()) {
+                    if (includedStable)
+                    else
+                        includedStable = true;
+                }
+
+                if (testPiece.isTavern()) {
+                    if (includedTavern)
+                    else
+                        includedTavern = true;
+                }
+
                 //check each orientation of that piece
                 for (Orientation dir : testPiece.getUniqueOrientations()) {
                     //in every position

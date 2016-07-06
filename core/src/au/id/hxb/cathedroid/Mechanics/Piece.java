@@ -70,4 +70,16 @@ public enum Piece {
         return symmetry.getUniqueOrientations();
     }
 
+    public boolean isTavern() {
+        return (this == D_TA1 || this == D_TA2 || this == L_TA1 || this == L_TA2);
+    }
+    public boolean isStable() {
+        return (this == D_ST1 || this == D_ST2 || this == L_ST1 || this == L_ST2);
+    }
+    public boolean isInn() {
+        return (this == D_IN1 || this == D_IN2 || this == L_IN1 || this == L_IN2);
+    }
+
+
+
 }
