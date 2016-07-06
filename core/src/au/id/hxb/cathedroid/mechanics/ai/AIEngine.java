@@ -132,6 +132,7 @@ public class AIEngine {
         else
             bestMoveScore = Float.POSITIVE_INFINITY;
 
+        //TODO create a list of playable pieces?
 
 
         // for each piece
@@ -141,18 +142,21 @@ public class AIEngine {
 
                 if (testPiece.isInn()) {
                     if (includedInn)
+                        continue;
                     else
                         includedInn = true;
                 }
 
                 if (testPiece.isStable()) {
                     if (includedStable)
+                        continue;
                     else
                         includedStable = true;
                 }
 
                 if (testPiece.isTavern()) {
                     if (includedTavern)
+                        continue;
                     else
                         includedTavern = true;
                 }

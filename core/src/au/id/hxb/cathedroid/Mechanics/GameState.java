@@ -1,8 +1,6 @@
 package au.id.hxb.cathedroid.mechanics;
 
 
-import com.badlogic.gdx.Gdx;
-
 import java.util.ArrayList;
 import java.util.EnumMap;
 
@@ -27,7 +25,7 @@ public class GameState {
     }
 
     private int numMoves = 0;
-    private Player nextPlayer;
+    private Player currentPlayer;
     private EnumMap<Piece, Boolean> pieceAvailable;
     private ArrayList<Piece> capturedPieces;
     private boolean gameOver;
@@ -71,7 +69,7 @@ public class GameState {
         }
 
         //set starting player
-        nextPlayer = startingPlayer;
+        currentPlayer = startingPlayer;
         gameOver = false;
 
     }
@@ -96,7 +94,7 @@ public class GameState {
         pieceAvailable.putAll(original.pieceAvailable);
 
         //set starting player
-        nextPlayer = original.nextPlayer;
+        currentPlayer = original.currentPlayer;
     }
 
     // called after a move has been processed for the UI to learn which pieces have been captured.
@@ -156,7 +154,7 @@ public class GameState {
 
     }
 
-    public Player whoseTurn(){ return nextPlayer; }
+    public Player whoseTurn(){ return currentPlayer; }
 
     // this is the main interface to the gamestate. Attempt to make a move with the given details.
     // returns true if move was accepted and processes updates to gamestate.
@@ -209,30 +207,27 @@ public class GameState {
     }
 
     private void nextTurn() {
-        // other player's turn
-        nextPlayer = nextPlayer.getOther();
 
-        //if the next player can't make a move, swap back
+        Player nextPlayer = currentPlayer.getOther();
+
+        //if the next player can't make a move
         if (movesImpossible(nextPlayer)) {
-            nextPlayer = nextPlayer.getOther();
+            //keep current player the same.
+            //currentPlayer = currentPlayer;
 
             //if both players cant move, game over
-            if (movesImpossible(nextPlayer)) {
+            if (movesImpossible(currentPlayer)) {
                 gameOver = true;
             }
-
         }
-        /*
-        if (gameOver)
-            Gdx.app.log("GameState","No more moves. Game over");
-        else
-            Gdx.app.log("GameState", "Next player: " + nextPlayer.toString());
-            */
+        else { //just go to the next turn
+            currentPlayer = nextPlayer;
+        }
     }
 
     private boolean isPieceLegallyPlayable(Player player, Piece piece) {
         //correct turn? fail if not
-        if (player != nextPlayer)
+        if (player != currentPlayer)
             return false;
 
         //first move Cathedral? fail if not
