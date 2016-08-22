@@ -140,7 +140,10 @@ public class AIEngine {
             // if that piece belongs to current player
             if (testPiece.getOwner() == currentPlayer || (testPiece == Piece.CA && gameState.cathedralMoveReqd() )) {
 
-                if (testPiece.isInn()) {
+                // Is this breaking stuff? wait until piece is actually checked before crossing it off.
+                // Unusable first pieces preclude usable 2nd pieces from being tested
+
+                /*if (testPiece.isInn()) {
                     if (includedInn)
                         continue;
                     else
@@ -160,6 +163,7 @@ public class AIEngine {
                     else
                         includedTavern = true;
                 }
+                */
 
                 //check each orientation of that piece
                 for (Orientation dir : testPiece.getUniqueOrientations()) {

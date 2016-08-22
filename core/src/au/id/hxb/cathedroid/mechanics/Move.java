@@ -31,6 +31,10 @@ public class Move {
 
     @Override
     public String toString() {
+        if (this.piece == null)
+        {
+            return "EMPTY MOVE";
+        }
         return player.toString() + ": " + piece.getCode() + orientation.toLetter() + Character.toString((char) (x + (int) 'A')) + Integer.toString(y + 1);
     }
 

@@ -525,6 +525,11 @@ public class GameScreen implements Screen {
 
     private void makeAIMove() {
         Move aiMove = ai.selectMove(gameState);
+        if (aiMove == null || aiMove.piece == null)
+        {
+            Gdx.app.log("AI","returned null move");
+            return;
+        }
         PieceActor aiPiece = stage.getRoot().findActor(aiMove.piece.getName());
         gameState.attemptMove(aiMove);
         applyMove(aiMove, aiPiece);
