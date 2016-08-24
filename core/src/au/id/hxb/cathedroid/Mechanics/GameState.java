@@ -1,8 +1,6 @@
 package au.id.hxb.cathedroid.mechanics;
 
 
-import com.badlogic.gdx.Gdx;
-
 import java.util.ArrayList;
 import java.util.EnumMap;
 
@@ -22,8 +20,12 @@ public class GameState {
         return numMoves == 0;
     }
 
+    public int getNumMoves() {
+        return numMoves;
+    }
+
     private int numMoves = 0;
-    private Player nextPlayer;
+    private Player currentPlayer;
     private EnumMap<Piece, Boolean> pieceAvailable;
     private ArrayList<Piece> capturedPieces;
     private boolean gameOver;
@@ -67,7 +69,7 @@ public class GameState {
         }
 
         //set starting player
-        nextPlayer = startingPlayer;
+        currentPlayer = startingPlayer;
         gameOver = false;
 
     }
@@ -92,7 +94,7 @@ public class GameState {
         pieceAvailable.putAll(original.pieceAvailable);
 
         //set starting player
-        nextPlayer = original.nextPlayer;
+        currentPlayer = original.currentPlayer;
     }
 
     // called after a move has been processed for the UI to learn which pieces have been captured.
@@ -152,7 +154,7 @@ public class GameState {
 
     }
 
-    public Player whoseTurn(){ return nextPlayer; }
+    public Player whoseTurn(){ return currentPlayer; }
 
     // this is the main interface to the gamestate. Attempt to make a move with the given details.
     // returns true if move was accepted and processes updates to gamestate.
@@ -205,29 +207,27 @@ public class GameState {
     }
 
     private void nextTurn() {
-        // other player's turn
-        nextPlayer = nextPlayer.getOther();
 
-        //if the next player can't make a move, swap back
+        Player nextPlayer = currentPlayer.getOther();
+
+        //if the next player can't make a move
         if (movesImpossible(nextPlayer)) {
-            nextPlayer = nextPlayer.getOther();
+            //keep current player the same.
+            //currentPlayer = currentPlayer;
 
             //if both players cant move, game over
-            if (movesImpossible(nextPlayer)) {
+            if (movesImpossible(currentPlayer)) {
                 gameOver = true;
             }
-
         }
-
-        if (gameOver)
-            Gdx.app.log("GameState","No more moves. Game over");
-        else
-            Gdx.app.log("GameState", "Next player: " + nextPlayer.toString());
+        else { //just go to the next turn
+            currentPlayer = nextPlayer;
+        }
     }
 
     private boolean isPieceLegallyPlayable(Player player, Piece piece) {
         //correct turn? fail if not
-        if (player != nextPlayer)
+        if (player != currentPlayer)
             return false;
 
         //first move Cathedral? fail if not
@@ -289,8 +289,8 @@ public class GameState {
         for (Piece testPiece : Piece.values()) {
             // if that piece belongs to current player and is available
             if (testPiece.getOwner() == player && pieceAvailable.get(testPiece)) {
-                //check each orientation of that piece
-                for (Orientation dir : Orientation.values()) {
+                //check each unique orientation of that piece
+                for (Orientation dir : testPiece.getUniqueOrientations()) {
                     //in every position
                     for (x = 0; x < BOARD_WIDTH; x++) {
                         for (y = 0; y < BOARD_HEIGHT; y++){
@@ -380,7 +380,7 @@ public class GameState {
         queueHead = new Square(x,y);
         queueTail = queueHead;
         queueHead.markChecked();
-        Gdx.app.log("Claims", "Begin Claim Check " + queueHead.toString());
+        //Gdx.app.log("Claims", "Begin Claim Check " + queueHead.toString());
 
         //pop top of queue by checking if it is empty/enemy
         // if so, add surrounding unchecked squares to the queue and move it to included area
@@ -404,7 +404,7 @@ public class GameState {
                     //note that this would require changing checkedSquares to an int from a bool.
                     if (enemyPieces == 1)
                         capturedPieceOrigin = queueHead; //hold on to this location for capture lookup
-                    Gdx.app.log("Claims", "Hit Enemy #" + Integer.toString(enemyPieces) + " " + queueHead.toString());
+                    //Gdx.app.log("Claims", "Hit Enemy #" + Integer.toString(enemyPieces) + " " + queueHead.toString());
                 }
 
                 currentX = queueHead.x;
@@ -437,7 +437,7 @@ public class GameState {
         // region has too many enemies to claim. give up now that all connected squares are marked checked
         if ( enemyPieces > 1)
         {
-            Gdx.app.log("Claims", "Claim failed from " + new Square(x,y).toString());
+            //Gdx.app.log("Claims", "Claim failed from " + new Square(x,y).toString());
             return;
         }
 
@@ -452,7 +452,7 @@ public class GameState {
 
         int area = 0;
         while (includedAreaStack != null) {
-            Gdx.app.log("Claims",player.toString() +  " claims " + includedAreaStack.toString());
+            //Gdx.app.log("Claims",player.toString() +  " claims " + includedAreaStack.toString());
             board[includedAreaStack.x][includedAreaStack.y] = alliedClaim;
             area++;
             includedAreaStack = includedAreaStack.nextSquare;
@@ -470,7 +470,7 @@ public class GameState {
     //append the move to the movelist
     private void addMove(Move move){
         //log
-        Gdx.app.log("Move recorded", move.toString());
+        //Gdx.app.log("Move recorded", move.toString());
 
         //trivial empty list case
         if (moveList == null){
@@ -491,7 +491,7 @@ public class GameState {
     }
 
     public float AIevaluate(AIEvaluator ai, Player aiPlayer){
-        return ai.evaluate(board, pieceAvailable, nextPlayer, aiPlayer);
+        return ai.evaluate(board, pieceAvailable, aiPlayer, gameOver);
     }
 
     //put the piece's coordinates in the array and return the number of squares occupied

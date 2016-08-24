@@ -19,14 +19,17 @@ public class AIEngine {
 
     AIEvaluator evaluator;
     private final int BOARD_WIDTH = 10, BOARD_HEIGHT = 10;
+    int counter = 0;
+    int lookAheadSteps = 1;
 
     //select a move by some means, return the move where the gameScreen applies it to the UI and the main gameState
     public  AIEngine() {
         evaluator = new SimpleEval();
     }
 
+    //public Move selectMove(GameState gameState) { return selectMoveSimple(gameState);  }
     public Move selectMove(GameState gameState) {
-        return selectMoveSimple(gameState);
+        return selectMoveLookAhead(gameState, lookAheadSteps);
     }
 
     private Move selectRandomMove(GameState gameState){
@@ -85,10 +88,146 @@ public class AIEngine {
                 }
             }
         }
-
-        Gdx.app.log("AI Engine", "move chosen leads to board score: " + Float.toString(bestMoveScore));
+        //Gdx.app.log("AI Engine", "move chosen leads to board score: " + Float.toString(bestMoveScore));
         return bestMove;
+    }
 
+    //initiate the lookahead AI with some initial conditions and a move reference to return choice
+    private Move selectMoveLookAhead(GameState gameState, int lookDepth) {
+
+        Move result = new Move();
+        counter = 0;
+
+        lookAhead(gameState, gameState.whoseTurn(), true, Float.POSITIVE_INFINITY, lookDepth, result);
+        Gdx.app.log("AI", "Moves made: " + Integer.toString(counter));
+        /*if (counter < 3000) {
+            lookAheadSteps = 2;
+            Gdx.app.log("AI", "Going to 2 move lookahead");
+        }*/
+
+
+        return result;
+
+    }
+
+    //main MinMax lookahead AI loop. can return a move indirectly, but usually just returns evaluations
+    //some live pruning included to avoid time spent evaluating branches that can't be chosen
+    private float lookAhead(GameState gameState, Player aiPlayer, boolean maximising, float boundary, int depth, Move returnMove) {
+        GameState testState = new GameState();
+        Player currentPlayer = gameState.whoseTurn();
+        int x = 0, y = 0;
+        //Orientation dir = null;
+        Piece piece = null;
+        boolean includedTavern = false;
+        boolean includedStable = false;
+        boolean includedInn    = false;
+
+
+        float testMoveScore, bestMoveScore;
+        Move testMove, bestMove = new Move();
+
+
+        if (maximising)
+            bestMoveScore = Float.NEGATIVE_INFINITY;
+        else
+            bestMoveScore = Float.POSITIVE_INFINITY;
+
+        //TODO create a list of playable pieces?
+
+
+        // for each piece
+        for (Piece testPiece : Piece.values()) {
+            // if that piece belongs to current player
+            if (testPiece.getOwner() == currentPlayer || (testPiece == Piece.CA && gameState.cathedralMoveReqd() )) {
+
+                // Is this breaking stuff? wait until piece is actually checked before crossing it off.
+                // Unusable first pieces preclude usable 2nd pieces from being tested.
+
+                /*if (testPiece.isInn()) {
+                    if (includedInn)
+                        continue;
+                    else
+                        includedInn = true;
+                }
+
+                if (testPiece.isStable()) {
+                    if (includedStable)
+                        continue;
+                    else
+                        includedStable = true;
+                }
+
+                if (testPiece.isTavern()) {
+                    if (includedTavern)
+                        continue;
+                    else
+                        includedTavern = true;
+                }
+                */
+
+                //check each orientation of that piece
+                for (Orientation dir : testPiece.getUniqueOrientations()) {
+                    //in every position
+                    for (x = 0; x < BOARD_WIDTH; x++) {
+                        for (y = 0; y < BOARD_HEIGHT; y++){
+                            testState.revert(gameState);
+                            testMove = new Move(testPiece, dir, x, y, currentPlayer);
+                            //if the move is legal, evaluate it
+                            if (testState.attemptMove(testMove)){
+                                counter++;
+
+                                //look further or evaluate current state
+                                if (depth == 0 || testState.isGameOver())
+                                    testMoveScore = testState.AIevaluate(evaluator, aiPlayer);
+                                else {
+                                    if (testState.whoseTurn() == currentPlayer)
+                                        testMoveScore = lookAhead(testState, aiPlayer, maximising, boundary, depth - 1, null);
+                                    else
+                                        testMoveScore = lookAhead(testState, aiPlayer, !maximising, bestMoveScore, depth - 1, null);
+                                }
+
+                                // update best moves if relevant
+                                if (maximising){
+                                    if (testMoveScore > bestMoveScore){
+                                        bestMoveScore = testMoveScore;
+                                        bestMove = testMove;
+                                        //Gdx.app.log("AI depth: " + Integer.toString(depth), "Better move found with score: " + Float.toString(bestMoveScore));
+                                        if (bestMoveScore > boundary) {
+                                            //Gdx.app.log("AI depth: " + Integer.toString(depth), "Pruning as move is better than boundary: " + Float.toString(boundary));
+                                            if (returnMove!= null)
+                                                returnMove.copy(testMove);
+                                            return bestMoveScore;
+                                        }
+
+                                    }
+                                }
+                                else { // minimising
+                                    if (testMoveScore < bestMoveScore){
+                                        bestMoveScore = testMoveScore;
+                                        bestMove = testMove;
+                                        //Gdx.app.log("AI depth: " + Integer.toString(depth), "Worse move found with score: " + Float.toString(bestMoveScore));
+                                        if (bestMoveScore < boundary) {
+                                            //Gdx.app.log("AI depth: " + Integer.toString(depth), "Pruning as move is worse than boundary: " + Float.toString(boundary));
+                                            if (returnMove!= null)
+                                                returnMove.copy(testMove);
+                                            return bestMoveScore;
+                                        }
+
+                                    }
+                                }
+
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        Gdx.app.log("AI depth: " + Integer.toString(depth), "Finished search and returning move: " + bestMove.toString() + " with score: " + Float.toString(bestMoveScore));
+        if (returnMove!= null)
+            returnMove.copy(bestMove);
+        return bestMoveScore;
     }
 
 
@@ -96,8 +235,8 @@ public class AIEngine {
 
 class SimpleEval implements AIEvaluator {
     @Override
-    public float evaluate(SquareState[][] board, EnumMap<Piece, Boolean> pieceAvailable, Player nextPlayer, Player aiPlayer) {
-        float lightPoints = 0, darkPoints = 0;
+    public float evaluate(SquareState[][] board, EnumMap<Piece, Boolean> pieceAvailable, Player aiPlayer, boolean isGameOver) {
+        float lightSquares = 0, lightClaims = 0, darkSquares = 0, darkClaims = 0, squaresDiff, claimsDiff;
 
         for (SquareState[] line : board) {
             for (SquareState squareState : line) {
@@ -105,14 +244,18 @@ class SimpleEval implements AIEvaluator {
                     case EMPTY:
                         break;
                     case LIGHTCLAIM:
+                        lightClaims++;
+                        break;
                     case LIGHTPIECE:
                     case LIGHTPIECE_ORIGIN:
-                        lightPoints++;
+                        lightSquares++;
                         break;
                     case DARKCLAIM:
+                        darkClaims++;
+                        break;
                     case DARKPIECE:
                     case DARKPIECE_ORIGIN:
-                        darkPoints++;
+                        darkSquares++;
                         break;
                     default:
                         break;
@@ -120,13 +263,31 @@ class SimpleEval implements AIEvaluator {
             }
         }
 
-        switch (nextPlayer) {
-            case LIGHT:
-                return darkPoints - lightPoints + (float)(Math.random()*0.01f);
+        switch (aiPlayer) {
             case DARK:
-                return lightPoints - darkPoints + (float)(Math.random()*0.01f);
+                squaresDiff = darkSquares - lightSquares;// + (float)(Math.random()*0.01f);
+                claimsDiff = darkClaims - lightClaims;
+                break;
+            case LIGHT:
+                squaresDiff = lightSquares - darkSquares;// + (float)(Math.random()*0.01f);
+                claimsDiff = lightClaims - darkClaims;
+                break;
             default:
-                return 0;
+                squaresDiff = 0;
+                claimsDiff = 0;
         }
+
+        // if game is over, return superlative result (or 0 for draw), otherwise add claims advantage as speculation.
+
+        if (isGameOver) {
+            if (squaresDiff == 0)
+                return 0;
+            else
+                return squaresDiff * 1000; // win bonus to evaluation (infinity conflicts with boundary conditions used in init)
+        }
+        else {
+            return squaresDiff + claimsDiff + (float)Math.random()*.01f;
+        }
+
     }
 }

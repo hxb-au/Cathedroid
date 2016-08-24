@@ -11,6 +11,6 @@ import au.id.hxb.cathedroid.mechanics.SquareState;
  */
 public interface AIEvaluator {
 
-    float evaluate(SquareState[][] board, EnumMap<Piece, Boolean> pieceAvailable, Player nextPlayer, Player aiPlayer);
+    float evaluate(SquareState[][] board, EnumMap<Piece, Boolean> pieceAvailable, Player aiPlayer, boolean isGameOver);
 
 }

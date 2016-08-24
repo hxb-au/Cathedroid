@@ -31,6 +31,10 @@ public class Move {
 
     @Override
     public String toString() {
+        if (this.piece == null)
+        {
+            return "EMPTY MOVE";
+        }
         return player.toString() + ": " + piece.getCode() + orientation.toLetter() + Character.toString((char) (x + (int) 'A')) + Integer.toString(y + 1);
     }
 
@@ -48,5 +52,14 @@ public class Move {
         //dispose of other moves?
         nextMove = null;
 
+    }
+
+    public void copy(Move original) {
+        this.piece = original.piece;
+        this.x = original.x;
+        this.y = original.y;
+        this.orientation = original.orientation;
+        this.player = original.player;
+        this.nextMove = original.nextMove;
     }
 }
