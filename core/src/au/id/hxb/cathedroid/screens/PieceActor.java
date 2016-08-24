@@ -98,6 +98,7 @@ public class PieceActor extends Image {
     //set the piece to playable and return to starting position
     public void reset(){
         this.setTouchable(Touchable.enabled);
+        this.setVisible(true);
         this.placed = false;
 
         //messy starting positions either side of board.
