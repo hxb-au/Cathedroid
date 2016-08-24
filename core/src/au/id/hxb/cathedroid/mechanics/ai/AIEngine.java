@@ -141,7 +141,7 @@ public class AIEngine {
             if (testPiece.getOwner() == currentPlayer || (testPiece == Piece.CA && gameState.cathedralMoveReqd() )) {
 
                 // Is this breaking stuff? wait until piece is actually checked before crossing it off.
-                // Unusable first pieces preclude usable 2nd pieces from being tested
+                // Unusable first pieces preclude usable 2nd pieces from being tested.
 
                 /*if (testPiece.isInn()) {
                     if (includedInn)
@@ -224,7 +224,7 @@ public class AIEngine {
             }
         }
 
-        //Gdx.app.log("AI depth: " + Integer.toString(depth), "Finished search and returning move with score: " + Float.toString(bestMoveScore));
+        Gdx.app.log("AI depth: " + Integer.toString(depth), "Finished search and returning move: " + bestMove.toString() + " with score: " + Float.toString(bestMoveScore));
         if (returnMove!= null)
             returnMove.copy(bestMove);
         return bestMoveScore;
@@ -283,7 +283,7 @@ class SimpleEval implements AIEvaluator {
             if (squaresDiff == 0)
                 return 0;
             else
-                return squaresDiff *= Float.POSITIVE_INFINITY;
+                return squaresDiff * 1000; // win bonus to evaluation (infinity conflicts with boundary conditions used in init)
         }
         else {
             return squaresDiff + claimsDiff + (float)Math.random()*.01f;
