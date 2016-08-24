@@ -65,9 +65,9 @@ build/
 Thumbs.db
 
 ## save files that change
-*save.json
+*Save.json
+
+## traces
 *.trace
-android/assets/1pSave.json
-android/assets/1pSave.json
 android/assets/1pSave.json
 android/assets/2pSave.json
